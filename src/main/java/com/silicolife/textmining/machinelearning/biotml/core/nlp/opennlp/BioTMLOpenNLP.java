@@ -40,17 +40,16 @@ import opennlp.tools.util.Span;
  */
 public class BioTMLOpenNLP {
 
-	private final static String sentenceModelFile = "opennlpmodels/en-sent.bin";
-	private final static String tokeniserModelFile = "opennlpmodels/en-token.bin";
-	private final static String postaggingModelFile = "opennlpmodels/en-pos-maxent.bin";
-	private final static String parsingModelFile = "opennlpmodels/en-parser-chunking.bin";
-	private final static String chunkerModelFile = "opennlpmodels/en-chunker.bin";
-	private final static String sentenceModelFileBIN = "machinelearning/lib/opennlp/models/en-sent.bin";
-	private final static String tokeniserModelFileBIN = "machinelearning/lib/opennlp/models/en-token.bin";
-	private final static String postaggingModelFileBIN = "machinelearning/lib/opennlp/models/en-pos-maxent.bin";
-	private final static String parsingModelFileBIN = "machinelearning/lib/opennlp/models/en-parser-chunking.bin";
-	private final static String chunkerModelFileBIN = "machinelearning/lib/opennlp/models/en-chunker.bin";
-
+	private final static String sentenceModelFile = "nlpmodels/en-sent.bin";
+	private final static String tokeniserModelFile = "nlpmodels/en-token.bin";
+	private final static String postaggingModelFile = "nlpmodels/en-pos-maxent.bin";
+	private final static String parsingModelFile = "nlpmodels/en-parser-chunking.bin";
+	private final static String chunkerModelFile = "nlpmodels/en-chunker.bin";
+	private final static String sentenceModelFileBIN = "processes/src/main/resources/nlpmodels/en-sent.bin";
+	private final static String tokeniserModelFileBIN = "processes/src/main/resources/nlpmodels/en-token.bin";
+	private final static String postaggingModelFileBIN = "processes/src/main/resources/nlpmodels/en-pos-maxent.bin";
+	private final static String parsingModelFileBIN = "processes/src/main/resources/nlpmodels/en-parser-chunking.bin";
+	private final static String chunkerModelFileBIN = "processes/src/main/resources/nlpmodels/en-chunker.bin";
 
 	private SentenceModel sentenceModel;
 	private POSModel postaggerModel;
