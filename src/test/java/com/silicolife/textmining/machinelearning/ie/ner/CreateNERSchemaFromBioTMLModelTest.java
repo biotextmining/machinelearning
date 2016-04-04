@@ -8,6 +8,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import com.silicolife.textmining.DatabaseConnectionInit;
+import com.silicolife.textmining.core.datastructures.exceptions.process.InvalidConfigurationException;
 import com.silicolife.textmining.core.datastructures.init.exception.InvalidDatabaseAccess;
 import com.silicolife.textmining.core.interfaces.core.dataaccess.exception.ANoteException;
 import com.silicolife.textmining.core.interfaces.core.document.corpus.ICorpus;
@@ -22,7 +23,7 @@ import com.silicolife.textmining.processes.corpora.loaders.CreateCorpusFromPubli
 public class CreateNERSchemaFromBioTMLModelTest {
 
 	@Test
-	public void test() throws InvalidDatabaseAccess, ANoteException, InternetConnectionProblemException {
+	public void test() throws InvalidDatabaseAccess, ANoteException, InternetConnectionProblemException, InvalidConfigurationException {
 		ICorpus corpusToAnnotate = createCorpus();
 		BioTMLNLPSystemsEnum nlpSystemSelected = BioTMLNLPSystemsEnum.clearnlp;
 		Set<String> nerClasses = getNERClasses();
@@ -36,7 +37,7 @@ public class CreateNERSchemaFromBioTMLModelTest {
 		assertTrue(report.isFinishing());
 	}
 	
-	private ICorpus createCorpus() throws InvalidDatabaseAccess, ANoteException, InternetConnectionProblemException{
+	private ICorpus createCorpus() throws InvalidDatabaseAccess, ANoteException, InternetConnectionProblemException, InvalidConfigurationException{
 		DatabaseConnectionInit.init("localhost","3306","createdatest","root","admin");
 		return CreateCorpusFromPublicationManagerTest.createCorpus().getCorpus();
 	}

@@ -1,74 +1,112 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.silicolife.textmining</groupId>
-  <artifactId>machinelearning</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
+	<groupId>com.silicolife.textmining</groupId>
+	<artifactId>machinelearning</artifactId>
+	<version>1.0.0</version>
+	<packaging>jar</packaging>
 
-  <name>machinelearning</name>
-  <url>http://maven.apache.org</url>
+	<name>machinelearning</name>
+	<url>http://maven.apache.org</url>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-	<maven.compiler.target>1.7</maven.compiler.target>
-  </properties>
-  
-  	<repositories>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
+
+	<repositories>
 		<repository>
-			<id>maven-repository</id>
-			<url>https://github.com/RRodriguesSilico/Mallet/tree/master/mavenrepro</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+			<id>clapper-org-maven-repo</id>
+			<name>org.clapper Maven Repo</name>
+			<url>http://maven.clapper.org/</url>
+			<layout>default</layout>
 		</repository>
 	</repositories>
 
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-	  <version>4.12</version>
-      <scope>test</scope>
-    </dependency>
-       <dependency>
-		<groupId>com.silicolife.textmining</groupId>
-		<artifactId>core</artifactId>
-		<version>1.0.0</version>
-	</dependency>
-	<dependency>
-		<groupId>com.silicolife.textmining</groupId>
-		<artifactId>processesgate8</artifactId>
-		<version>1.0.0</version>
-	</dependency>
-	<dependency>
-			<groupId>cc.mallet</groupId>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.silicolife.textmining</groupId>
+			<artifactId>core</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.silicolife.textmining</groupId>
+			<artifactId>processes</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.rrodriguessilico</groupId>
 			<artifactId>mallet</artifactId>
 			<version>2.0.8-RC3-Unofficial</version>
-	</dependency>
-	<dependency>
-		<groupId>edu.emory.mathcs.nlp</groupId>
-		<artifactId>nlp4j</artifactId>
-		<version>1.0.0</version>
-	</dependency>
-	<dependency>
-		<groupId>edu.emory.mathcs.nlp</groupId>
-		<artifactId>nlp4j-english</artifactId>
-		<version>1.0.0</version>
-	</dependency>
-	<dependency>
-		<groupId>tw.edu.ntu.csie</groupId>
-		<artifactId>libsvm</artifactId>
-		<version>3.17</version>
-	</dependency>
-	<dependency>
-		<groupId>edu.stanford.nlp</groupId>
-		<artifactId>stanford-corenlp</artifactId>
-		<version>3.6.0</version>
-	</dependency>
-	<dependency>
-		<groupId>org.clapper</groupId>
-		<artifactId>classutil_2.10</artifactId>
-		<version>1.0.6</version>
-	</dependency>
-  </dependencies>
+		</dependency>
+		<dependency>
+			<groupId>edu.emory.mathcs.nlp</groupId>
+			<artifactId>nlp4j</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>edu.emory.mathcs.nlp</groupId>
+			<artifactId>nlp4j-english</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>tw.edu.ntu.csie</groupId>
+			<artifactId>libsvm</artifactId>
+			<version>3.17</version>
+		</dependency>
+		<dependency>
+			<groupId>edu.stanford.nlp</groupId>
+			<artifactId>stanford-corenlp</artifactId>
+			<version>3.6.0</version>
+		</dependency>
+		<dependency>
+			<groupId>edu.stanford.nlp</groupId>
+			<artifactId>stanford-corenlp</artifactId>
+			<version>3.6.0</version>
+			<classifier>models</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.clapper</groupId>
+			<artifactId>javautil</artifactId>
+			<version>3.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.clearnlp</groupId>
+			<artifactId>clearnlp</artifactId>
+			<version>2.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.clearnlp</groupId>
+			<artifactId>clearnlp-dictionary</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.clearnlp</groupId>
+			<artifactId>clearnlp-medical-en-dep</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.clearnlp</groupId>
+			<artifactId>clearnlp-medical-en-pos</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.clearnlp</groupId>
+			<artifactId>clearnlp-medical-en-srl</artifactId>
+			<version>1.0</version>
+		</dependency>
+	</dependencies>
 </project>

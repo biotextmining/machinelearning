@@ -4,7 +4,7 @@
 
 	<groupId>com.silicolife.textmining</groupId>
 	<artifactId>machinelearning</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
 	<name>machinelearning</name>

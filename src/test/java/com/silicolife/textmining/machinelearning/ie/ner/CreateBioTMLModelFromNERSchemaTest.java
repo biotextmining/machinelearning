@@ -8,6 +8,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import com.silicolife.textmining.DatabaseConnectionInit;
+import com.silicolife.textmining.core.datastructures.exceptions.process.InvalidConfigurationException;
 import com.silicolife.textmining.core.datastructures.init.exception.InvalidDatabaseAccess;
 import com.silicolife.textmining.core.datastructures.schemas.NERSchemaImpl;
 import com.silicolife.textmining.core.interfaces.core.dataaccess.exception.ANoteException;
@@ -33,7 +34,7 @@ import com.silicolife.textmining.processes.ie.ner.linnaeus.LinnaeusTest;
 public class CreateBioTMLModelFromNERSchemaTest {
 
 	@Test
-	public void test() throws ANoteException, IOException, InvalidDatabaseAccess, InternetConnectionProblemException, BioTMLException {
+	public void test() throws ANoteException, IOException, InvalidDatabaseAccess, InternetConnectionProblemException, BioTMLException, InvalidConfigurationException {
 		INERSchema nerSchema = createNERSchema();
 		CreateNERModelFile biotmlModelCreator = new CreateNERModelFile();
 		String outputModelFolder = "src/test/resources/BioTMLModelResult.zip";
@@ -47,7 +48,7 @@ public class CreateBioTMLModelFromNERSchemaTest {
 	}
 
 	private INERSchema createNERSchema()
-			throws InvalidDatabaseAccess, ANoteException, InternetConnectionProblemException, IOException {
+			throws InvalidDatabaseAccess, ANoteException, InternetConnectionProblemException, IOException, InvalidConfigurationException {
 		DatabaseConnectionInit.init("localhost","3306","createdatest","root","admin");
 		ICorpus corpus = CreateCorpusFromPublicationManagerTest.createCorpus().getCorpus();
 		IDictionary dictionary = LinnaeusTest.createDictionaryAndUpdateditWithByocycFiles();
