@@ -1,3 +1,0 @@
-Biomedical event extraction is the process of automatically detecting statements of molecular interactions in research articles. 
-Using natural language processing techniques, an event extraction system predicts relations between proteins/genes and the processes they take part in. 
-Manually annotated corpora are used to evaluate event extraction techniques and to train machine-learning based systems.
