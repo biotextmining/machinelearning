@@ -31,9 +31,9 @@ public class CreateNERSchemaFromBioTMLModelTest {
 		String biotmlModelFile = "src/test/resources/BioTMLModelTest.zip";
 		INERBioTMLAnnotatorConfiguration nerTaggerConfiguration = 
 				new NERBioTMLAnnotatorConfiguration(corpusToAnnotate,nlpSystemSelected,nerClasses,numberThreads,biotmlModelFile);
-		NERBioTMLTagger tagger = new NERBioTMLTagger(nerTaggerConfiguration);
+		NERBioTMLTagger tagger = new NERBioTMLTagger();
 		System.out.println("Execute BioTML NER Tagger");
-		INERProcessReport report = tagger.executeCorpusNER(corpusToAnnotate);
+		INERProcessReport report = tagger.executeCorpusNER(nerTaggerConfiguration);
 		assertTrue(report.isFinishing());
 	}
 	
