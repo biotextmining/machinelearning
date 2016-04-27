@@ -31,7 +31,6 @@ import com.silicolife.textmining.core.interfaces.core.report.processes.INERProce
 import com.silicolife.textmining.core.interfaces.core.report.processes.IREProcessReport;
 import com.silicolife.textmining.core.interfaces.process.ProcessTypeEnum;
 import com.silicolife.textmining.core.interfaces.process.IE.IIEProcess;
-import com.silicolife.textmining.ie.ner.biotml.NERBioTMLTagger;
 import com.silicolife.textmining.ie.re.biotml.REBioTMLTagger;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotation;
@@ -52,7 +51,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.nlp.stanford.BioTML
 public class BioTMLConverter {
 
 	private IIEProcess process;
-	private NERBioTMLTagger nertagger;
+	private IIEProcess nertagger;
 	private REBioTMLTagger retagger;
 	private BioTMLNLPSystemsEnum nlpSystem;
 	private boolean stop = false;
@@ -62,7 +61,7 @@ public class BioTMLConverter {
 		this.nlpSystem = nlpSystem;
 	}
 
-	public BioTMLConverter(NERBioTMLTagger process, BioTMLNLPSystemsEnum nlpSystem){
+	public BioTMLConverter(IIEProcess process, BioTMLNLPSystemsEnum nlpSystem){
 		this.nertagger = process;
 		this.process = process;
 		this.nlpSystem = nlpSystem;
@@ -78,7 +77,7 @@ public class BioTMLConverter {
 		return process;
 	}
 
-	private NERBioTMLTagger getNERTagger(){
+	private IIEProcess getNERTagger(){
 		return nertagger;
 	}
 
@@ -188,7 +187,7 @@ public class BioTMLConverter {
 
 
 
-	private void annotateNERInAnote(IBioTMLCorpus annotatedCorpus, NERBioTMLTagger process, boolean loadCluesAsEntities, INERProcessReport report) throws BioTMLException, ANoteException{
+	private void annotateNERInAnote(IBioTMLCorpus annotatedCorpus, IIEProcess process, boolean loadCluesAsEntities, INERProcessReport report) throws BioTMLException, ANoteException{
 		Iterator<IBioTMLDocument> idDoc = annotatedCorpus.getDocuments().iterator();
 		while(idDoc.hasNext() && !stop){
 			IBioTMLDocument doc = idDoc.next();

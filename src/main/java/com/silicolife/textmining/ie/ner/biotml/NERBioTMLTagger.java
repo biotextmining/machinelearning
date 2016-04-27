@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import cc.mallet.pipe.Pipe;
 
+import com.silicolife.textmining.core.datastructures.exceptions.process.InvalidConfigurationException;
 import com.silicolife.textmining.core.datastructures.init.InitConfiguration;
 import com.silicolife.textmining.core.datastructures.language.LanguageProperties;
 import com.silicolife.textmining.core.datastructures.process.IEProcessImpl;
@@ -19,10 +20,11 @@ import com.silicolife.textmining.core.datastructures.utils.GenerateRandomId;
 import com.silicolife.textmining.core.datastructures.utils.Utils;
 import com.silicolife.textmining.core.datastructures.utils.conf.GlobalOptions;
 import com.silicolife.textmining.core.interfaces.core.dataaccess.exception.ANoteException;
-import com.silicolife.textmining.core.interfaces.core.document.corpus.ICorpus;
 import com.silicolife.textmining.core.interfaces.core.report.processes.INERProcessReport;
 import com.silicolife.textmining.core.interfaces.process.IProcessOrigin;
+import com.silicolife.textmining.core.interfaces.process.IE.IIEProcess;
 import com.silicolife.textmining.core.interfaces.process.IE.INERProcess;
+import com.silicolife.textmining.core.interfaces.process.IE.ner.INERConfiguration;
 import com.silicolife.textmining.ie.BioTMLConverter;
 import com.silicolife.textmining.ie.ner.biotml.configuration.INERBioTMLAnnotatorConfiguration;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
@@ -37,25 +39,17 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReader;
 
-public class NERBioTMLTagger extends IEProcessImpl implements INERProcess{
+public class NERBioTMLTagger implements INERProcess{
 
 	public static final String bioTMLTagger = "BioTML NER Tagger";
 	public static final IProcessOrigin bioTMLOrigin= new ProcessOriginImpl(GenerateRandomId.generateID(),bioTMLTagger);
 	private static int documentsStepSize = 10;// this int is responsible to load documents into memory... for best performance increase the number. However, memory usage will increase dramatically.
-	private INERBioTMLAnnotatorConfiguration configuration;
 	private boolean stop = false;
+
 	private BioTMLConverter converter;
 	private IBioTMLAnnotator annotator;
 
-	public NERBioTMLTagger(INERBioTMLAnnotatorConfiguration configuration){
-		super(configuration.getCorpus(), 
-				NERBioTMLTagger.bioTMLTagger + " " +Utils.SimpleDataFormat.format(new Date()), 
-				configuration.getNotes(),
-				ProcessTypeImpl.getNERProcessType(),
-				bioTMLOrigin, 
-				gereateProperties(configuration));
-		this.configuration = configuration;
-		this.converter = new BioTMLConverter(this, configuration.getNLPSystem());
+	public NERBioTMLTagger(){
 	}
 
 	private static Properties gereateProperties(INERBioTMLAnnotatorConfiguration configuration){
@@ -64,20 +58,27 @@ public class NERBioTMLTagger extends IEProcessImpl implements INERProcess{
 		return prop;
 	}
 
-	public INERProcessReport executeCorpusNER(ICorpus corpus) throws ANoteException {
+	public INERProcessReport executeCorpusNER(INERConfiguration configuration) throws ANoteException, InvalidConfigurationException {
 		try {
-			InitConfiguration.getDataAccess().createIEProcess(this);
+			validateConfiguration(configuration);
+			INERBioTMLAnnotatorConfiguration nerBioTMLConfiguration = (INERBioTMLAnnotatorConfiguration) configuration;
+			String description = NERBioTMLTagger.bioTMLTagger + " " +Utils.SimpleDataFormat.format(new Date());
+			Properties properties = gereateProperties(nerBioTMLConfiguration);
+			String notes = configuration.getNotes();
+			IIEProcess runProcess =  new IEProcessImpl(configuration.getCorpus(), description , notes , ProcessTypeImpl.getNERProcessType(), bioTMLOrigin, properties );
+			InitConfiguration.getDataAccess().createIEProcess(runProcess);
+			this.converter = new BioTMLConverter(runProcess, nerBioTMLConfiguration.getNLPSystem());
 			long startime = GregorianCalendar.getInstance().getTimeInMillis();
-			INERProcessReport report = new NERProcessReportImpl(LanguageProperties.getLanguageStream("pt.uminho.anote2.biotml.operation.report.title"), this);
+			INERProcessReport report = new NERProcessReportImpl(LanguageProperties.getLanguageStream("pt.uminho.anote2.biotml.operation.report.title"), runProcess);
 
 			IBioTMLCorpus biotmlCorpus = getConverter().convertToBioTMLCorpus();
 
 			IBioTMLModelReader modelreader = new BioTMLModelReader();
 			List<String> submodelsFilename = new ArrayList<>();
-			if(configuration.getModelPath().endsWith(".zip")){
-				submodelsFilename = modelreader.loadSubmodelsToStringFromZipFile(configuration.getModelPath());
-			}else if(configuration.getModelPath().endsWith(".gz")){
-				submodelsFilename.add(configuration.getModelPath());
+			if(nerBioTMLConfiguration.getModelPath().endsWith(".zip")){
+				submodelsFilename = modelreader.loadSubmodelsToStringFromZipFile(nerBioTMLConfiguration.getModelPath());
+			}else if(nerBioTMLConfiguration.getModelPath().endsWith(".gz")){
+				submodelsFilename.add(nerBioTMLConfiguration.getModelPath());
 			}
 
 
@@ -90,10 +91,10 @@ public class NERBioTMLTagger extends IEProcessImpl implements INERProcess{
 			while(itSubModelFilename.hasNext() && !stop){
 				String submodelFilename = itSubModelFilename.next();
 				IBioTMLModel submodel = modelreader.loadModelFromGZFile(submodelFilename);
-				if(!configuration.getNERClasses().isEmpty() && !stop){
+				if(!nerBioTMLConfiguration.getNERClasses().isEmpty() && !stop){
 					if(submodel.getModelConfiguration().getIEType().equals(BioTMLConstants.ner.toString()) &&
-							configuration.getNERClasses().contains(submodel.getModelConfiguration().getClassType())){
-						counter = processDocumentsWithSubModel(report, startimeannotation, documents, counter, maxCounter, submodel);
+							nerBioTMLConfiguration.getNERClasses().contains(submodel.getModelConfiguration().getClassType())){
+						counter = processDocumentsWithSubModel(nerBioTMLConfiguration,report, startimeannotation, documents, counter, maxCounter, submodel);
 					}
 
 				}
@@ -119,7 +120,7 @@ public class NERBioTMLTagger extends IEProcessImpl implements INERProcess{
 		}
 	}
 
-	private int processDocumentsWithSubModel(INERProcessReport report, long startimeannotation, List<IBioTMLDocument> documents, int counter, int maxCounter, IBioTMLModel submodel)
+	private int processDocumentsWithSubModel(INERBioTMLAnnotatorConfiguration configuration,INERProcessReport report, long startimeannotation, List<IBioTMLDocument> documents, int counter, int maxCounter, IBioTMLModel submodel)
 			throws BioTMLException, ANoteException {
 		Iterator<IBioTMLDocument> itDocuments = documents.iterator();
 		while(itDocuments.hasNext() && !stop){
@@ -175,6 +176,20 @@ public class NERBioTMLTagger extends IEProcessImpl implements INERProcess{
 		System.out.println((GlobalOptions.decimalformat.format((double)step/ (double) total * 100)) + " %...");
 		Runtime.getRuntime().gc();
 		System.out.println((Runtime.getRuntime().totalMemory()- Runtime.getRuntime().freeMemory())/(1024*1024) + " MB ");		
+	}
+
+	@Override
+	public void validateConfiguration(INERConfiguration configuration)throws InvalidConfigurationException {
+		if(configuration instanceof INERBioTMLAnnotatorConfiguration)
+		{
+			INERBioTMLAnnotatorConfiguration linnaeusConfiguration = (INERBioTMLAnnotatorConfiguration) configuration;
+			if(linnaeusConfiguration.getCorpus()==null)
+			{
+				throw new InvalidConfigurationException("Corpus can not be null");
+			}
+		}
+		else
+			throw new InvalidConfigurationException("configuration must be INERBioTMLAnnotatorConfiguration isntance");		
 	}
 
 }
