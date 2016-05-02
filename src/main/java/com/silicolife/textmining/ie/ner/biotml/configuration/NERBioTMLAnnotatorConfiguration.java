@@ -10,6 +10,8 @@ import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPSystem
 
 public class NERBioTMLAnnotatorConfiguration extends NERConfigurationImpl implements INERBioTMLAnnotatorConfiguration{
 	
+	public static String nerBioTMLUID = "ner.biotml";
+
 	private BioTMLNLPSystemsEnum nlpsystem;
 	private int threads;
 	private String modelpath;
@@ -49,6 +51,17 @@ public class NERBioTMLAnnotatorConfiguration extends NERConfigurationImpl implem
 	}
 
 	public void setConfiguration(Object obj) {
+	}
+
+	@Override
+	public String getConfigurationUID() {
+		return NERBioTMLAnnotatorConfiguration.nerBioTMLUID;
+	}
+
+	@Override
+	public void setConfigurationUID(String uid) {
+		NERBioTMLAnnotatorConfiguration.nerBioTMLUID=uid;
+		
 	}
 
 }

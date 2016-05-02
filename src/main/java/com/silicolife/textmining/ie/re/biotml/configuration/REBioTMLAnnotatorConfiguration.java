@@ -10,6 +10,9 @@ import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPSystem
 
 public class REBioTMLAnnotatorConfiguration extends REConfigurationImpl implements IREBioTMLAnnotatorConfiguration{
 	
+	public static String reBioTMLUID = "re.biotml";
+
+	
 	private BioTMLNLPSystemsEnum nlpsystem;
 	private int threads;
 	private String modelpath;
@@ -41,6 +44,16 @@ public class REBioTMLAnnotatorConfiguration extends REConfigurationImpl implemen
 		properties.put(REBioTMLTaggerDefaultSettings.NLP_SYSTEM, getNLPSystem().toString());
 		properties.put(REBioTMLTaggerDefaultSettings.NUM_THREADS, String.valueOf(getThreads()));
 		return properties;
+	}
+
+	@Override
+	public String getConfigurationUID() {
+		return REBioTMLAnnotatorConfiguration.reBioTMLUID;
+	}
+
+	@Override
+	public void setConfigurationUID(String uid) {
+		REBioTMLAnnotatorConfiguration.reBioTMLUID=uid;		
 	}
 
 }
