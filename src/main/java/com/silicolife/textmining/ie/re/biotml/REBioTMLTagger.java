@@ -50,7 +50,7 @@ public class REBioTMLTagger extends IEProcessImpl implements IREProcess{
 	public REBioTMLTagger(IREBioTMLAnnotatorConfiguration configuration){
 		super(configuration.getCorpus(), 
 				REBioTMLTagger.bioTMLTagger  + " " +Utils.SimpleDataFormat.format(new Date()),
-				configuration.getNotes(),
+				configuration.getProcessNotes(),
 				ProcessTypeImpl.getREProcessType(),
 				bioTMLOrigin, 
 				gereateProperties(configuration));

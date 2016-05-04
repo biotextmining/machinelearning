@@ -64,7 +64,7 @@ public class NERBioTMLTagger implements INERProcess{
 			INERBioTMLAnnotatorConfiguration nerBioTMLConfiguration = (INERBioTMLAnnotatorConfiguration) configuration;
 			String description = NERBioTMLTagger.bioTMLTagger + " " +Utils.SimpleDataFormat.format(new Date());
 			Properties properties = gereateProperties(nerBioTMLConfiguration);
-			String notes = configuration.getNotes();
+			String notes = configuration.getProcessNotes();
 			IIEProcess runProcess =  new IEProcessImpl(configuration.getCorpus(), description , notes , ProcessTypeImpl.getNERProcessType(), bioTMLOrigin, properties );
 			InitConfiguration.getDataAccess().createIEProcess(runProcess);
 			this.converter = new BioTMLConverter(runProcess, nerBioTMLConfiguration.getNLPSystem());
