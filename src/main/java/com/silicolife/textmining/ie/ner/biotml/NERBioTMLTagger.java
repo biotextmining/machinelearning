@@ -94,7 +94,7 @@ public class NERBioTMLTagger implements INERProcess{
 				if(!nerBioTMLConfiguration.getNERClasses().isEmpty() && !stop){
 					if(submodel.getModelConfiguration().getIEType().equals(BioTMLConstants.ner.toString()) &&
 							nerBioTMLConfiguration.getNERClasses().contains(submodel.getModelConfiguration().getClassType())){
-						counter = processDocumentsWithSubModel(nerBioTMLConfiguration,report, startimeannotation, documents, counter, maxCounter, submodel);
+						counter = processDocumentsWithSubModel(runProcess,nerBioTMLConfiguration,report, startimeannotation, documents, counter, maxCounter, submodel);
 					}
 
 				}
@@ -120,14 +120,14 @@ public class NERBioTMLTagger implements INERProcess{
 		}
 	}
 
-	private int processDocumentsWithSubModel(INERBioTMLAnnotatorConfiguration configuration,INERProcessReport report, long startimeannotation, List<IBioTMLDocument> documents, int counter, int maxCounter, IBioTMLModel submodel)
+	private int processDocumentsWithSubModel(IIEProcess nerProcess,INERBioTMLAnnotatorConfiguration configuration,INERProcessReport report, long startimeannotation, List<IBioTMLDocument> documents, int counter, int maxCounter, IBioTMLModel submodel)
 			throws BioTMLException, ANoteException {
 		Iterator<IBioTMLDocument> itDocuments = documents.iterator();
 		while(itDocuments.hasNext() && !stop){
 			List<IBioTMLDocument> documentsStep = getDocumentsInStep(itDocuments);
 			annotator = new BioTMLMalletAnnotator(new BioTMLCorpus(documentsStep, new String()));
 			IBioTMLCorpus anotatedDocument = annotator.generateAnnotatedBioTMCorpus(submodel, configuration.getThreads());
-			getConverter().convertBioTMLCorpusToAnote(anotatedDocument, report);
+			getConverter().convertBioTMLCorpusToAnote(nerProcess,anotatedDocument, report);
 			annotator = null;
 			counter = counter + documentsStep.size();
 			increaseDocumentsInReport(report, documents, counter, documentsStep);

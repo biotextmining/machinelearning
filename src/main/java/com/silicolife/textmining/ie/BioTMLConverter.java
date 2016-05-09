@@ -31,7 +31,6 @@ import com.silicolife.textmining.core.interfaces.core.report.processes.INERProce
 import com.silicolife.textmining.core.interfaces.core.report.processes.IREProcessReport;
 import com.silicolife.textmining.core.interfaces.process.ProcessTypeEnum;
 import com.silicolife.textmining.core.interfaces.process.IE.IIEProcess;
-import com.silicolife.textmining.ie.re.biotml.REBioTMLTagger;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationsRelation;
@@ -51,8 +50,6 @@ import com.silicolife.textmining.machinelearning.biotml.core.nlp.stanford.BioTML
 public class BioTMLConverter {
 
 	private IIEProcess process;
-	private IIEProcess nertagger;
-	private REBioTMLTagger retagger;
 	private BioTMLNLPSystemsEnum nlpSystem;
 	private boolean stop = false;
 
@@ -62,27 +59,12 @@ public class BioTMLConverter {
 	}
 
 	public BioTMLConverter(IIEProcess process, BioTMLNLPSystemsEnum nlpSystem){
-		this.nertagger = process;
 		this.process = process;
-		this.nlpSystem = nlpSystem;
-	}
-
-	public BioTMLConverter(REBioTMLTagger process, BioTMLNLPSystemsEnum nlpSystem){
-		this.retagger = process;
-		this.process = process.getREconfiguration().getIEProcess();
 		this.nlpSystem = nlpSystem;
 	}
 
 	private IIEProcess getProcess(){
 		return process;
-	}
-
-	private IIEProcess getNERTagger(){
-		return nertagger;
-	}
-
-	private REBioTMLTagger getRETagger(){
-		return retagger;
 	}
 
 	private BioTMLNLPSystemsEnum getNLPSystem(){
@@ -96,15 +78,15 @@ public class BioTMLConverter {
 		return null;
 	}
 
-	public void convertBioTMLCorpusToAnote(IBioTMLCorpus annotatedcorpus, INERProcessReport report) throws BioTMLException, ANoteException{
-		if(getNERTagger().getType().getType().equals(ProcessTypeEnum.NER.toString())){
-			annotateNERInAnote(annotatedcorpus, getNERTagger(), false, report);
+	public void convertBioTMLCorpusToAnote(IIEProcess process,IBioTMLCorpus annotatedcorpus, INERProcessReport report) throws BioTMLException, ANoteException{
+		if(process.getType().getType().equals(ProcessTypeEnum.NER.toString())){
+			annotateNERInAnote(annotatedcorpus, process, false, report);
 		}
 	}
 
-	public void convertBioTMLCorpusToAnote(IBioTMLCorpus annotatedcorpus, IREProcessReport report) throws BioTMLException, ANoteException{
-		if(getRETagger().getType().getType().equals(ProcessTypeEnum.RE.toString())){
-			annotateREInAnote(annotatedcorpus, getRETagger(), false, true, report);
+	public void convertBioTMLCorpusToAnote(IIEProcess process,IBioTMLCorpus annotatedcorpus, IREProcessReport report) throws BioTMLException, ANoteException{
+		if(process.getType().equals(ProcessTypeEnum.RE.toString())){
+			annotateREInAnote(annotatedcorpus, process, false, true, report);
 		}
 	}
 
@@ -207,7 +189,7 @@ public class BioTMLConverter {
 		}
 	}
 
-	private void annotateREInAnote(IBioTMLCorpus annotatedCorpus, REBioTMLTagger process, boolean loadCluesAsEntities, boolean annotateOnlyPairsInSameClue, IREProcessReport report) throws BioTMLException, ANoteException{
+	private void annotateREInAnote(IBioTMLCorpus annotatedCorpus, IIEProcess process, boolean loadCluesAsEntities, boolean annotateOnlyPairsInSameClue, IREProcessReport report) throws BioTMLException, ANoteException{
 
 		IDocumentSet documents = process.getCorpus().getArticlesCorpus();
 		Iterator<IBioTMLDocument> idDoc = annotatedCorpus.getDocuments().iterator();

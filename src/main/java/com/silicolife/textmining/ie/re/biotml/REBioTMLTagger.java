@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import cc.mallet.pipe.Pipe;
 
+import com.silicolife.textmining.core.datastructures.exceptions.process.InvalidConfigurationException;
 import com.silicolife.textmining.core.datastructures.init.InitConfiguration;
 import com.silicolife.textmining.core.datastructures.language.LanguageProperties;
 import com.silicolife.textmining.core.datastructures.process.IEProcessImpl;
@@ -22,7 +23,9 @@ import com.silicolife.textmining.core.datastructures.utils.conf.GlobalOptions;
 import com.silicolife.textmining.core.interfaces.core.dataaccess.exception.ANoteException;
 import com.silicolife.textmining.core.interfaces.core.report.processes.IREProcessReport;
 import com.silicolife.textmining.core.interfaces.process.IProcessOrigin;
+import com.silicolife.textmining.core.interfaces.process.IE.IIEProcess;
 import com.silicolife.textmining.core.interfaces.process.IE.IREProcess;
+import com.silicolife.textmining.core.interfaces.process.IE.re.IREConfiguration;
 import com.silicolife.textmining.ie.BioTMLConverter;
 import com.silicolife.textmining.ie.re.biotml.configuration.IREBioTMLAnnotatorConfiguration;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
@@ -37,25 +40,17 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReader;
 
-public class REBioTMLTagger extends IEProcessImpl implements IREProcess{
+public class REBioTMLTagger implements IREProcess{
 
 	public static final String bioTMLTagger = "BioTML RE Tagger";
 	public static final IProcessOrigin bioTMLOrigin= new ProcessOriginImpl(GenerateRandomId.generateID(),bioTMLTagger);
 	private static int documentsStepSize = 10;// this int is responsible to load documents into memory... for best performance increase the number. However, memory usage will increase dramatically.
-	private IREBioTMLAnnotatorConfiguration configuration;
 	private boolean stop=false;
 	private BioTMLMalletAnnotator annotator;
 	private BioTMLConverter converter;
 
-	public REBioTMLTagger(IREBioTMLAnnotatorConfiguration configuration){
-		super(configuration.getCorpus(), 
-				REBioTMLTagger.bioTMLTagger  + " " +Utils.SimpleDataFormat.format(new Date()),
-				configuration.getProcessNotes(),
-				ProcessTypeImpl.getREProcessType(),
-				bioTMLOrigin, 
-				gereateProperties(configuration));
-		this.configuration = configuration;
-		this.converter = new BioTMLConverter(this, configuration.getNLPSystem());
+	public REBioTMLTagger(){
+
 	}
 
 	private static Properties gereateProperties(IREBioTMLAnnotatorConfiguration configuration){
@@ -65,16 +60,17 @@ public class REBioTMLTagger extends IEProcessImpl implements IREProcess{
 		return prop;
 	}
 
-	public IREBioTMLAnnotatorConfiguration getREconfiguration(){
-		return configuration;
-	}
-
-	public IREProcessReport executeRE() throws ANoteException{
-		try {	
-			InitConfiguration.getDataAccess().createIEProcess(this);
+	public IREProcessReport executeRE(IREConfiguration configuration) throws ANoteException, InvalidConfigurationException{
+		try {
+			validateConfiguration(configuration);
+			IREBioTMLAnnotatorConfiguration reconfiguration = (IREBioTMLAnnotatorConfiguration) configuration;
+			IEProcessImpl reProcess = new IEProcessImpl(configuration.getCorpus(), REBioTMLTagger.bioTMLTagger  + " " +Utils.SimpleDataFormat.format(new Date()),
+					configuration.getProcessNotes(), ProcessTypeImpl.getREProcessType(), bioTMLOrigin, gereateProperties(reconfiguration));
+			InitConfiguration.getDataAccess().createIEProcess(reProcess);
+			this.converter = new BioTMLConverter(reProcess, reconfiguration.getNLPSystem());
 			long startime = GregorianCalendar.getInstance().getTimeInMillis();
-			IREProcessReport report = new REProcessReportImpl(LanguageProperties.getLanguageStream("pt.uminho.anote2.biotml.operation.report.title"), configuration.getIEProcess(),this, false);
-			BioTMLConverter anoteconverter = new BioTMLConverter(this, configuration.getNLPSystem());
+			IREProcessReport report = new REProcessReportImpl(LanguageProperties.getLanguageStream("pt.uminho.anote2.biotml.operation.report.title"), configuration.getIEProcess(),reProcess, false);
+			BioTMLConverter anoteconverter = new BioTMLConverter(reProcess, reconfiguration.getNLPSystem());
 			IBioTMLCorpus biotmlCorpus = null;
 
 			biotmlCorpus = anoteconverter.convertToBioTMLCorpus();
@@ -86,17 +82,17 @@ public class REBioTMLTagger extends IEProcessImpl implements IREProcess{
 
 				IBioTMLModelReader modelreader = new BioTMLModelReader();
 				List<String> submodelsFilename = new ArrayList<>();
-				if(configuration.getModelPath().endsWith(".zip")){
-					submodelsFilename = modelreader.loadSubmodelsToStringFromZipFile(configuration.getModelPath());
-				}else if(configuration.getModelPath().endsWith(".gz")){
-					submodelsFilename.add(configuration.getModelPath());
+				if(reconfiguration.getModelPath().endsWith(".zip")){
+					submodelsFilename = modelreader.loadSubmodelsToStringFromZipFile(reconfiguration.getModelPath());
+				}else if(reconfiguration.getModelPath().endsWith(".gz")){
+					submodelsFilename.add(reconfiguration.getModelPath());
 				}
 
 
 				boolean foundCluesModel = false;
 				if(submodelsFilename.size()==1){
 					long startimeannotation = GregorianCalendar.getInstance().getTimeInMillis();
-					executeAnnotation(report, biotmlCorpus, submodelsFilename, startimeannotation);
+					executeAnnotation(reProcess,reconfiguration,report, biotmlCorpus, submodelsFilename, startimeannotation);
 				}else{
 					List<IBioTMLAnnotation> clues = new ArrayList<>();
 					Iterator<String> itModelFilename = submodelsFilename.iterator();
@@ -106,7 +102,7 @@ public class REBioTMLTagger extends IEProcessImpl implements IREProcess{
 						IBioTMLModel model = modelreader.loadModelFromGZFile(filename);
 						if(model.getModelConfiguration().getClassType().equals(BioTMLConstants.clue.toString())){
 							foundCluesModel = true;
-							clues = getNERClues(biotmlCorpus, model);
+							clues = getNERClues(reconfiguration,biotmlCorpus, model);
 							model.cleanAlphabetMemory();
 							model.cleanPipeMemory();
 							submodelsFilename.remove(i);
@@ -119,10 +115,10 @@ public class REBioTMLTagger extends IEProcessImpl implements IREProcess{
 						allAnnotations.addAll(biotmlCorpus.getAnnotations());
 						IBioTMLCorpus anotatedCorpus = new BioTMLCorpus(biotmlCorpus.getDocuments(), allAnnotations, biotmlCorpus.toString());
 						long startimeannotation = GregorianCalendar.getInstance().getTimeInMillis();
-						executeAnnotation(report, anotatedCorpus, submodelsFilename, startimeannotation);
+						executeAnnotation(reProcess,reconfiguration,report, anotatedCorpus, submodelsFilename, startimeannotation);
 					}else if(!foundCluesModel && !submodelsFilename.isEmpty() && !stop){
 						long startimeannotation = GregorianCalendar.getInstance().getTimeInMillis();
-						executeAnnotation(report, biotmlCorpus, submodelsFilename, startimeannotation);
+						executeAnnotation(reProcess,reconfiguration,report, biotmlCorpus, submodelsFilename, startimeannotation);
 					}
 				}
 				Runtime.getRuntime().gc();
@@ -145,7 +141,7 @@ public class REBioTMLTagger extends IEProcessImpl implements IREProcess{
 		}
 	}
 
-	private List<IBioTMLAnnotation> getNERClues(IBioTMLCorpus biotmlCorpus, IBioTMLModel model) throws BioTMLException {
+	private List<IBioTMLAnnotation> getNERClues(IREBioTMLAnnotatorConfiguration configuration,IBioTMLCorpus biotmlCorpus, IBioTMLModel model) throws BioTMLException {
 		List<IBioTMLAnnotation> clues = new ArrayList<>();
 		List<IBioTMLDocument> documents = biotmlCorpus.getDocuments();
 		Iterator<IBioTMLDocument> itDocuments = documents.iterator();
@@ -158,7 +154,7 @@ public class REBioTMLTagger extends IEProcessImpl implements IREProcess{
 		return clues;
 	}
 
-	private void executeAnnotation(IREProcessReport report, IBioTMLCorpus biotmlCorpus, List<String> submodelsFilename, long startimeannotation)throws BioTMLException, ANoteException {
+	private void executeAnnotation(IIEProcess process,IREBioTMLAnnotatorConfiguration configuration,IREProcessReport report, IBioTMLCorpus biotmlCorpus, List<String> submodelsFilename, long startimeannotation)throws BioTMLException, ANoteException {
 		IBioTMLModelReader modelreader = new BioTMLModelReader();
 		int counter = 0;
 		List<IBioTMLDocument> documents = biotmlCorpus.getDocuments();
@@ -168,7 +164,7 @@ public class REBioTMLTagger extends IEProcessImpl implements IREProcess{
 		while(itSubModelFilename.hasNext() && !stop){
 			String submodelFilename = itSubModelFilename.next();
 			IBioTMLModel submodel = modelreader.loadModelFromGZFile(submodelFilename);
-			counter = processDocumentsWithSubModel(report, biotmlCorpus, startimeannotation, counter, maxCounter, documents, submodel);
+			counter = processDocumentsWithSubModel(process,configuration,report, biotmlCorpus, startimeannotation, counter, maxCounter, documents, submodel);
 			submodel.cleanAlphabetMemory();
 			submodel.cleanPipeMemory();
 			submodel = null;
@@ -176,14 +172,14 @@ public class REBioTMLTagger extends IEProcessImpl implements IREProcess{
 		Runtime.getRuntime().gc();
 	}
 
-	private int processDocumentsWithSubModel(IREProcessReport report, IBioTMLCorpus biotmlCorpus, long startimeannotation, int counter, int maxCounter, List<IBioTMLDocument> documents, IBioTMLModel submodel) throws BioTMLException, ANoteException {
+	private int processDocumentsWithSubModel(IIEProcess process,IREBioTMLAnnotatorConfiguration configuration,IREProcessReport report, IBioTMLCorpus biotmlCorpus, long startimeannotation, int counter, int maxCounter, List<IBioTMLDocument> documents, IBioTMLModel submodel) throws BioTMLException, ANoteException {
 		Iterator<IBioTMLDocument> itDocuments = documents.iterator();
 		while(itDocuments.hasNext() && !stop){
 			List<IBioTMLDocument> documentsStep = getDocumentsInStep(itDocuments);
 			List<IBioTMLAnnotation> reAnnotationsStep = getNERAnnots(biotmlCorpus, documentsStep);
 			annotator = new BioTMLMalletAnnotator(new BioTMLCorpus(documentsStep, reAnnotationsStep, new String()));
 			IBioTMLCorpus anotatedDocument = annotator.generateAnnotatedBioTMCorpus(submodel, configuration.getThreads());
-			getConverter().convertBioTMLCorpusToAnote(anotatedDocument, report);
+			getConverter().convertBioTMLCorpusToAnote(process,anotatedDocument, report);
 			annotator = null;
 			counter = counter + documentsStep.size();
 			increaseDocumentsInReport(report, documents, counter, documentsStep);
@@ -243,5 +239,17 @@ public class REBioTMLTagger extends IEProcessImpl implements IREProcess{
 		Runtime.getRuntime().gc();
 		System.out.println((Runtime.getRuntime().totalMemory()- Runtime.getRuntime().freeMemory())/(1024*1024) + " MB ");		
 	}
-
+	@Override
+	public void validateConfiguration(IREConfiguration configuration)throws InvalidConfigurationException {
+		if(configuration instanceof IREBioTMLAnnotatorConfiguration)
+		{
+			IREBioTMLAnnotatorConfiguration lexicalResurcesConfiguration = (IREBioTMLAnnotatorConfiguration) configuration;
+			if(lexicalResurcesConfiguration.getCorpus()==null)
+			{
+				throw new InvalidConfigurationException("Corpus can not be null");
+			}
+		}
+		else
+			throw new InvalidConfigurationException("configuration must be IRECooccurrenceConfiguration isntance");		
+	}
 }

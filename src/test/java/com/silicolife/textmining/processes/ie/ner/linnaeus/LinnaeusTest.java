@@ -72,7 +72,7 @@ public class LinnaeusTest {
 		IResource<IResourceElement> resource = CreateDictionaryTest.createDictionary("Biocyc");
 		IDictionary dictionary = new DictionaryImpl(resource);
 		BioMetaEcoCycFlatFileLoader loader = new BioMetaEcoCycFlatFileLoader();
-		String byocycFolder = "src/test/resources/BioCyc/data";
+		String byocycFolder = "src/test/resources/BioCyc/small";
 		File file = new File(byocycFolder);
 		if(loader.checkFile(file))
 		{
