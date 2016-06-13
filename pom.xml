@@ -108,5 +108,10 @@
 			<artifactId>clearnlp-medical-en-srl</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.carrotsearch</groupId>
+			<artifactId>hppc</artifactId>
+			<version>0.5.2</version>
+		</dependency>
 	</dependencies>
 </project>
