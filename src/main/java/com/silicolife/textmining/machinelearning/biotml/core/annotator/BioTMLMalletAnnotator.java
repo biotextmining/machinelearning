@@ -11,6 +11,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationsRelation;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpus;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocSentTokenIDs;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotationsRelation;
@@ -30,6 +31,7 @@ import cc.mallet.fst.Transducer;
 import cc.mallet.pipe.Pipe;
 import cc.mallet.types.Alphabet;
 import cc.mallet.types.AugmentableFeatureVector;
+import cc.mallet.types.FeatureVector;
 import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
 import cc.mallet.types.Labeling;
@@ -172,11 +174,9 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 		while(itToken.hasNext() && !stop){
 			Instance token = itToken.next();
 			Labeling labelRanks = modelClassifier.classify(token).getLabeling();
-			long docID = getDocIDFromSentenceName((String) token.getName());
-			int sentIndex = getSentIdxFromSentenceName((String) token.getName());
-			int tokenIndex = getTokenIdxFromSentenceName((String) token.getName());
-			IBioTMLDocument doc = getBasedBioTMCorpus().getDocumentByID(docID);
-			annotations = addPredictedAnnotation(annotations, doc, sentIndex, tokenIndex, model.getModelConfiguration().getClassType(), labelRanks.getLabelAtRank(0).toString(), labelRanks.getValueAtRank(0));
+			BioTMLDocSentTokenIDs ids = (BioTMLDocSentTokenIDs)token.getName();
+			IBioTMLDocument doc = getBasedBioTMCorpus().getDocumentByID(ids.getDocId());
+			annotations = addPredictedAnnotation(annotations, doc, ids.getSentId(), ids.getTokenId(), model.getModelConfiguration().getClassType(), labelRanks.getLabelAtRank(0).toString(), labelRanks.getValueAtRank(0));
 		}
 		
 //		cleanMalletAlphabets(dataToAnnotate);
@@ -200,12 +200,11 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 			Transducer modelPredictor = transducerModelTrained.getTransducer();
 			Sequence input = (Sequence) sentence.getData();
 			Sequence predictedSeq = modelPredictor.transduce(input);
-			long docID = getDocIDFromSentenceName((String) sentence.getName());
-			int sentIndex = getSentIdxFromSentenceName((String) sentence.getName());
-			IBioTMLDocument doc = getBasedBioTMCorpus().getDocumentByID(docID);
+			BioTMLDocSentTokenIDs ids = (BioTMLDocSentTokenIDs)sentence.getName();
+			IBioTMLDocument doc = getBasedBioTMCorpus().getDocumentByID(ids.getDocId());
 			double predictionScore = getTransducerPredictionScore(modelPredictor,  input,  predictedSeq);
 			for(int tokenIndex=0; tokenIndex<predictedSeq.size(); tokenIndex++){
-				annotations = addPredictedAnnotation(annotations, doc, sentIndex, tokenIndex, model.getModelConfiguration().getClassType(), predictedSeq.get(tokenIndex).toString(), predictionScore);
+				annotations = addPredictedAnnotation(annotations, doc, ids.getSentId(), ids.getTokenId(), model.getModelConfiguration().getClassType(), predictedSeq.get(tokenIndex).toString(), predictionScore);
 			}
 		}
 		
@@ -229,21 +228,22 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 			Transducer modelPredictor = transducerModelTrained.getTransducer();
 			Sequence input = (Sequence) sentence.getData();
 			Sequence predictedSeq = modelPredictor.transduce(input);
-			long docID = getDocIDFromSentenceName((String) sentence.getName());
-			int sentIndex = getSentIdxFromSentenceName((String) sentence.getName());
-			IBioTMLDocument doc = getBasedBioTMCorpus().getDocumentByID(docID);
+			BioTMLDocSentTokenIDs ids = (BioTMLDocSentTokenIDs)sentence.getName();
+			IBioTMLDocument doc = getBasedBioTMCorpus().getDocumentByID(ids.getDocId());
 			double predictionScore = getTransducerPredictionScore(modelPredictor,  input,  predictedSeq);
 			for(int tokenIndex=0; tokenIndex<predictedSeq.size(); tokenIndex++){
 				String prediction = predictedSeq.get(tokenIndex).toString();
 				if(!prediction.equals(BioTMLConstants.o.toString())){
-					IBioTMLAnnotation annotation = getAnnotation(doc, sentIndex, getAnnotationIndexFromString((String)sentence.getSource()));
+					IBioTMLAnnotation annotation = getAnnotation(doc, ids.getSentId(),ids.getAnnotTokenStartIndex(), ids.getAnnotTokenEndIndex());
 					if(annotation != null){
-						if((annotation.getAnnotType().equals(BioTMLConstants.clue.toString()) 
-								&& model.getModelConfiguration().getClassType().equals(BioTMLREModelTypes.allclasseswithclues.toString()))
-								|| (!annotation.getAnnotType().equals(BioTMLConstants.clue.toString()) 
-										&& model.getModelConfiguration().getClassType().equals(BioTMLREModelTypes.entityentiy.toString()))){
-							relations = addPredictedRelation(relations, doc, sentIndex, tokenIndex, annotation, model.getModelConfiguration().getClassType(), prediction, predictionScore);
-						}
+//						if((annotation.getAnnotType().equals(BioTMLConstants.clue.toString()) 
+//								&& model.getModelConfiguration().getClassType().equals(BioTMLREModelTypes.allclasseswithclues.toString()))
+//								|| (!annotation.getAnnotType().equals(BioTMLConstants.clue.toString()) 
+//										&& model.getModelConfiguration().getClassType().equals(BioTMLREModelTypes.entityentiy.toString()))
+//								|| (!annotation.getAnnotType().equals(BioTMLConstants.clue.toString()) 
+//										&& model.getModelConfiguration().getClassType().equals(BioTMLREModelTypes.entityentiyonlyannotations.toString()))){
+							relations = addPredictedRelation(relations, doc, ids.getSentId(), tokenIndex, annotation, model.getModelConfiguration().getClassType(), prediction, predictionScore);
+//						}
 					}
 				}
 			}
@@ -265,19 +265,17 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 		while(itToken.hasNext() && !stop){
 			Instance token = itToken.next();
 			Labeling labelRanks = modelClassifier.classify(token).getLabeling();
-			long docID = getDocIDFromSentenceName((String) token.getName());
-			int sentIndex = getSentIdxFromSentenceName((String) token.getName());
-			int tokenIndex = getTokenIdxFromSentenceName((String) token.getName());
-			IBioTMLDocument doc = getBasedBioTMCorpus().getDocumentByID(docID);
+			BioTMLDocSentTokenIDs ids = (BioTMLDocSentTokenIDs)token.getName();
+			IBioTMLDocument doc = getBasedBioTMCorpus().getDocumentByID(ids.getDocId());
 			IBioTMLAnnotation annotation = null;
 			if(token.getData() instanceof Token){
 				Token tokenandAnnotationInstance = (Token) token.getData();
-				annotation = getAnnotation(doc, sentIndex, getAnnotationIndexFromString(tokenandAnnotationInstance.getText()));
-			}else if(token.getData() instanceof AugmentableFeatureVector){
-				String tokensource = (String)token.getSource();
-				String[] tokens = tokensource.split("\\) ");
-				String tokenandclue = tokens[tokenIndex]+")";
-				annotation = getAnnotation(doc, sentIndex, getAnnotationIndexFromString(tokenandclue));
+				int startIndex = (int) tokenandAnnotationInstance.getProperty("startAnnotIndex");
+				int endIndex = (int) tokenandAnnotationInstance.getProperty("endAnnotIndex");
+				annotation = getAnnotation(doc, ids.getSentId(), startIndex, endIndex);
+			}else if(token.getData() instanceof AugmentableFeatureVector || token.getData() instanceof FeatureVector){
+				BioTMLDocSentTokenIDs tokensource = (BioTMLDocSentTokenIDs)token.getName();
+				annotation = getAnnotation(doc,  ids.getSentId(), tokensource.getAnnotTokenStartIndex(), tokensource.getAnnotTokenEndIndex());
 			}
 
 			if(annotation != null){
@@ -285,7 +283,7 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 						&& model.getModelConfiguration().getClassType().equals(BioTMLREModelTypes.allclasseswithclues.toString()))
 						|| (!annotation.getAnnotType().equals(BioTMLConstants.clue.toString()) 
 								&& model.getModelConfiguration().getClassType().equals(BioTMLREModelTypes.entityentiy.toString()))){
-					relations = addPredictedRelation(relations, doc, sentIndex, tokenIndex, annotation, model.getModelConfiguration().getClassType(), labelRanks.getLabelAtRank(0).toString(), labelRanks.getValueAtRank(0));
+					relations = addPredictedRelation(relations, doc, ids.getSentId(), ids.getTokenId(), annotation, model.getModelConfiguration().getClassType(), labelRanks.getLabelAtRank(0).toString(), labelRanks.getValueAtRank(0));
 				}
 			}
 		}
@@ -417,53 +415,53 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 //		}
 //	}
 
-	/**
-	 * 
-	 * The doc ID of the sentence is retrieved using the sentence mallet name.
-	 * 
-	 * @param sentenceName - Sentence name.
-	 * @return Document ID.
-	 */
-	private long getDocIDFromSentenceName(String sentenceName){
-		long docID = -1;
-		String[] docandsentencesplit = sentenceName.split("\t");
-		if(docandsentencesplit[0].startsWith("DocID:")){
-			docID = Long.valueOf(docandsentencesplit[0].substring(6));
-		}
-		return docID;
-	}
+//	/**
+//	 * 
+//	 * The doc ID of the sentence is retrieved using the sentence mallet name.
+//	 * 
+//	 * @param sentenceName - Sentence name.
+//	 * @return Document ID.
+//	 */
+//	private long getDocIDFromSentenceName(String sentenceName){
+//		long docID = -1;
+//		String[] docandsentencesplit = sentenceName.split("\t");
+//		if(docandsentencesplit[0].startsWith("DocID:")){
+//			docID = Long.valueOf(docandsentencesplit[0].substring(6));
+//		}
+//		return docID;
+//	}
 
-	/**
-	 * 
-	 * The sentence index is retrieved using the sentence mallet name.
-	 * 
-	 * @param sentenceName - Sentence name.
-	 * @return Sentence index.
-	 */
-	private int getSentIdxFromSentenceName(String sentenceName){
-		int sentIndex = -1;
-		String[] docandsentencesplit = sentenceName.split("\t");
-		if(docandsentencesplit[1].startsWith("SentIdx:")){
-			sentIndex = Integer.valueOf(docandsentencesplit[1].substring(8));
-		}
-		return sentIndex;
-	}
-
-	/**
-	 * 
-	 * The token index in sentence is retrieved using the sentence mallet name.
-	 * 
-	 * @param sentenceName - Sentence name.
-	 * @return Token index.
-	 */
-	private int getTokenIdxFromSentenceName(String sentenceName){
-		int tokenIndex = -1;
-		String[] docandSentIdxAndTokIdxsplit = sentenceName.split("\t");
-		if(docandSentIdxAndTokIdxsplit[2].startsWith("tokensequence:")){
-			tokenIndex = Integer.valueOf(docandSentIdxAndTokIdxsplit[2].substring(14));
-		}
-		return tokenIndex;
-	}
+//	/**
+//	 * 
+//	 * The sentence index is retrieved using the sentence mallet name.
+//	 * 
+//	 * @param sentenceName - Sentence name.
+//	 * @return Sentence index.
+//	 */
+//	private int getSentIdxFromSentenceName(String sentenceName){
+//		int sentIndex = -1;
+//		String[] docandsentencesplit = sentenceName.split("\t");
+//		if(docandsentencesplit[1].startsWith("SentIdx:")){
+//			sentIndex = Integer.valueOf(docandsentencesplit[1].substring(8));
+//		}
+//		return sentIndex;
+//	}
+//
+//	/**
+//	 * 
+//	 * The token index in sentence is retrieved using the sentence mallet name.
+//	 * 
+//	 * @param sentenceName - Sentence name.
+//	 * @return Token index.
+//	 */
+//	private int getTokenIdxFromSentenceName(String sentenceName){
+//		int tokenIndex = -1;
+//		String[] docandSentIdxAndTokIdxsplit = sentenceName.split("\t");
+//		if(docandSentIdxAndTokIdxsplit[2].startsWith("tokensequence:")){
+//			tokenIndex = Integer.valueOf(docandSentIdxAndTokIdxsplit[2].substring(14));
+//		}
+//		return tokenIndex;
+//	}
 
 	/**
 	 * 
@@ -527,6 +525,9 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 		List<Integer> AnnotationIndex = new ArrayList<Integer>(2);
 		String annotationIndexString = tokenAndAnnotation[tokenAndAnnotation.length-1];
 		String[] AnnotationIndexStringSplited = annotationIndexString.split(" | ");
+		if(AnnotationIndexStringSplited[0].isEmpty() || AnnotationIndexStringSplited[2].isEmpty()){
+			System.out.println("Error");
+		}
 		AnnotationIndex.add(Integer.valueOf(AnnotationIndexStringSplited[0].substring(1)));
 		AnnotationIndex.add(Integer.valueOf(AnnotationIndexStringSplited[2].substring(0, AnnotationIndexStringSplited[2].length()-1)));
 		return AnnotationIndex;
@@ -542,9 +543,9 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 	 * @param annotationIndex - Pair of integers that indicates the index of the first and last token offsets.
 	 * @return Annotation {@link IBioTMLAnnotation}.
 	 */
-	private IBioTMLAnnotation getAnnotation(IBioTMLDocument doc, int sentIndex, List<Integer> annotationIndex){
-		IBioTMLToken firstTokenAnnotation = doc.getSentence(sentIndex).getToken(annotationIndex.get(0));
-		IBioTMLToken lastTokenAnnotation = doc.getSentence(sentIndex).getToken(annotationIndex.get(annotationIndex.size()-1));
+	private IBioTMLAnnotation getAnnotation(IBioTMLDocument doc, int sentIndex, int startTokenIndex, int endTokenIndex){
+		IBioTMLToken firstTokenAnnotation = doc.getSentence(sentIndex).getToken(startTokenIndex);
+		IBioTMLToken lastTokenAnnotation = doc.getSentence(sentIndex).getToken(endTokenIndex);
 		IBioTMLAnnotation annotation = null;
 		try {
 			annotation = getBasedBioTMCorpus().getAnnotationFromDocAndOffsets(doc.getID(),firstTokenAnnotation.getStartOffset(), lastTokenAnnotation.getEndOffset());
