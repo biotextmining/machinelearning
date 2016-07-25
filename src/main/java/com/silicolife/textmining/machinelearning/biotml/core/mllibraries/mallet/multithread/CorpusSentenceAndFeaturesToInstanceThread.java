@@ -3,7 +3,8 @@ package com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet
 import java.util.ArrayList;
 import java.util.List;
 
-import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocSentTokenIDs;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLTokensWithFeaturesAndLabels;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeaturesManager;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
@@ -21,119 +22,53 @@ import cc.mallet.types.Instance;
  */
 
 public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
-	
-	private String docIDandSentIdx;
-	private String sentence;
+
+	private BioTMLDocSentTokenIDs docIDandSentIdx;
+	private BioTMLTokensWithFeaturesAndLabels tokensWithFeaturesAndLabels;
 	private InstanceListExtended instances;
 	private IBioTMLFeatureGeneratorConfigurator configuration;
-	private List<String> tokenStrings;
-	private List<String> isOrNotToAdd;
-	private List<String> tokenLabel;
 
 	/**
 	 * 
 	 * Initializes a thread with a sentence to be converted into Mallet instance.
 	 * 
 	 * @param docIDandSentIdx - String that identifies the document ID and sentence index.
-	 * @param sentence - Sentence string.
+	 * @param tokensWithLabels - Sentence string.
 	 * @param instances - InstanceList with thread safety to be populated with all sentences.
 	 */
-	public CorpusSentenceAndFeaturesToInstanceThread(String docIDandSentIdx, String sentence, InstanceListExtended instances,  IBioTMLFeatureGeneratorConfigurator configuration){
+	public CorpusSentenceAndFeaturesToInstanceThread(BioTMLDocSentTokenIDs docIDandSentIdx, BioTMLTokensWithFeaturesAndLabels tokensWithFeaturesAndLabels, InstanceListExtended instances,  IBioTMLFeatureGeneratorConfigurator configuration){
 		this.docIDandSentIdx = docIDandSentIdx;
-		this.sentence = sentence;
+		this.tokensWithFeaturesAndLabels = tokensWithFeaturesAndLabels;
 		this.instances = instances;
 		this.configuration = configuration;
-		processTokenStrings();
 	}
-	
-	private String getDocIDandSentIdx(){
+
+	private BioTMLDocSentTokenIDs getDocIDandSentIdx(){
 		return docIDandSentIdx;
 	}
-	
-	private String getSentence(){
-		return sentence;
+
+	private BioTMLTokensWithFeaturesAndLabels getTokensWithFeaturesAndLabels(){
+		return tokensWithFeaturesAndLabels;
 	}
 
 	private InstanceListExtended getInstances(){
 		return instances;
 	}
-	
+
 	private IBioTMLFeatureGeneratorConfigurator getConfiguration(){
 		return configuration;
 	}
-	
-	private List<String> getTokenStrings(){
-		return tokenStrings;
-	}
-	
-	private List<String> getIsOrNotToAdd(){
-		return isOrNotToAdd;
-	}
-	
-	private List<String> getTokenLabel(){
-		return tokenLabel;
-	}
-	
-	private void processTokenStrings(){
-		tokenStrings = new ArrayList<>();
-		isOrNotToAdd = new ArrayList<>();
-		tokenLabel = new ArrayList<>();
-		String[] tokensWithLabels = getSentence().split("\n");
-		for(String tokenlabeled : tokensWithLabels){
-			String[] column = tokenlabeled.split("\t");
-			if(column.length>1){
-				if( !column[1].equals(BioTMLConstants.b.toString())
-						&& !column[1].equals(BioTMLConstants.i.toString())
-						&& !column[1].equals(BioTMLConstants.o.toString())
-						&& !column[1].equals("INANNOT")
-						&&!column[1].equals("OUTANNOT")){
-					tokenStrings.add(column[0]+"\t"+column[1]);
-				}else{
-					tokenStrings.add(column[0]);
-				}
-				if(column.length>2){
-					if( column[2].equals("INANNOT")
-							|| column[2].equals("OUTANNOT")){
-						isOrNotToAdd.add(column[2]);
-					}
-				}
-				if(column[column.length-1].equals(BioTMLConstants.b.toString())
-						|| column[column.length-1].equals(BioTMLConstants.i.toString())
-						|| column[column.length-1].equals(BioTMLConstants.o.toString())){
-					tokenLabel.add(column[column.length-1]);
-				}
-			}else{
-				tokenStrings.add(column[0]);
+
+	private void processColumns(List<IBioTMLFeatureColumns> columns, InstanceListExtended instances) throws BioTMLException {
+		for(int i =0; i<getTokensWithFeaturesAndLabels().getTokens().size(); i++){
+			for(IBioTMLFeatureColumns column : columns){
+				getTokensWithFeaturesAndLabels().addFeaturesToTokenIndex(i, column.getTokenFeatures(i));
 			}
 		}
+		getInstances().addThruPipe(new Instance(getTokensWithFeaturesAndLabels(), null, getDocIDandSentIdx(), null));
 	}
 
-	
-	private void processColumns(List<IBioTMLFeatureColumns> columns, InstanceListExtended instances) {
-		StringBuilder sentenceProcessed = new StringBuilder();
-		for(int i =0; i<getTokenStrings().size(); i++){
-			if(getIsOrNotToAdd().isEmpty() || getIsOrNotToAdd().get(i).equals("INANNOT")){
-				sentenceProcessed.append(getTokenStrings().get(i));
-				sentenceProcessed.append("\t");
-				List<String> features = new ArrayList<>();
-				for(IBioTMLFeatureColumns column : columns){
-					features.addAll(column.getTokenFeatures(i));
-				}
-				for(String feature : features){
-					sentenceProcessed.append(feature);
-					sentenceProcessed.append("\t");
-				}
-				if(getTokenLabel().size()>i){
-					sentenceProcessed.append(getTokenLabel().get(i));
-				}
-				sentenceProcessed.append("\n");
-			}
 
-		}
-		getInstances().addThruPipe(new Instance(sentenceProcessed.toString(), null, getDocIDandSentIdx(), sentenceProcessed.toString()));
-	}
-
-	
 	/**
 	 * 
 	 * Thread safe process to add the sentence into Mallet instances.
@@ -142,18 +77,27 @@ public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 	public void run() {
 		List<String> visitedUID = new ArrayList<String>();
 		List<IBioTMLFeatureColumns> allColumns = new ArrayList<>();
-    	for(String classUID : getConfiguration().getFeaturesUIDs()){
-    		if(!visitedUID.contains(classUID)){
-    			try {
-    				IBioTMLFeatureGenerator classProcesser = BioTMLFeaturesManager.getInstance().getClass(classUID);
-    				visitedUID.addAll(classProcesser.getUIDs());
-    				allColumns.add(classProcesser.getFeatureColumns(getTokenStrings(),  getConfiguration()));
-    			} catch (BioTMLException exc) {
-    				exc.printStackTrace();
-    			}	
-    		}
-    	}
-    	processColumns(allColumns, getInstances());
+		for(String classUID : getConfiguration().getFeaturesUIDs()){
+			if(!visitedUID.contains(classUID)){
+				try {
+					IBioTMLFeatureGenerator classProcesser = BioTMLFeaturesManager.getInstance().getClass(classUID);
+					visitedUID.addAll(classProcesser.getUIDs());
+					if(getTokensWithFeaturesAndLabels().getAnnotationForRelationStartIndex() != -1){
+						allColumns.add(classProcesser.getFeatureColumnsForRelations(getTokensWithFeaturesAndLabels().getTokens(), getTokensWithFeaturesAndLabels().getAnnotationForRelationStartIndex(), getTokensWithFeaturesAndLabels().getAnnotationForRelationEndIndex(),  getConfiguration()));
+					}else{
+						allColumns.add(classProcesser.getFeatureColumns(getTokensWithFeaturesAndLabels().getTokens(),  getConfiguration()));
+					}
+
+				} catch (BioTMLException exc) {
+					exc.printStackTrace();
+				}	
+			}
+		}
+		try {
+			processColumns(allColumns, getInstances());
+		} catch (BioTMLException exc) {
+			exc.printStackTrace();
+		}	
 	}
 
 

@@ -1,5 +1,8 @@
 package com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.multithread;
 
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocSentTokenIDs;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLTokensWithFeaturesAndLabels;
+
 import cc.mallet.types.Instance;
 
 /**
@@ -12,8 +15,8 @@ import cc.mallet.types.Instance;
 
 public class MalletSentenceCorpusToInstanceThread implements Runnable{
 	
-	private String docIDandSentIdx;
-	private String sentence;
+	private BioTMLDocSentTokenIDs docIDandSentIdx;
+	private BioTMLTokensWithFeaturesAndLabels sentence;
 	private InstanceListExtended instances;
 
 	/**
@@ -24,17 +27,17 @@ public class MalletSentenceCorpusToInstanceThread implements Runnable{
 	 * @param sentence - Sentence string.
 	 * @param instances - InstanceList with thread safety to be populated with all sentences.
 	 */
-	public MalletSentenceCorpusToInstanceThread(String docIDandSentIdx, String sentence, InstanceListExtended instances){
+	public MalletSentenceCorpusToInstanceThread(BioTMLDocSentTokenIDs docIDandSentIdx, BioTMLTokensWithFeaturesAndLabels sentence, InstanceListExtended instances){
 		this.docIDandSentIdx = docIDandSentIdx;
 		this.sentence = sentence;
 		this.instances = instances;
 	}
 	
-	private String getDocIDandSentIdx(){
+	private BioTMLDocSentTokenIDs getDocIDandSentIdx(){
 		return docIDandSentIdx;
 	}
 	
-	private String getSentence(){
+	private BioTMLTokensWithFeaturesAndLabels getSentence(){
 		return sentence;
 	}
 

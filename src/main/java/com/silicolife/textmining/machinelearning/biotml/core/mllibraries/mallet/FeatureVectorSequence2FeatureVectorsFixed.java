@@ -5,6 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Iterator;
 
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocSentTokenIDs;
+
 import cc.mallet.pipe.Pipe;
 import cc.mallet.types.FeatureVectorSequence;
 import cc.mallet.types.Instance;
@@ -44,8 +46,11 @@ public class FeatureVectorSequence2FeatureVectorsFixed extends Pipe
 			// We are assuming sequences don't have zero length
 			assert (dataSubiterator.hasNext());
 			assert (targetSubiterator.hasNext());
-			return new Instance (dataSubiterator.next(), targetSubiterator.next(), 
-					superInstance.getName()+"\ttokensequence:"+count++,	superInstance.getSource());
+			BioTMLDocSentTokenIDs oldIDs = (BioTMLDocSentTokenIDs)superInstance.getName();
+			BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(oldIDs.getDocId(), oldIDs.getSentId(), count++);
+			ids.setAnnotTokenStartIndex(oldIDs.getAnnotTokenStartIndex());
+			ids.setAnnotTokenEndIndex(oldIDs.getAnnotTokenEndIndex());
+			return new Instance (dataSubiterator.next(), targetSubiterator.next(), ids,	superInstance.getSource());
 		}
 		public boolean hasNext () {
 			if(dataSubiterator != null){
