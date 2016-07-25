@@ -101,18 +101,21 @@ public class ClearNLPFeatures implements IBioTMLFeatureGenerator{
 		}
 	}
 
+	public IBioTMLFeatureColumns getFeatureColumnsForRelations(List<String> tokensToProcess, int startAnnotationIndex, int endAnnotationIndex, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
+		BioTMLAssociationProcess tokenAnnotProcess = new BioTMLAssociationProcess(tokensToProcess, startAnnotationIndex, endAnnotationIndex);
+		List<String> tokens = tokenAnnotProcess.getTokens();
+		IBioTMLFeatureColumns features = getFeatureColumns(tokens, configuration);
+		features.updateTokenFeaturesUsingAssociationProcess(tokenAnnotProcess);
+		return features;
+	}
 
 
-	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokensToProcess,
-			IBioTMLFeatureGeneratorConfigurator configuration)
-					throws BioTMLException {
-
-		if(tokensToProcess.isEmpty()){
+	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
+		
+		if(tokens.isEmpty()){
 			throw new BioTMLException(27);
 		}
 		
-		BioTMLAssociationProcess tokenAnnotProcess = new BioTMLAssociationProcess(tokensToProcess);
-		List<String> tokens = tokenAnnotProcess.getTokens();
 		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getUIDs(), configuration);
 
 		String[] tokenLines = executeClearNLP(tokens, configuration);
@@ -154,8 +157,6 @@ public class ClearNLPFeatures implements IBioTMLFeatureGenerator{
 			features.updateTokenFeatures(windows.generateFeatures(), "WINDOWCLEARNLPPOS");
 			features.setUIDhasMultiFeatureColumn("WINDOWCLEARNLPPOS");
 		}
-
-		features.updateTokenFeaturesUsingAssociationProcess(tokenAnnotProcess);
 		
 		return features;
 	}

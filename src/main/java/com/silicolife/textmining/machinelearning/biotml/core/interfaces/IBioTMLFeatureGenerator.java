@@ -51,6 +51,9 @@ public interface IBioTMLFeatureGenerator {
 	 */
 	public IBioTMLFeatureColumns getFeatureColumns(List<String>tokens,IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException;
 	
+	
+	public IBioTMLFeatureColumns getFeatureColumnsForRelations(List<String> tokensToProcess, int startAnnotationIndex, int endAnnotationIndex, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException;
+	
 	/**
 	 * 
 	 * Method that cleans the allocated memory of this module.

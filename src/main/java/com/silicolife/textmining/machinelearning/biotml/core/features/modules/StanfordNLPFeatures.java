@@ -62,16 +62,25 @@ public class StanfordNLPFeatures implements IBioTMLFeatureGenerator{
 		return infoMap;
 	}
 	
-	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokensToProcess,
-			IBioTMLFeatureGeneratorConfigurator configuration)
-			throws BioTMLException {
-		
+	public IBioTMLFeatureColumns getFeatureColumnsForRelations(List<String> tokensToProcess, int startAnnotationIndex, int endAnnotationIndex, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
 		if(tokensToProcess.isEmpty()){
 			throw new BioTMLException(27);
 		}
-		
-		BioTMLAssociationProcess tokenAnnotProcess = new BioTMLAssociationProcess(tokensToProcess);
+		BioTMLAssociationProcess tokenAnnotProcess = new BioTMLAssociationProcess(tokensToProcess, startAnnotationIndex, endAnnotationIndex);
 		List<String> tokens = tokenAnnotProcess.getTokens();
+		IBioTMLFeatureColumns features = getFeatureColumns(tokens, configuration);
+		features.updateTokenFeaturesUsingAssociationProcess(tokenAnnotProcess);
+		return features;
+	}
+	
+	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens,
+			IBioTMLFeatureGeneratorConfigurator configuration)
+			throws BioTMLException {
+		
+		if(tokens.isEmpty()){
+			throw new BioTMLException(27);
+		}
+		
 		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getUIDs(), configuration);
 		
 		List<String> tokensPOS = null;
@@ -130,8 +139,6 @@ public class StanfordNLPFeatures implements IBioTMLFeatureGenerator{
 			features.updateTokenFeatures(windows.generateFeatures(), "WINDOWSTANFORDNLPPOS");
 			features.setUIDhasMultiFeatureColumn("WINDOWSTANFORDNLPPOS");
 		}
-		
-		features.updateTokenFeaturesUsingAssociationProcess(tokenAnnotProcess);
 
 		return features;
 	}

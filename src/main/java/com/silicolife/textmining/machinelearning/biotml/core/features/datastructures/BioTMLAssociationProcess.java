@@ -1,6 +1,5 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.datastructures;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,28 +13,31 @@ import java.util.List;
 
 public class BioTMLAssociationProcess {
 	
-	private List<Integer> annotationIndexs;
 	private List<String> tokens;
+	private int startAnnotation;
+	private int endAnnotation;
 
-	public BioTMLAssociationProcess(List<String> binaryAssociations){
-		this.annotationIndexs = processAnnotationIndexs(binaryAssociations);
-		this.tokens = retrieveTokensAndDefineAnnotation(binaryAssociations);
+	public BioTMLAssociationProcess(List<String> tokens, int startAnnotation, int endAnnotation){
+		this.tokens = tokens;
+		this.startAnnotation = startAnnotation;
+		this.endAnnotation = endAnnotation;
 	}
 	
 	public List<String> getTokens(){
 		return tokens;
 	}
 	
-	private List<Integer> getAnnotationIndexs(){
-		return annotationIndexs;
+	public int getStartAnnotation() {
+		return startAnnotation;
 	}
-	
+
+	public int getEndAnnotation() {
+		return endAnnotation;
+	}
+
 	public List<String> associateAnnotationFeatureToFeatureColumn(List<String> featureColumn){
-		if(getAnnotationIndexs().isEmpty()){
-			return featureColumn;
-		}
 		String annotationFeature = new String();
-		for(int annotationIndex=getAnnotationIndexs().get(0); annotationIndex<getAnnotationIndexs().get(1)+1; annotationIndex++){
+		for(int annotationIndex=getStartAnnotation(); annotationIndex<getEndAnnotation()+1; annotationIndex++){
 			if(annotationFeature.isEmpty()){
 				annotationFeature = featureColumn.get(annotationIndex);
 			}else{
@@ -44,10 +46,10 @@ public class BioTMLAssociationProcess {
 		}
 		if(!annotationFeature.isEmpty()){
 			for(int tokenIndex = 0; tokenIndex<getTokens().size(); tokenIndex++){
-				if(tokenIndex<=getAnnotationIndexs().get(1)){
+				if(tokenIndex<=getEndAnnotation()){
 					featureColumn.set(tokenIndex, featureColumn.get(tokenIndex)+"_&&_"+annotationFeature);
 				}
-				if(tokenIndex>getAnnotationIndexs().get(1)){
+				if(tokenIndex>getEndAnnotation()){
 					featureColumn.set(tokenIndex, annotationFeature+"_&&_"+ featureColumn.get(tokenIndex));
 				}
 			}
@@ -55,29 +57,4 @@ public class BioTMLAssociationProcess {
 		return featureColumn;
 	}
 	
-	private List<String> retrieveTokensAndDefineAnnotation(List<String> binaryAssociations){
-		List<String> tokens = new ArrayList<String>();
-		if(!getAnnotationIndexs().isEmpty()){
-			for(String association : binaryAssociations){
-				String[] tokenAndAnnotation = association.split("\t");
-				tokens.add(tokenAndAnnotation[0]);
-			}
-		}else{
-			tokens = binaryAssociations;
-		}
-		return tokens;
-	}
-	
-	private List<Integer> processAnnotationIndexs(List<String> binaryAssociations){
-		List<Integer> annotationIndex = new ArrayList<Integer>(2);
-		String[] pair = binaryAssociations.get(0).split("\t");
-		if(pair.length>1){
-			String annotationIndexString = pair[pair.length-1];
-			String[] annotationIndexStringSplited = annotationIndexString.split(" | ");
-			annotationIndex.add(Integer.valueOf(annotationIndexStringSplited[0].substring(1)));
-			annotationIndex.add(Integer.valueOf(annotationIndexStringSplited[2].substring(0, annotationIndexStringSplited[2].length()-1)));
-			return annotationIndex;
-		}
-		return annotationIndex;
-	}
 }

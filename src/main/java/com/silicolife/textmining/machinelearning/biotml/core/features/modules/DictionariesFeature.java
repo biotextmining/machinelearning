@@ -36,17 +36,19 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 		infoMap.put("INCLUESLIST", "Verifies if the token is present in clues list.");
 		return infoMap;
 	}
+	
+	public IBioTMLFeatureColumns getFeatureColumnsForRelations(List<String> tokensToProcess, int startAnnotationIndex, int endAnnotationIndex, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
+		BioTMLAssociationProcess tokenAnnotProcess = new BioTMLAssociationProcess(tokensToProcess, startAnnotationIndex, endAnnotationIndex);
+		List<String> tokens = tokenAnnotProcess.getTokens();
+		IBioTMLFeatureColumns features = getFeatureColumns(tokens, configuration);
+		features.updateTokenFeaturesUsingAssociationProcess(tokenAnnotProcess);
+		return features;
+	}
 
-	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokensToProcess,
+	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens,
 			IBioTMLFeatureGeneratorConfigurator configuration)
 			throws BioTMLException {
 		
-		if(tokensToProcess.isEmpty()){
-			throw new BioTMLException(27);
-		}
-		
-		BioTMLAssociationProcess tokenAnnotProcess = new BioTMLAssociationProcess(tokensToProcess);
-		List<String> tokens = tokenAnnotProcess.getTokens();
 		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getUIDs(), configuration);
 		
 		for (int i = 0; i < tokens.size(); i++){
@@ -57,8 +59,6 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 				}
 			}		
 		}
-
-		features.updateTokenFeaturesUsingAssociationProcess(tokenAnnotProcess);
 
 		return features;
 	}

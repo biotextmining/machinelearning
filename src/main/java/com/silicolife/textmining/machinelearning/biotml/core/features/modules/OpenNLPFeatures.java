@@ -62,16 +62,18 @@ public class OpenNLPFeatures implements IBioTMLFeatureGenerator{
 		infoMap.put("WINDOWOPENNLPPOS", "An adaptation of windows from mallet is used to create 'Sliding window' for OpenNLP part-of-speech features.");
 		return infoMap;
 	}
-
-
-	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokensToProcess, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-
-		if(tokensToProcess.isEmpty()){
-			throw new BioTMLException(27);
-		}
-		
-		BioTMLAssociationProcess tokenAnnotProcess = new BioTMLAssociationProcess(tokensToProcess);
+	
+	public IBioTMLFeatureColumns getFeatureColumnsForRelations(List<String> tokensToProcess, int startAnnotationIndex, int endAnnotationIndex, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
+		BioTMLAssociationProcess tokenAnnotProcess = new BioTMLAssociationProcess(tokensToProcess, startAnnotationIndex, endAnnotationIndex);
 		List<String> tokens = tokenAnnotProcess.getTokens();
+		IBioTMLFeatureColumns features = getFeatureColumns(tokens, configuration);
+		features.updateTokenFeaturesUsingAssociationProcess(tokenAnnotProcess);
+		return features;
+	}
+
+
+	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
+
 		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getUIDs(), configuration);
 
 		String[] sentence = tokens.toArray(new String[0]);
@@ -138,8 +140,6 @@ public class OpenNLPFeatures implements IBioTMLFeatureGenerator{
 			features.updateTokenFeatures(windows.generateFeatures(), "WINDOWOPENNLPPOS");
 			features.setUIDhasMultiFeatureColumn("WINDOWOPENNLPPOS");
 		}
-		
-		features.updateTokenFeaturesUsingAssociationProcess(tokenAnnotProcess);
 
 		return features;
 	}
