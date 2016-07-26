@@ -57,12 +57,16 @@ public class BioTMLFeatureColumns implements IBioTMLFeatureColumns{
 			if(isMultiFeatureColumn(uID)){
 				String[] tokenfeatures = getFeatureColumByUID(uID).get(tokenIndex).split("\t");
 				for(String feat : tokenfeatures){
-					features.add(feat);
+					if(!feat.isEmpty()){
+						features.add(feat);
+					}
 				}
 			}else{
-				features.add(getFeatureColumByUID(uID).get(tokenIndex));
+				String feature = getFeatureColumByUID(uID).get(tokenIndex);
+				if(!feature.isEmpty()){
+					features.add(feature);
+				}
 			}
-
 		}
 		return features;
 	}
