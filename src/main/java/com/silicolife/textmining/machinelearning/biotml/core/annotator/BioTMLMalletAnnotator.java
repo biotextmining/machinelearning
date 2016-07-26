@@ -132,6 +132,9 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 			annotations.addAll(annotationsAndgenFromRelations);
 			return new BioTMLCorpus(getBasedBioTMCorpus().getDocuments(), annotations, relations,  getBasedBioTMCorpus().toString());
 		}else{
+			if(!getBasedBioTMCorpus().getAnnotations().isEmpty()){
+				annotations.addAll(getBasedBioTMCorpus().getAnnotations());
+			}
 			return new BioTMLCorpus(getBasedBioTMCorpus().getDocuments(), annotations, getBasedBioTMCorpus().toString());
 		}
 	}
@@ -204,7 +207,7 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 			IBioTMLDocument doc = getBasedBioTMCorpus().getDocumentByID(ids.getDocId());
 			double predictionScore = getTransducerPredictionScore(modelPredictor,  input,  predictedSeq);
 			for(int tokenIndex=0; tokenIndex<predictedSeq.size(); tokenIndex++){
-				annotations = addPredictedAnnotation(annotations, doc, ids.getSentId(), ids.getTokenId(), model.getModelConfiguration().getClassType(), predictedSeq.get(tokenIndex).toString(), predictionScore);
+				annotations = addPredictedAnnotation(annotations, doc, ids.getSentId(), tokenIndex, model.getModelConfiguration().getClassType(), predictedSeq.get(tokenIndex).toString(), predictionScore);
 			}
 		}
 		
@@ -510,28 +513,6 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 			}
 		}
 		return annotations;
-	}
-
-
-	/**
-	 * 
-	 * If the model uses a annotation to identify a relation, this method retrieve the annotation token index in that sentence.
-	 * 
-	 * @param tokenString - Token string that contains the pair.
-	 * @return Pair of integers that indicates the index of the first and last token offsets.
-	 */
-	private List<Integer> getAnnotationIndexFromString(String tokenString){
-		String[] tokenAndAnnotation = tokenString.split("\t");
-		List<Integer> AnnotationIndex = new ArrayList<Integer>(2);
-		String annotationIndexString = tokenAndAnnotation[tokenAndAnnotation.length-1];
-		String[] AnnotationIndexStringSplited = annotationIndexString.split(" | ");
-		if(AnnotationIndexStringSplited[0].isEmpty() || AnnotationIndexStringSplited[2].isEmpty()){
-			System.out.println("Error");
-		}
-		AnnotationIndex.add(Integer.valueOf(AnnotationIndexStringSplited[0].substring(1)));
-		AnnotationIndex.add(Integer.valueOf(AnnotationIndexStringSplited[2].substring(0, AnnotationIndexStringSplited[2].length()-1)));
-		return AnnotationIndex;
-
 	}
 
 	/**
