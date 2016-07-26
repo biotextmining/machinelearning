@@ -32,6 +32,12 @@ public class BioTMLTokensWithFeaturesAndLabels {
 		}
 	}
 	
+	public void addTokenForNER(String token){
+		getTokens().add(token);
+		getTokenFeatures().add(new ArrayList<>());
+		
+	}
+	
 	public void addTokenForNERModel(String token, BioTMLConstants label){
 		getTokens().add(token);
 		getLabels().add(label);
@@ -44,6 +50,13 @@ public class BioTMLTokensWithFeaturesAndLabels {
 		getLabels().add(label);
 		getIsAnnotationOrNot().add(isAnnotationOrNot);
 		getTokenFeatures().add(new ArrayList<>());
+	}
+	
+	public void addTokenForRE(String token, int annotationForRelationStartIndex, int annotationForRelationEndIndex){
+		getTokens().add(token);
+		getTokenFeatures().add(new ArrayList<>());
+		this.annotationForRelationStartIndex = annotationForRelationStartIndex;
+		this.annotationForRelationEndIndex = annotationForRelationEndIndex;
 	}
 	
 	public void addTokenForREModel(String token, BioTMLConstants label, int annotationForRelationStartIndex, int annotationForRelationEndIndex){
