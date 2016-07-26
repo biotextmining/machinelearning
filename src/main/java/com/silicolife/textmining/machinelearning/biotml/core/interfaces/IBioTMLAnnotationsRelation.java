@@ -99,5 +99,7 @@ public interface IBioTMLAnnotationsRelation extends Serializable {
 	public Set<IBioTMLAnnotation> getAnnotsAtRightOfAnnotation(IBioTMLAnnotation annot) throws BioTMLException;
 	
 	public String toString();
+	
+	public boolean haveTheSameOffsetsAndAnnotationTypes(IBioTMLAnnotationsRelation relation);
 
 }

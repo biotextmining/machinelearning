@@ -61,6 +61,9 @@ public class BioTMLAnnotationsRelation implements IBioTMLAnnotationsRelation {
 	}
 	
 	private boolean relationIsValid(Set<IBioTMLAnnotation> relation){
+		if(!(relation instanceof LinkedHashSet)){
+			return false;
+		}
 		if(relation.size()<2){
 			return false;
 		}
@@ -177,6 +180,27 @@ public class BioTMLAnnotationsRelation implements IBioTMLAnnotationsRelation {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public boolean haveTheSameOffsetsAndAnnotationTypes(IBioTMLAnnotationsRelation relation) {
+		if(!getRelationType().equals(relation.getRelationType())){
+			return false;
+		}
+		if(getRelation().size() != relation.getRelation().size()){
+			return false;
+		}
+		Iterator<IBioTMLAnnotation> itThisRelation = getRelation().iterator();
+		Iterator<IBioTMLAnnotation> itOtherRelation = relation.getRelation().iterator();
+		while(itThisRelation.hasNext() && itOtherRelation.hasNext()){
+			IBioTMLAnnotation thisAnnot = itThisRelation.next();
+			IBioTMLAnnotation otherAnnot = itOtherRelation.next();
+			if(!thisAnnot.haveTheSameOffsets(otherAnnot)){
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 }
