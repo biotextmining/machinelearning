@@ -125,15 +125,15 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 		InstanceListExtended instances = new InstanceListExtended(p);
 		final AtomicLong count = new AtomicLong(0);
 		executor = Executors.newFixedThreadPool(threads,new ThreadFactory(){
-            @Override
-            public Thread newThread(Runnable runnable) {
-                Thread thread = new Thread(runnable);
-                thread.setName("BioTML-Features-Generation-Thread-" + count.getAndIncrement());
-                thread.setDaemon(false);
-                thread.setPriority(Thread.NORM_PRIORITY);
-                return thread;
-            };
-        });
+			@Override
+			public Thread newThread(Runnable runnable) {
+				Thread thread = new Thread(runnable);
+				thread.setName("BioTML-Features-Generation-Thread-" + count.getAndIncrement());
+				thread.setDaemon(false);
+				thread.setPriority(Thread.NORM_PRIORITY);
+				return thread;
+			};
+		});
 		int docID=0;
 		while(docID < getCorpusToConvert().getDocuments().size() && !stop){
 			IBioTMLDocument doc = getCorpusToConvert().getDocument(docID);
@@ -231,66 +231,82 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 
 	public InstanceList exportToMalletFeatures(Pipe p, int threads,  IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException{
 		InstanceListExtended instances = new InstanceListExtended(p);
-		final AtomicLong count = new AtomicLong(0);
-		executor = Executors.newFixedThreadPool(threads,new ThreadFactory(){
-            @Override
-            public Thread newThread(Runnable runnable) {
-                Thread thread = new Thread(runnable);
-                thread.setName("BioTML-Features-Generation-Thread-" + count.getAndIncrement());
-                thread.setDaemon(false);
-                thread.setPriority(Thread.NORM_PRIORITY);
-                return thread;
-            };
-        });
+		createFeaturesThreadExecutor(threads);
+		if(getIEAnnotationType().equals(BioTMLConstants.ner.toString())){
+			createFeaturesForNER(configuration, instances);
+		}
+		if(getIEAnnotationType().equals(BioTMLConstants.re.toString())){
+			createFeaturesForRE(configuration, instances);
+		}
+		finishThreadsFromExecutor();
+		return instances;
+	}
+
+	private void createFeaturesForRE(IBioTMLFeatureGeneratorConfigurator configuration, InstanceListExtended instances)
+			throws BioTMLException {
 		int docID=0;
 		while(docID < getCorpusToConvert().getDocuments().size() && !stop ){
 			IBioTMLDocument doc = getCorpusToConvert().getDocument(docID);
 			int sentID=0;
 			while(  sentID < doc.getSentences().size()  && !stop ){
 				IBioTMLSentence sentence = doc.getSentence(sentID);
-				if(getIEAnnotationType().equals(BioTMLConstants.re.toString())){
-					if(!getConsideredAnnotationType().equals(BioTMLREModelTypes.entityentiy.toString())
-							&& !getConsideredAnnotationType().equals(BioTMLREModelTypes.entityentiyonlyannotations.toString())){
-						List<IBioTMLAnnotation> clues = getClueAnnotations(doc.getID(), sentence);
-						List<IBioTMLAnnotation> annotations = getSentenceAnnotations(doc.getID(), sentence);
-						for(IBioTMLAnnotation clue : clues){
-							BioTMLTokensWithFeaturesAndLabels sentenceText = null;
-							if(getConsideredAnnotationType().equals(BioTMLREModelTypes.allclasseswithcluesonlyannotations.toString())){
-								sentenceText = sentenceToExportForREOnlyAnnotations(doc.getID(), sentence, clue, annotations);
-							}else{
-								sentenceText = sentenceToExportForRE(doc.getID(), sentence, clue);
-							}
-							if(sentenceText != null && !sentenceText.getTokens().isEmpty()){
-								BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(doc.getID(), sentID);
-								executor.execute(new CorpusSentenceAndFeaturesToInstanceThread(ids, sentenceText, instances, configuration));
-							}
+
+				if(!getConsideredAnnotationType().equals(BioTMLREModelTypes.entityentiy.toString())
+						&& !getConsideredAnnotationType().equals(BioTMLREModelTypes.entityentiyonlyannotations.toString())){
+					List<IBioTMLAnnotation> clues = getClueAnnotations(doc.getID(), sentence);
+					List<IBioTMLAnnotation> annotations = getSentenceAnnotations(doc.getID(), sentence);
+					for(IBioTMLAnnotation clue : clues){
+						BioTMLTokensWithFeaturesAndLabels sentenceText = null;
+						if(getConsideredAnnotationType().equals(BioTMLREModelTypes.allclasseswithcluesonlyannotations.toString())){
+							sentenceText = sentenceToExportForREOnlyAnnotations(doc.getID(), sentence, clue, annotations);
+						}else{
+							sentenceText = sentenceToExportForRE(doc.getID(), sentence, clue);
 						}
-					}else if(getConsideredAnnotationType().equals(BioTMLREModelTypes.entityentiy.toString())||
-							getConsideredAnnotationType().equals(BioTMLREModelTypes.entityentiyonlyannotations.toString())){
-						List<IBioTMLAnnotation> annotations = getSentenceAnnotations(doc.getID(), sentence);
-						for(IBioTMLAnnotation annotation :annotations){
-							BioTMLTokensWithFeaturesAndLabels sentenceText = null;
-							if(getConsideredAnnotationType().equals(BioTMLREModelTypes.entityentiyonlyannotations.toString())){
-								sentenceText = sentenceToExportForREOnlyAnnotations(doc.getID(), sentence, annotation, annotations);
-							}else{
-								sentenceText = sentenceToExportForRE(doc.getID(), sentence, annotation);
-							}
-							if(sentenceText != null && !sentenceText.getTokens().isEmpty()){
-								BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(doc.getID(), sentID);
-								executor.execute(new CorpusSentenceAndFeaturesToInstanceThread(ids, sentenceText, instances, configuration));
-							}
+						if(sentenceText != null && !sentenceText.getTokens().isEmpty()){
+							BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(doc.getID(), sentID);
+							executor.execute(new CorpusSentenceAndFeaturesToInstanceThread(ids, sentenceText, instances, configuration));
+						}
+					}
+				}else if(getConsideredAnnotationType().equals(BioTMLREModelTypes.entityentiy.toString())||
+						getConsideredAnnotationType().equals(BioTMLREModelTypes.entityentiyonlyannotations.toString())){
+					List<IBioTMLAnnotation> annotations = getSentenceAnnotations(doc.getID(), sentence);
+					for(IBioTMLAnnotation annotation :annotations){
+						BioTMLTokensWithFeaturesAndLabels sentenceText = null;
+						if(getConsideredAnnotationType().equals(BioTMLREModelTypes.entityentiyonlyannotations.toString())){
+							sentenceText = sentenceToExportForREOnlyAnnotations(doc.getID(), sentence, annotation, annotations);
+						}else{
+							sentenceText = sentenceToExportForRE(doc.getID(), sentence, annotation);
+						}
+						if(sentenceText != null && !sentenceText.getTokens().isEmpty()){
+							BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(doc.getID(), sentID);
+							executor.execute(new CorpusSentenceAndFeaturesToInstanceThread(ids, sentenceText, instances, configuration));
 						}
 					}
 				}
-				if(getIEAnnotationType().equals(BioTMLConstants.ner.toString())){
-					BioTMLTokensWithFeaturesAndLabels tokensWithLabels = sentenceToExportForNER(doc.getID(), sentence);
-					BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(doc.getID(), sentID);
-					executor.execute(new CorpusSentenceAndFeaturesToInstanceThread(ids, tokensWithLabels, instances, configuration));
-				}	
+
 				sentID++;
 			}
 			docID++;
 		}
+	}
+
+	private void createFeaturesForNER(IBioTMLFeatureGeneratorConfigurator configuration, InstanceListExtended instances) throws BioTMLException {
+		int docID=0;
+		while(docID < getCorpusToConvert().getDocuments().size() && !stop ){
+			IBioTMLDocument doc = getCorpusToConvert().getDocument(docID);
+			int sentID=0;
+			while(  sentID < doc.getSentences().size()  && !stop ){
+				IBioTMLSentence sentence = doc.getSentence(sentID);
+				BioTMLTokensWithFeaturesAndLabels tokensWithLabels = sentenceToExportForNER(doc.getID(), sentence);
+				BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(doc.getID(), sentID);
+				executor.execute(new CorpusSentenceAndFeaturesToInstanceThread(ids, tokensWithLabels, instances, configuration));
+				sentID++;
+			}
+			docID++;
+		}
+	}
+
+	private void finishThreadsFromExecutor() {
 		executor.shutdown();
 		try {
 			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
@@ -298,7 +314,20 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 			e.printStackTrace();
 		}
 		executor = null;
-		return instances;
+	}
+
+	private void createFeaturesThreadExecutor(int threads) {
+		final AtomicLong count = new AtomicLong(0);
+		executor = Executors.newFixedThreadPool(threads,new ThreadFactory(){
+			@Override
+			public Thread newThread(Runnable runnable) {
+				Thread thread = new Thread(runnable);
+				thread.setName("BioTML-Features-Generation-Thread-" + count.getAndIncrement());
+				thread.setDaemon(false);
+				thread.setPriority(Thread.NORM_PRIORITY);
+				return thread;
+			};
+		});
 	}
 
 	public void stopAllFeatureThreads(){
@@ -325,10 +354,10 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 				if(!getCorpusToConvert().getAnnotations().isEmpty()){
 					tokensWithLabels.addTokenForNERModel(token.getToken().toString(), getTokenAnnotation(docID, token));
 				}else{
-					tokensWithLabels.getTokens().add(token.getToken().toString());
+					tokensWithLabels.addTokenForNER(token.getToken().toString());
 				}
 			}else{
-				tokensWithLabels.getTokens().add(token.getToken().toString());
+				tokensWithLabels.addTokenForNER(token.getToken().toString());
 			}
 		}
 		return tokensWithLabels;
@@ -349,7 +378,7 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 	private BioTMLTokensWithFeaturesAndLabels sentenceToExportForREOnlyAnnotations(long docID, IBioTMLSentence sentence, IBioTMLAnnotation annotation, List<IBioTMLAnnotation> annotations) throws BioTMLException{
 		BioTMLTokensWithFeaturesAndLabels tokensWithLabels = new BioTMLTokensWithFeaturesAndLabels();
 		for( IBioTMLToken token : sentence.getTokens()){
-//			List<Integer> listIndex =getAnnotationIndexInAnnotationList(annotation, annotations);
+			//			List<Integer> listIndex =getAnnotationIndexInAnnotationList(annotation, annotations);
 			List<Integer> listIndex = sentence.getTokenIndexsbyOffsets(annotation.getStartOffset(), annotation.getEndOffset());
 			BioTMLConstants isTokeninAnnots = null;
 			if(isTokenInAnnotations(annotations, token)){
