@@ -61,7 +61,9 @@ public class CorpusWithFeatures2TokenSequence extends Pipe {
 			}
 			
 			intancesData.add(token);
-			targetData.add(tokensWithLabels.getLabels().get(i).toString());
+			if(!tokensWithLabels.getLabels().isEmpty()){
+				targetData.add(tokensWithLabels.getLabels().get(i).toString());
+			}
 			sourceData.append(tokenString);
 			sourceData.append(" ");
 
