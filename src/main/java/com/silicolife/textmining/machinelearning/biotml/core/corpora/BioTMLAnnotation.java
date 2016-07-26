@@ -79,7 +79,7 @@ public class BioTMLAnnotation implements IBioTMLAnnotation{
 
 	public boolean haveTheSameOffsets(IBioTMLAnnotation annotationToCompare){
 		if(	this.getStartOffset() == annotationToCompare.getStartOffset()
-			&& this.getEndOffset() == annotationToCompare.getEndOffset()){
+				&& this.getEndOffset() == annotationToCompare.getEndOffset()){
 			return true;
 		}
 		return false;
@@ -88,31 +88,75 @@ public class BioTMLAnnotation implements IBioTMLAnnotation{
 	public String toString(){
 		return "DocID: " + getDocID() + " Type: " + getAnnotType() + " ( " + getStartOffset() + " - " + getEndOffset() + " ) ";
 	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((annotType == null) ? 0 : annotType.hashCode());
+		result = prime * result + (int) (docID ^ (docID >>> 32));
+		result = prime * result + (int) (endOffset ^ (endOffset >>> 32));
+		long temp;
+		temp = Double.doubleToLongBits(score);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + (int) (startOffset ^ (startOffset >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BioTMLAnnotation other = (BioTMLAnnotation) obj;
+		if (annotType == null) {
+			if (other.annotType != null)
+				return false;
+		} else if (!annotType.equals(other.annotType))
+			return false;
+		if (docID != other.docID)
+			return false;
+		if (endOffset != other.endOffset)
+			return false;
+		if (Double.doubleToLongBits(score) != Double.doubleToLongBits(other.score))
+			return false;
+		if (startOffset != other.startOffset)
+			return false;
+		return true;
+	}
 
 	@Override
 	public int compareTo(IBioTMLAnnotation o) {
-		if(	(o.getAnnotType().equals(this.getAnnotType())) 
-				&&(o.getDocID()==this.getDocID())
-				&&(o.getStartOffset()==this.getStartOffset())
-				&&(o.getEndOffset()==this.getEndOffset())){
+		if(	this.equals(o)){
 			return 0;
 		}
-		else if(o.getDocID()==this.getDocID()){
-			if(o.getStartOffset()>this.getStartOffset()){
-				return -1;
-			}
-			else if(o.getStartOffset()<this.getStartOffset()){
-				return 1;
-			} else{
-				if(o.getEndOffset()>this.getEndOffset()){
-					return -1;
-				}else{
-					return 1;
-				}
-			}
-
-		}else{
+		if(o.getDocID()>this.getDocID()){
+			return -1;
+		}
+		if(o.getDocID()<this.getDocID()){
 			return 1;
 		}
+		if(o.getStartOffset()<this.getStartOffset()){
+			return 1;
+		}
+		if(o.getStartOffset()>this.getStartOffset()){
+			return -1;
+		}
+		if(o.getEndOffset()<this.getEndOffset()){
+			return 1;
+		}
+		if(o.getEndOffset()>this.getEndOffset()){
+			return -1;
+		}
+		if(o.getScore()<this.getScore()){
+			return 1;
+		}
+		if(o.getScore()>this.getScore()){
+			return -1;
+		}
+		return o.getAnnotType().compareTo(this.getAnnotType());
 	}
 }
