@@ -64,6 +64,9 @@ public class BioTMLMultiEvaluation implements IBioTMLMultiEvaluation{
 			else
 				total = total + valIt.next();
 		}
+		if(total == null){
+			return 0;
+		}
 		return total/(float)setValues.size();
 	}
 	
