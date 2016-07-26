@@ -34,4 +34,7 @@ public interface IBioTMLEvaluation {
 	 */
 	public float getFscore();
 	
+	
+	public String getEvaluationDescription();
+	
 }

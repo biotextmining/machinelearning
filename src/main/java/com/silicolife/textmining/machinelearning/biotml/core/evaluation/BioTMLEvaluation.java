@@ -15,6 +15,7 @@ public class BioTMLEvaluation implements IBioTMLEvaluation{
 	private float precision;
 	private float recall;
 	private float fscore;
+	private String evaluationDescription;
 	
 	/**
 	 * 
@@ -25,22 +26,43 @@ public class BioTMLEvaluation implements IBioTMLEvaluation{
 	 * @param fscore - F-score.
 	 */
 	
-	public BioTMLEvaluation(float precision, float recall, float fscore)
-	{
+	public BioTMLEvaluation(float precision, float recall, float fscore){
 		this.precision = precision;
 		this.recall = recall;
 		this.fscore = fscore;
+		this.evaluationDescription = new String();
+	}
+	
+	public BioTMLEvaluation(float precision, float recall, float fscore, String evaluationDescription){
+		this(precision, recall, fscore);
+		this.evaluationDescription = evaluationDescription;
 	}
 
+	@Override
 	public float getPrecision() {
 		return precision;
 	}
 
+	@Override
 	public float getRecall() {
 		return recall;
 	}
 
+	@Override
 	public float getFscore() {
 		return fscore;
 	}
+
+	@Override
+	public String getEvaluationDescription() {
+		return evaluationDescription;
+	}
+
+	@Override
+	public String toString() {
+		return "BioTMLEvaluation [precision=" + precision + ", recall=" + recall + ", fscore=" + fscore
+				+ ", evaluationDescription=" + evaluationDescription + "]";
+	}
+	
+	
 }
