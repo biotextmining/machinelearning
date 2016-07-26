@@ -46,5 +46,13 @@ public class BioTMLDocSentTokenIDs {
 	public void setAnnotTokenEndIndex(int annotTokenEndIndex) {
 		this.annotTokenEndIndex = annotTokenEndIndex;
 	}
+
+	@Override
+	public String toString() {
+		return "BioTMLDocSentTokenIDs [docId=" + docId + ", sentId=" + sentId + ", tokenId=" + tokenId
+				+ ", annotTokenStartIndex=" + annotTokenStartIndex + ", annotTokenEndIndex=" + annotTokenEndIndex + "]";
+	}
+	
+	
 	
 }
