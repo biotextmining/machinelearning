@@ -282,12 +282,12 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 			}
 
 			if(annotation != null){
-				if((annotation.getAnnotType().equals(BioTMLConstants.clue.toString()) 
-						&& model.getModelConfiguration().getClassType().equals(BioTMLREModelTypes.allclasseswithclues.toString()))
-						|| (!annotation.getAnnotType().equals(BioTMLConstants.clue.toString()) 
-								&& model.getModelConfiguration().getClassType().equals(BioTMLREModelTypes.entityentiy.toString()))){
+//				if((annotation.getAnnotType().equals(BioTMLConstants.clue.toString()) 
+//						&& model.getModelConfiguration().getClassType().equals(BioTMLREModelTypes.allclasseswithclues.toString()))
+//						|| (!annotation.getAnnotType().equals(BioTMLConstants.clue.toString()) 
+//								&& model.getModelConfiguration().getClassType().equals(BioTMLREModelTypes.entityentiy.toString()))){
 					relations = addPredictedRelation(relations, doc, ids.getSentId(), ids.getTokenId(), annotation, model.getModelConfiguration().getClassType(), labelRanks.getLabelAtRank(0).toString(), labelRanks.getValueAtRank(0));
-				}
+//				}
 			}
 		}
 		

@@ -2,6 +2,7 @@ package com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet
 
 import java.util.List;
 
+import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLTokensWithFeaturesAndLabels;
 
 import cc.mallet.pipe.Pipe;
@@ -46,27 +47,29 @@ public class CorpusWithFeatures2TokenSequence extends Pipe {
 		StringBuilder sourceData = new StringBuilder();
 
 		for( int i = 0; i<tokensWithLabels.getTokens().size(); i++){
-			String tokenString = tokensWithLabels.getTokens().get(i);
-			Token token = new Token(tokenString);
-			List<String> features = tokensWithLabels.getTokenFeatures().get(i);
-			for(String feature: features){
-				token.setFeatureValue(feature, 1.0);
+			if(tokensWithLabels.getIsAnnotationOrNot().isEmpty()
+					|| tokensWithLabels.getIsAnnotationOrNot().get(i).equals(BioTMLConstants.isAnnotation)){
+				String tokenString = tokensWithLabels.getTokens().get(i);
+				Token token = new Token(tokenString);
+				List<String> features = tokensWithLabels.getTokenFeatures().get(i);
+				for(String feature: features){
+					token.setFeatureValue(feature, 1.0);
+				}
+				if(tokensWithLabels.getAnnotationForRelationStartIndex() != -1){
+					token.setProperty("startAnnotIndex", tokensWithLabels.getAnnotationForRelationStartIndex());
+				}
+				
+				if(tokensWithLabels.getAnnotationForRelationEndIndex() != -1){
+					token.setProperty("endAnnotIndex", tokensWithLabels.getAnnotationForRelationEndIndex());
+				}
+				
+				intancesData.add(token);
+				if(!tokensWithLabels.getLabels().isEmpty()){
+					targetData.add(tokensWithLabels.getLabels().get(i).toString());
+				}
+				sourceData.append(tokenString);
+				sourceData.append(" ");
 			}
-			if(tokensWithLabels.getAnnotationForRelationStartIndex() != -1){
-				token.setProperty("startAnnotIndex", tokensWithLabels.getAnnotationForRelationStartIndex());
-			}
-			
-			if(tokensWithLabels.getAnnotationForRelationEndIndex() != -1){
-				token.setProperty("endAnnotIndex", tokensWithLabels.getAnnotationForRelationEndIndex());
-			}
-			
-			intancesData.add(token);
-			if(!tokensWithLabels.getLabels().isEmpty()){
-				targetData.add(tokensWithLabels.getLabels().get(i).toString());
-			}
-			sourceData.append(tokenString);
-			sourceData.append(" ");
-
 		}
 
 		carrier.setData(intancesData);

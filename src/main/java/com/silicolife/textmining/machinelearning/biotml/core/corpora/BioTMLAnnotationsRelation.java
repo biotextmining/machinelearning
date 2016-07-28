@@ -57,15 +57,22 @@ public class BioTMLAnnotationsRelation implements IBioTMLAnnotationsRelation {
 	
 	public long getDocID(){
 		Iterator<IBioTMLAnnotation> itAnnt = getRelation().iterator();
-		return itAnnt.next().getDocID();
+		IBioTMLAnnotation annotation = itAnnt.next();
+		return annotation.getDocID();
 	}
 	
 	private boolean relationIsValid(Set<IBioTMLAnnotation> relation){
 		if(!(relation instanceof LinkedHashSet)){
 			return false;
 		}
+		
 		if(relation.size()<2){
 			return false;
+		}
+		for(IBioTMLAnnotation annot : relation){
+			if( annot == null){
+				return false;
+			}
 		}
 		return true;
 	}
