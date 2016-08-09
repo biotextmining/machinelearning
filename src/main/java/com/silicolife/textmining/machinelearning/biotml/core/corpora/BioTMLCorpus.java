@@ -275,8 +275,11 @@ public class BioTMLCorpus implements IBioTMLCorpus{
 	public IBioTMLAnnotation getAnnotationFromDocAndOffsets(long docID, long startOffset, long endOffset) throws BioTMLException{
 		List<IBioTMLAnnotation> annots = getAllDocAnnotations(docID);
 		for(IBioTMLAnnotation annot : annots){
-			if(annot.getStartOffset()<=startOffset
-					&& annot.getEndOffset()>=endOffset){
+//			if(annot.getStartOffset()<=startOffset
+//					&& annot.getEndOffset()>=endOffset){
+//				return annot;
+//			}
+			if(!(annot.getEndOffset() <= startOffset) && !(annot.getStartOffset() >= endOffset)){
 				return annot;
 			}
 		}
