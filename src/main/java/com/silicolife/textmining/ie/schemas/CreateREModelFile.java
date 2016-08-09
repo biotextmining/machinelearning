@@ -30,8 +30,8 @@ public class CreateREModelFile {
 			List<IBioTMLModelConfigurator> configurations = new ArrayList<IBioTMLModelConfigurator>();
 			IBioTMLModelConfigurator configuration = modelConfiguration.getBioTMLModelConfigurator();
 			configurations.add(configuration );
-			if(configuration.getClassType().equals(BioTMLREModelTypes.allclasseswithclues.toString())
-					|| configuration.getClassType().equals(BioTMLREModelTypes.allclasseswithcluesonlyannotations.toString())){
+			if(configuration.getClassType().equals(BioTMLREModelTypes.entityclue.toString())
+					|| configuration.getClassType().equals(BioTMLREModelTypes.entityclueonlyannotations.toString())){
 				IBioTMLModelConfigurator cluesConfiguration = new BioTMLModelConfigurator(BioTMLConstants.clue.toString(), BioTMLConstants.ner.toString());
 				cluesConfiguration.setAlgorithmType(configuration.getAlgorithmType());
 				cluesConfiguration.setModelOrder(configuration.getModelOrder());
