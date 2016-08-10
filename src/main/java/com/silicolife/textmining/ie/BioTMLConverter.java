@@ -232,7 +232,7 @@ public class BioTMLConverter {
 						}
 					}
 				}else{
-					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)annotation.getStartOffset(), (int)annotation.getEndOffset()),new EntityAnnotationImpl(annotation.getStartOffset(), annotation.getEndOffset(), new AnoteClass(annotation.getAnnotType()), null, tokensString, NormalizationForm.getNormalizationForm(tokensString), null));
+					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)annotation.getStartOffset(), (int)annotation.getEndOffset()),new EntityAnnotationImpl(annotation.getStartOffset(), annotation.getEndOffset(), new AnoteClass(annotation.getAnnotType()), null, tokensString, false, null));
 				}
 			}
 		}
@@ -248,11 +248,11 @@ public class BioTMLConverter {
 				if(offset == 0){
 					endoffset = annotation.getStartOffset() + (long)token.length();
 
-					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)annotation.getStartOffset(), (int)endoffset),new EntityAnnotationImpl( annotation.getStartOffset(), endoffset, new AnoteClass(annotation.getAnnotType()), null, token, NormalizationForm.getNormalizationForm(token), null));
+					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)annotation.getStartOffset(), (int)endoffset),new EntityAnnotationImpl( annotation.getStartOffset(), endoffset, new AnoteClass(annotation.getAnnotType()), null, token, false, null));
 				}else if(offset + (long)token.length() == annotation.getEndOffset()){
-					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)offset, (int)annotation.getEndOffset()),new EntityAnnotationImpl( offset, annotation.getEndOffset(), new AnoteClass(annotation.getAnnotType()), null, token, NormalizationForm.getNormalizationForm(token), null));
+					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)offset, (int)annotation.getEndOffset()),new EntityAnnotationImpl( offset, annotation.getEndOffset(), new AnoteClass(annotation.getAnnotType()), null, token, false, null));
 				}else{
-					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)offset, (int)endoffset), new EntityAnnotationImpl( offset, endoffset, new AnoteClass(annotation.getAnnotType()), null, token, NormalizationForm.getNormalizationForm(token), null));
+					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)offset, (int)endoffset), new EntityAnnotationImpl( offset, endoffset, new AnoteClass(annotation.getAnnotType()), null, token, false, null));
 				}
 			}
 			offset = endoffset + (long)stringToRemove.length();
@@ -320,7 +320,7 @@ public class BioTMLConverter {
 		for(IBioTMLAnnotation annotation : annotationsInOneSide){
 			if(!annotation.getAnnotType().equals(BioTMLConstants.clue.toString())){
 				String tokensString = document.toString().substring((int)annotation.getStartOffset(), (int)annotation.getEndOffset());
-				IEntityAnnotation entityAnnotation = new EntityAnnotationImpl(annotation.getStartOffset(), annotation.getEndOffset(), new AnoteClass(annotation.getAnnotType()), null, tokensString, NormalizationForm.getNormalizationForm(tokensString), null);
+				IEntityAnnotation entityAnnotation = new EntityAnnotationImpl(annotation.getStartOffset(), annotation.getEndOffset(), new AnoteClass(annotation.getAnnotType()), null, tokensString, false, null);
 				boolean found = false;
 				Iterator<IEntityAnnotation> itEnt = entities.iterator();
 				while(!found && itEnt.hasNext()){
