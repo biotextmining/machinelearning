@@ -9,11 +9,11 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotation;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpus;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocument;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLSentence;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLToken;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLSentenceImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLTokenImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
@@ -21,7 +21,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLC
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
-import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLCorpusWriter;
+import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLCorpusWriterImpl;
 
 public class JNLPBAReader {
 	private static String jnlpbatoread = "C:/Users/RRodrigues/Desktop/JNLPBA/test/Genia4EReval2.raw";
@@ -55,14 +55,14 @@ public class JNLPBAReader {
 					//token to add to sentence
 					String[] tokenAndTag = line.split("\t");
 					long endOffset = startOffset + tokenAndTag[0].length();
-					sentenceTokens.add(new BioTMLToken(tokenAndTag[0], startOffset, endOffset));
+					sentenceTokens.add(new BioTMLTokenImpl(tokenAndTag[0], startOffset, endOffset));
 					if(tokenAndTag.length>1){
 						if(tokenAndTag[tokenAndTag.length-1].startsWith("B-") ){
-							annotations.add(new BioTMLAnnotation(documentID, tokenAndTag[tokenAndTag.length-1].substring(2), startOffset, endOffset));
+							annotations.add(new BioTMLAnnotationImpl(documentID, tokenAndTag[tokenAndTag.length-1].substring(2), startOffset, endOffset));
 						}else if(tokenAndTag[tokenAndTag.length-1].startsWith("I-")){
 							int prevAnnotID= annotations.size()-1;
 							IBioTMLAnnotation previousAnnotation = annotations.get(prevAnnotID);
-							annotations.set(prevAnnotID, new BioTMLAnnotation(documentID, tokenAndTag[tokenAndTag.length-1].substring(2), previousAnnotation.getStartOffset(), endOffset));
+							annotations.set(prevAnnotID, new BioTMLAnnotationImpl(documentID, tokenAndTag[tokenAndTag.length-1].substring(2), previousAnnotation.getStartOffset(), endOffset));
 						}
 					}
 					startOffset = endOffset + 1;
@@ -75,8 +75,8 @@ public class JNLPBAReader {
 
 		reader.close();
 			
-		IBioTMLCorpus corpus = new BioTMLCorpus(documents, annotations, corpusName);
-		IBioTMLCorpusWriter writer = new BioTMLCorpusWriter(corpus);
+		IBioTMLCorpus corpus = new BioTMLCorpusImpl(documents, annotations, corpusName);
+		IBioTMLCorpusWriter writer = new BioTMLCorpusWriterImpl(corpus);
 		writer.writeGZBioTMLCorpusFile(jnlpbatowrite);
 	}
 
@@ -84,7 +84,7 @@ public class JNLPBAReader {
 		if(!documentSentences.isEmpty() && !externalID.isEmpty() && documentID!=-1){
 			//new document
 			IBioTMLSentence title = documentSentences.get(0);
-			documents.add(new BioTMLDocument(documentID, externalID, title.toString(), documentSentences));
+			documents.add(new BioTMLDocumentImpl(documentID, externalID, title.toString(), documentSentences));
 		}
 		return new ArrayList<IBioTMLSentence>();
 	}
@@ -93,7 +93,7 @@ public class JNLPBAReader {
 			List<IBioTMLToken> sentenceTokens) {
 		if(!sentenceTokens.isEmpty()){
 			//new sentence
-			documentSentences.add(new BioTMLSentence(sentenceTokens, sentenceToSource(sentenceTokens)));
+			documentSentences.add(new BioTMLSentenceImpl(sentenceTokens, sentenceToSource(sentenceTokens)));
 		}
 		return new ArrayList<IBioTMLToken>();
 	}

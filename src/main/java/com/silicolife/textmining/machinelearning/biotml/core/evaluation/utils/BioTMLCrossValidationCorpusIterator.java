@@ -19,7 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpus;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotationsRelation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
@@ -86,8 +86,8 @@ public class BioTMLCrossValidationCorpusIterator implements Iterator<IBioTMLCorp
 	        if(end<getCorpus().getDocuments().size()){
 	        	documentBigFold.addAll(docListShuffled.subList(end, docListShuffled.size()));
 	        }
-	        corpusFold[0] = new BioTMLCorpus(documentBigFold, getAnnotationsByDocList(documentBigFold), getRelationsByDocList(documentBigFold), getCorpus().toString());
-	        corpusFold[1] = new BioTMLCorpus(documentFold, getAnnotationsByDocList(documentFold), getRelationsByDocList(documentFold), getCorpus().toString());
+	        corpusFold[0] = new BioTMLCorpusImpl(documentBigFold, getAnnotationsByDocList(documentBigFold), getRelationsByDocList(documentBigFold), getCorpus().toString());
+	        corpusFold[1] = new BioTMLCorpusImpl(documentFold, getAnnotationsByDocList(documentFold), getRelationsByDocList(documentFold), getCorpus().toString());
 	        corpusFolds.add(corpusFold);
 	        if(end == docListShuffled.size()){
 	        	finished = true;

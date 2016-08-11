@@ -9,8 +9,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLSentence;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLToken;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLSentenceImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLTokenImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
@@ -194,7 +194,7 @@ public class BioTMLOpenNLP {
 		Tokenizer tokenizer = new TokenizerME(getTokenizerModel());
 		Span[] tokens = tokenizer.tokenizePos(text);
 		for(Span token : tokens){
-			listTokens.add(new BioTMLToken((String)token.getCoveredText(text), (long)token.getStart(), (long)token.getEnd()));
+			listTokens.add(new BioTMLTokenImpl((String)token.getCoveredText(text), (long)token.getStart(), (long)token.getEnd()));
 		}
 		return listTokens;
 	}
@@ -235,7 +235,7 @@ public class BioTMLOpenNLP {
 		SentenceDetectorME sentenceDetector = new SentenceDetectorME(getSentenceModel());
 		Span[] sentencespos = sentenceDetector.sentPosDetect(document);
 		for(Span sentence : sentencespos){
-			sentences.add(new BioTMLSentence(getSentecebyTokens(tokens, (long) sentence.getStart(), (long) sentence.getEnd()), document.substring(sentence.getStart(), sentence.getEnd())));
+			sentences.add(new BioTMLSentenceImpl(getSentecebyTokens(tokens, (long) sentence.getStart(), (long) sentence.getEnd()), document.substring(sentence.getStart(), sentence.getEnd())));
 		}
 		return sentences;
 	}

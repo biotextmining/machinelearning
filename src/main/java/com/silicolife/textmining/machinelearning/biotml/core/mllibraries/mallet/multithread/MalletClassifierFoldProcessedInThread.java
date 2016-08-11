@@ -2,7 +2,7 @@ package com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet
 
 import java.util.Set;
 
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLEvaluation;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvaluation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithms;
@@ -116,7 +116,7 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 				recall += trial.getRecall(i);
 				f1 += trial.getF1(i);
 			}
-			addToMultiEvaluations(new BioTMLEvaluation((float)precision/(float)size, (float)recall/(float)size, (float)f1/(float)size));
+			addToMultiEvaluations(new BioTMLEvaluationImpl((float)precision/(float)size, (float)recall/(float)size, (float)f1/(float)size));
 		}
 	}
 

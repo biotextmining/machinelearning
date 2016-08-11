@@ -39,26 +39,6 @@ public interface IBioTMLCorpusToInstanceMallet {
 	 */
 	public String getIEAnnotationType();
 	
-	/**
-	 * 
-	 * Method to export the corpus into Mallet instances list.
-	 * Single-threaded system for testing purposes. Please use the multi-threaded system for production purposes.
-	 * 
-	 * @param p Mallet Pipe with classes for features incorporation in instance list.
-	 * @return Mallet InstanceList.
-	 * @throws BioTMLException.
-	 */
-	public InstanceList exportToMallet(Pipe p) throws BioTMLException;
-	
-	/**
-	 * 
-	 * 
-	 * @param p Mallet Pipe with classes for features incorporation in instance list.
-	 * @param threads Number of threads used in the system.
-	 * @return Mallet InstanceList.
-	 * @throws BioTMLException.
-	 */
-	public InstanceList exportToMallet(Pipe p, int threads) throws BioTMLException;
 	
 	/**
 	 * 

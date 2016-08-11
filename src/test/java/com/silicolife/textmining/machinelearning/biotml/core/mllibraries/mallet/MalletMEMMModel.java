@@ -13,9 +13,9 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLEvaluation;
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationResults;
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLMultiEvaluation;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLEvaluationImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationResultsImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLMultiEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.utils.BioTMLCrossValidationCorpusIterator;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeaturesManager;
@@ -116,15 +116,9 @@ public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
 		return pipe;
 	}
 
-	@SuppressWarnings("unused")
-	private InstanceList loadCorpus(IBioTMLCorpus corpusToLoad) throws BioTMLException{
-		IBioTMLCorpusToInstanceMallet malletCorpus = new BioTMLCorpusToInstanceMallet(corpusToLoad, getModelConfiguration().getClassType(), getModelConfiguration().getIEType());
-		return malletCorpus.exportToMallet(getPipe());
-	}
-
 	private InstanceList loadCorpus(IBioTMLCorpus corpusToLoad, int numThreads) throws BioTMLException{
 		IBioTMLCorpusToInstanceMallet malletCorpus = new BioTMLCorpusToInstanceMallet(corpusToLoad, getModelConfiguration().getClassType(), getModelConfiguration().getIEType());
-		return malletCorpus.exportToMallet(getPipe(), numThreads);
+		return malletCorpus.exportToMalletFeatures(getPipe(), numThreads, getFeatureConfiguration());
 	}
 
 	private int[] getModelOrders(){
@@ -193,7 +187,7 @@ public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
 				new String[]{foldIDString}, new String[]{"B", "I"}, new String[]{"B", "I"}) {
 		};
 		evaluator.evaluate(evaluationModelTraining);
-		return new BioTMLEvaluation(evaluator.getOverallPrecision(), evaluator.getOverallRecall(), evaluator.getOverallF1());
+		return new BioTMLEvaluationImpl(evaluator.getOverallPrecision(), evaluator.getOverallRecall(), evaluator.getOverallF1());
 	}
 
 	private IBioTMLEvaluation evaluateByDocumentCrossValidation() throws BioTMLException{
@@ -207,8 +201,8 @@ public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
 			multiEvaluations.add(evaluateFold(trainingData, testingData, "CV By Doc Fold:" + String.valueOf(foldID)));
 			foldID++;
 		}
-		IBioTMLMultiEvaluation modelScores = new BioTMLMultiEvaluation(multiEvaluations);
-		return new BioTMLEvaluation(modelScores.getMeanPrecision(), modelScores.getMeanRecall(), modelScores.getMeanFscore());
+		IBioTMLMultiEvaluation modelScores = new BioTMLMultiEvaluationImpl(multiEvaluations);
+		return new BioTMLEvaluationImpl(modelScores.getMeanPrecision(), modelScores.getMeanRecall(), modelScores.getMeanFscore());
 	}
 
 	private IBioTMLEvaluation evaluateBySentenceCrossValidation() throws BioTMLException{
@@ -223,8 +217,8 @@ public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
 			multiEvaluations.add(evaluateFold(trainingData, testingData, "CV By Sent Fold:" + String.valueOf(foldID)));
 			foldID++;
 		}
-		IBioTMLMultiEvaluation modelScores = new BioTMLMultiEvaluation(multiEvaluations);
-		return new BioTMLEvaluation(modelScores.getMeanPrecision(), modelScores.getMeanRecall(), modelScores.getMeanFscore());
+		IBioTMLMultiEvaluation modelScores = new BioTMLMultiEvaluationImpl(multiEvaluations);
+		return new BioTMLEvaluationImpl(modelScores.getMeanPrecision(), modelScores.getMeanRecall(), modelScores.getMeanFscore());
 	}
 
 	public IBioTMLModelEvaluationResults evaluate() throws BioTMLException{
@@ -235,7 +229,7 @@ public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
 		if(getModelEvaluationConfiguration().isUseCrossValidationBySentences()){
 			evaluationResults.put("CVbySENT", evaluateBySentenceCrossValidation());
 		}
-		return new BioTMLModelEvaluationResults(evaluationResults);
+		return new BioTMLModelEvaluationResultsImpl(evaluationResults);
 	}
 
 	private void setMEMMModel(MEMM memmModel){

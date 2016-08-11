@@ -83,6 +83,14 @@ public interface IBioTMLSentence extends Serializable {
 	
 	/**
 	 * 
+	 * Method to get the sentence offsets pair.
+	 * 
+	 * @return {@link IBioTMLOffsetsPair}}
+	 */
+	public IBioTMLOffsetsPair getSentenceOffsetsPair();
+	
+	/**
+	 * 
 	 * Method to get the start sentence offset.
 	 * 
 	 * @return Start token offset.

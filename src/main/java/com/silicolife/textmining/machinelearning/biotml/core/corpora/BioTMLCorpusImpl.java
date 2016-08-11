@@ -26,7 +26,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLT
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLCorpus implements IBioTMLCorpus{
+public class BioTMLCorpusImpl implements IBioTMLCorpus{
 
 	private static final long serialVersionUID = 1L;
 	private List<IBioTMLDocument> documents;
@@ -42,7 +42,7 @@ public class BioTMLCorpus implements IBioTMLCorpus{
 	 * @param name - Corpus name.
 	 */
 
-	public BioTMLCorpus(List<IBioTMLDocument> documents, String name){
+	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, String name){
 		this.documents = documents;
 		this.annotations = new ArrayList<IBioTMLAnnotation>();
 		this.relations = new ArrayList<IBioTMLAnnotationsRelation>();
@@ -58,7 +58,7 @@ public class BioTMLCorpus implements IBioTMLCorpus{
 	 * @param name - Corpus name.
 	 */
 
-	public BioTMLCorpus(List<IBioTMLDocument> documents, List<IBioTMLAnnotation> annotations, String name){
+	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, List<IBioTMLAnnotation> annotations, String name){
 		this.documents = documents;
 		this.annotations = annotations;
 		this.relations = new ArrayList<IBioTMLAnnotationsRelation>();
@@ -74,7 +74,7 @@ public class BioTMLCorpus implements IBioTMLCorpus{
 	 * @param name - Corpus name.
 	 */
 
-	public BioTMLCorpus(List<IBioTMLDocument> documents, List<IBioTMLAnnotation> annotations, List<IBioTMLAnnotationsRelation> relations, String name){
+	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, List<IBioTMLAnnotation> annotations, List<IBioTMLAnnotationsRelation> relations, String name){
 		this.documents = documents;
 		this.annotations = annotations;
 		this.relations = relations;
@@ -108,7 +108,7 @@ public class BioTMLCorpus implements IBioTMLCorpus{
 			for(IBioTMLAnnotation annot: annots){
 				tokens.addAll(doc.getTokens(annot.getStartOffset(), annot.getEndOffset()));
 			}
-			subdocuments.add(new BioTMLDocument(doc.getID(), doc.getTitle(), doc.getSentencesOfTokens(tokens)));
+			subdocuments.add(new BioTMLDocumentImpl(doc.getID(), doc.getTitle(), doc.getSentencesOfTokens(tokens)));
 		}
 		return subdocuments;
 	}
@@ -206,7 +206,7 @@ public class BioTMLCorpus implements IBioTMLCorpus{
 					}else if( leftEnt.size() == otherLeftEnt.size()){
 						IBioTMLAnnotation firstLeftEnt = leftEnt.iterator().next();
 						IBioTMLAnnotation firstOtherLeftEnt = otherLeftEnt.iterator().next();
-						leftIsEqual = firstLeftEnt.haveTheSameOffsets(firstOtherLeftEnt);
+						leftIsEqual = firstLeftEnt.getAnnotationOffsets().equals(firstOtherLeftEnt.getAnnotationOffsets());
 					}
 					Set<IBioTMLAnnotation> rightEnt = new HashSet<>();
 					try {
@@ -222,7 +222,7 @@ public class BioTMLCorpus implements IBioTMLCorpus{
 					}else if(rightEnt.size() == otherRightEnt.size()){ 
 						IBioTMLAnnotation firstRightEnt = rightEnt.iterator().next();
 						IBioTMLAnnotation firstOtherRightEnt = otherRightEnt.iterator().next();
-						rightIsEqual = firstRightEnt.haveTheSameOffsets(firstOtherRightEnt);
+						rightIsEqual = firstRightEnt.getAnnotationOffsets().equals(firstOtherRightEnt.getAnnotationOffsets());
 					}
 					if(leftIsEqual && rightIsEqual){
 						if(relation.getScore()<otherRelation.getScore()){

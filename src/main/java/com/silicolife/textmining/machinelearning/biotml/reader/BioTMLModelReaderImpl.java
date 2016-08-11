@@ -38,14 +38,14 @@ import cc.mallet.types.Alphabet;
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLModelReader implements IBioTMLModelReader{
+public class BioTMLModelReaderImpl implements IBioTMLModelReader{
 
 	/**
 	 * 
 	 * Initializes the model reader.
 	 * 
 	 */
-	public BioTMLModelReader() {}
+	public BioTMLModelReaderImpl() {}
 	
 	public List<IBioTMLModel> loadModelFromZipFile(String modelFileName) throws BioTMLException{
 		List<IBioTMLModel> model = new ArrayList<>();

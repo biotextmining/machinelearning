@@ -29,8 +29,8 @@ import com.silicolife.textmining.core.interfaces.process.IE.re.IREConfiguration;
 import com.silicolife.textmining.ie.BioTMLConverter;
 import com.silicolife.textmining.ie.re.biotml.configuration.IREBioTMLAnnotatorConfiguration;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
-import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMalletAnnotator;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpus;
+import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMalletAnnotatorImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeaturesManager;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
@@ -38,7 +38,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLC
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
-import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReader;
+import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReaderImpl;
 
 public class REBioTMLTagger implements IREProcess{
 
@@ -46,7 +46,7 @@ public class REBioTMLTagger implements IREProcess{
 	public static final IProcessOrigin bioTMLOrigin= new ProcessOriginImpl(GenerateRandomId.generateID(),bioTMLTagger);
 	private static int documentsStepSize = 10;// this int is responsible to load documents into memory... for best performance increase the number. However, memory usage will increase dramatically.
 	private boolean stop=false;
-	private BioTMLMalletAnnotator annotator;
+	private BioTMLMalletAnnotatorImpl annotator;
 	private BioTMLConverter converter;
 
 	public REBioTMLTagger(){
@@ -77,10 +77,10 @@ public class REBioTMLTagger implements IREProcess{
 			if(biotmlCorpus!= null){
 
 				if(!biotmlCorpus.getRelations().isEmpty()){
-					biotmlCorpus = new BioTMLCorpus(biotmlCorpus.getDocuments(), biotmlCorpus.getAnnotations(), biotmlCorpus.toString());
+					biotmlCorpus = new BioTMLCorpusImpl(biotmlCorpus.getDocuments(), biotmlCorpus.getAnnotations(), biotmlCorpus.toString());
 				}
 
-				IBioTMLModelReader modelreader = new BioTMLModelReader();
+				IBioTMLModelReader modelreader = new BioTMLModelReaderImpl();
 				List<String> submodelsFilename = new ArrayList<>();
 				if(reconfiguration.getModelPath().endsWith(".zip")){
 					submodelsFilename = modelreader.loadSubmodelsToStringFromZipFile(reconfiguration.getModelPath());
@@ -113,7 +113,7 @@ public class REBioTMLTagger implements IREProcess{
 						List<IBioTMLAnnotation> allAnnotations = new ArrayList<>();
 						allAnnotations.addAll(clues);
 						allAnnotations.addAll(biotmlCorpus.getAnnotations());
-						IBioTMLCorpus anotatedCorpus = new BioTMLCorpus(biotmlCorpus.getDocuments(), allAnnotations, biotmlCorpus.toString());
+						IBioTMLCorpus anotatedCorpus = new BioTMLCorpusImpl(biotmlCorpus.getDocuments(), allAnnotations, biotmlCorpus.toString());
 						long startimeannotation = GregorianCalendar.getInstance().getTimeInMillis();
 						executeAnnotation(reProcess,reconfiguration,report, anotatedCorpus, submodelsFilename, startimeannotation);
 					}else if(!foundCluesModel && !submodelsFilename.isEmpty() && !stop){
@@ -147,7 +147,7 @@ public class REBioTMLTagger implements IREProcess{
 		Iterator<IBioTMLDocument> itDocuments = documents.iterator();
 		while(itDocuments.hasNext() && !stop){
 			List<IBioTMLDocument> documentsStep = getDocumentsInStep(itDocuments);
-			annotator = new BioTMLMalletAnnotator(new BioTMLCorpus(documentsStep, new String()));
+			annotator = new BioTMLMalletAnnotatorImpl(new BioTMLCorpusImpl(documentsStep, new String()));
 			IBioTMLCorpus anotatedCorpus = annotator.generateAnnotatedBioTMCorpus(model, configuration.getThreads());
 			clues.addAll(anotatedCorpus.getAnnotations());
 		}
@@ -155,7 +155,7 @@ public class REBioTMLTagger implements IREProcess{
 	}
 
 	private void executeAnnotation(IIEProcess process,IREBioTMLAnnotatorConfiguration configuration,IREProcessReport report, IBioTMLCorpus biotmlCorpus, List<String> submodelsFilename, long startimeannotation)throws BioTMLException, ANoteException {
-		IBioTMLModelReader modelreader = new BioTMLModelReader();
+		IBioTMLModelReader modelreader = new BioTMLModelReaderImpl();
 		int counter = 0;
 		List<IBioTMLDocument> documents = biotmlCorpus.getDocuments();
 		int maxCounter = documents.size() * submodelsFilename.size();
@@ -177,7 +177,7 @@ public class REBioTMLTagger implements IREProcess{
 		while(itDocuments.hasNext() && !stop){
 			List<IBioTMLDocument> documentsStep = getDocumentsInStep(itDocuments);
 			List<IBioTMLAnnotation> reAnnotationsStep = getNERAnnots(biotmlCorpus, documentsStep);
-			annotator = new BioTMLMalletAnnotator(new BioTMLCorpus(documentsStep, reAnnotationsStep, new String()));
+			annotator = new BioTMLMalletAnnotatorImpl(new BioTMLCorpusImpl(documentsStep, reAnnotationsStep, new String()));
 			IBioTMLCorpus anotatedDocument = annotator.generateAnnotatedBioTMCorpus(submodel, configuration.getThreads());
 			getConverter().convertBioTMLCorpusToAnote(process,anotatedDocument, report);
 			annotator = null;

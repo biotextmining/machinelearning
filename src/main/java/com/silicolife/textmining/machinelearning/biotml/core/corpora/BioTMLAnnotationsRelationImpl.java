@@ -13,11 +13,11 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLA
  * Represents a relation annotation.
  * 
  * @since 1.0.0
- * @version 1.0.1
+ * @version 1.0.2
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLAnnotationsRelation implements IBioTMLAnnotationsRelation {
+public class BioTMLAnnotationsRelationImpl implements IBioTMLAnnotationsRelation {
 	
 	private static final long serialVersionUID = 1L;
 	private Set<IBioTMLAnnotation> relation;
@@ -31,7 +31,7 @@ public class BioTMLAnnotationsRelation implements IBioTMLAnnotationsRelation {
 	 * @throws BioTMLException
 	 */
 	
-	public BioTMLAnnotationsRelation(Set<IBioTMLAnnotation> relation) throws BioTMLException{
+	public BioTMLAnnotationsRelationImpl(Set<IBioTMLAnnotation> relation) throws BioTMLException{
 		if(!relationIsValid(relation)){
 			throw new BioTMLException(26);
 		}
@@ -39,7 +39,7 @@ public class BioTMLAnnotationsRelation implements IBioTMLAnnotationsRelation {
 		this.score = 0;
 	}
 	
-	public BioTMLAnnotationsRelation(Set<IBioTMLAnnotation> relation, double score) throws BioTMLException{
+	public BioTMLAnnotationsRelationImpl(Set<IBioTMLAnnotation> relation, double score) throws BioTMLException{
 		if(!relationIsValid(relation)){
 			throw new BioTMLException(26);
 		}
@@ -103,8 +103,7 @@ public class BioTMLAnnotationsRelation implements IBioTMLAnnotationsRelation {
 		Iterator<IBioTMLAnnotation> itAnnotation = getRelation().iterator();
 		while(itAnnotation.hasNext()){
 			IBioTMLAnnotation annot = itAnnotation.next();
-			if(	annot.getStartOffset()<=startOffset
-				&& annot.getEndOffset()>=endOffset){
+			if(annot.getAnnotationOffsets().offsetsEquals(startOffset, endOffset)){
 				return annot;
 			}
 		}
@@ -172,21 +171,35 @@ public class BioTMLAnnotationsRelation implements IBioTMLAnnotationsRelation {
 		}
 		return sb.toString();
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return toString().hashCode();
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((relation == null) ? 0 : relation.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(score);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
 	}
-	
+
 	@Override
-	public boolean equals(Object relation) {
-		if (relation instanceof IBioTMLAnnotationsRelation) {
-			IBioTMLAnnotationsRelation otherRelation = (IBioTMLAnnotationsRelation) relation;
-			if (toString().equals(otherRelation.toString())) {
-				return true;
-			}
-		}
-		return false;
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BioTMLAnnotationsRelationImpl other = (BioTMLAnnotationsRelationImpl) obj;
+		if (relation == null) {
+			if (other.relation != null)
+				return false;
+		} else if (!relation.equals(other.relation))
+			return false;
+		if (Double.doubleToLongBits(score) != Double.doubleToLongBits(other.score))
+			return false;
+		return true;
 	}
 
 	@Override
@@ -202,7 +215,7 @@ public class BioTMLAnnotationsRelation implements IBioTMLAnnotationsRelation {
 		while(itThisRelation.hasNext() && itOtherRelation.hasNext()){
 			IBioTMLAnnotation thisAnnot = itThisRelation.next();
 			IBioTMLAnnotation otherAnnot = itOtherRelation.next();
-			if(!thisAnnot.haveTheSameOffsets(otherAnnot)){
+			if(!thisAnnot.getAnnotationOffsets().equals(otherAnnot.getAnnotationOffsets())){
 				return false;
 			}
 		}

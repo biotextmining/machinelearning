@@ -6,14 +6,14 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotation;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpus;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
-import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReader;
-import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLCorpusWriter;
+import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReaderImpl;
+import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLCorpusWriterImpl;
 
 public class ManipulateCorpus {
 
@@ -21,7 +21,7 @@ public class ManipulateCorpus {
 	public void copyCluesFromOneCorpusToOtherCorpus() throws BioTMLException {
 		String annotatedCorpusFilename = "C:\\Users\\RRodrigues\\Desktop\\corpora\\entityentity\\tocreatemodels\\AImed_Corpus_training.gz";
 		String unannotatedCorpusFilename = "C:\\Users\\RRodrigues\\Desktop\\corpora\\entityentity\\tocreatemodels\\AImed_Corpus_training_unnanotated.gz";
-		BioTMLCorpusReader reader = new BioTMLCorpusReader();
+		BioTMLCorpusReaderImpl reader = new BioTMLCorpusReaderImpl();
 		IBioTMLCorpus annotatedcorpus = reader.readBioTMLCorpusFromFile(annotatedCorpusFilename);
 		IBioTMLCorpus unannotatedcorpus = reader.readBioTMLCorpusFromFile(unannotatedCorpusFilename);
 		
@@ -41,9 +41,9 @@ public class ManipulateCorpus {
 			}
 		}
 		
-		unannotatedcorpus = new BioTMLCorpus(unannotatedcorpus.getDocuments(), AllAnnotations, unannotatedcorpus.toString()+"_with_clues");
+		unannotatedcorpus = new BioTMLCorpusImpl(unannotatedcorpus.getDocuments(), AllAnnotations, unannotatedcorpus.toString()+"_with_clues");
 		
-		BioTMLCorpusWriter writer = new BioTMLCorpusWriter(unannotatedcorpus);
+		BioTMLCorpusWriterImpl writer = new BioTMLCorpusWriterImpl(unannotatedcorpus);
 		writer.writeGZBioTMLCorpusFile(unannotatedCorpusFilename);
 	}
 	
@@ -60,7 +60,7 @@ public class ManipulateCorpus {
 	private List<IBioTMLAnnotation> setAnnotationsToDocument(List<IBioTMLAnnotation> annotations, IBioTMLDocument unannotateddocument){
 		List<IBioTMLAnnotation> annotationsConverted = new ArrayList<>();
 		for(IBioTMLAnnotation annotation : annotations){
-			annotationsConverted.add(new BioTMLAnnotation(unannotateddocument.getID(), annotation.getAnnotType(), annotation.getStartOffset(), annotation.getEndOffset()));
+			annotationsConverted.add(new BioTMLAnnotationImpl(unannotateddocument.getID(), annotation.getAnnotType(), annotation.getStartOffset(), annotation.getEndOffset()));
 		}
 		return annotationsConverted;
 	}

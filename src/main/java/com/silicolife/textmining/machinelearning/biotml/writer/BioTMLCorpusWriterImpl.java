@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpus;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotationsRelation;
@@ -24,7 +24,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLD
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLCorpusWriter implements IBioTMLCorpusWriter{
+public class BioTMLCorpusWriterImpl implements IBioTMLCorpusWriter{
 	
 	private IBioTMLCorpus corpus;
 
@@ -34,7 +34,7 @@ public class BioTMLCorpusWriter implements IBioTMLCorpusWriter{
 	 * 
 	 * @param corpus Corpus to be written ({@link IBioTMLCorpus}).
 	 */
-	public BioTMLCorpusWriter(IBioTMLCorpus corpus) {
+	public BioTMLCorpusWriterImpl(IBioTMLCorpus corpus) {
 		this.corpus = corpus;
 	}
 	
@@ -56,7 +56,7 @@ public class BioTMLCorpusWriter implements IBioTMLCorpusWriter{
 	public void writeGZBioTMLCorpusFileWithoutAnnotations(String filenamepath) throws BioTMLException{
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(filenamepath)));
-			oos.writeObject(new BioTMLCorpus(getCorpus().getDocuments(), getCorpus().toString()));
+			oos.writeObject(new BioTMLCorpusImpl(getCorpus().getDocuments(), getCorpus().toString()));
 			oos.close();
 		} catch (IOException ex) {
 			ex.printStackTrace();
@@ -74,9 +74,9 @@ public class BioTMLCorpusWriter implements IBioTMLCorpusWriter{
 			createCorpusFromDocuments(new ArrayList<>(documents.subList(0, documents.size()/3)), dirnamepath, getCorpus().toString()+"_training");
 			createCorpusFromDocuments(new ArrayList<>(documents.subList(documents.size()/3, 2*(documents.size()/3))), dirnamepath, getCorpus().toString()+"_development");
 			createCorpusFromDocuments(new ArrayList<>(documents.subList(2*(documents.size()/3), documents.size())), dirnamepath, getCorpus().toString()+"_evaluation");
-			writeCorpusFile(dirnamepath+"/"+getCorpus().toString()+"_training_unnanotated"+".gz",  new BioTMLCorpus(new ArrayList<>(documents.subList(0, documents.size()/3)), getCorpus().toString()+"_training_unnanotated"));
-			writeCorpusFile(dirnamepath+"/"+getCorpus().toString()+"_development_unnanotated"+".gz",  new BioTMLCorpus(new ArrayList<>(documents.subList(documents.size()/3, 2*(documents.size()/3))), getCorpus().toString()+"_development_unnanotated"));
-			writeCorpusFile(dirnamepath+"/"+getCorpus().toString()+"_evaluation_unnanotated"+".gz",  new BioTMLCorpus(new ArrayList<>(documents.subList(2*(documents.size()/3), documents.size())), getCorpus().toString()+"_evaluation_unnanotated"));
+			writeCorpusFile(dirnamepath+"/"+getCorpus().toString()+"_training_unnanotated"+".gz",  new BioTMLCorpusImpl(new ArrayList<>(documents.subList(0, documents.size()/3)), getCorpus().toString()+"_training_unnanotated"));
+			writeCorpusFile(dirnamepath+"/"+getCorpus().toString()+"_development_unnanotated"+".gz",  new BioTMLCorpusImpl(new ArrayList<>(documents.subList(documents.size()/3, 2*(documents.size()/3))), getCorpus().toString()+"_development_unnanotated"));
+			writeCorpusFile(dirnamepath+"/"+getCorpus().toString()+"_evaluation_unnanotated"+".gz",  new BioTMLCorpusImpl(new ArrayList<>(documents.subList(2*(documents.size()/3), documents.size())), getCorpus().toString()+"_evaluation_unnanotated"));
 		}else{
 			throw new BioTMLException("The inputed corpus must have more than 100 documents.");
 		}
@@ -89,7 +89,7 @@ public class BioTMLCorpusWriter implements IBioTMLCorpusWriter{
 			annotations.addAll(getCorpus().getDocAnnotations(doc.getID()));
 			relations.addAll(getCorpus().getDocAnnotationRelations(doc.getID()));
 		}
-		writeCorpusFile(dirnamepath+"/"+corpusName+".gz",  new BioTMLCorpus(documents, annotations, relations, corpusName));
+		writeCorpusFile(dirnamepath+"/"+corpusName+".gz",  new BioTMLCorpusImpl(documents, annotations, relations, corpusName));
 	}
 	
 	private void writeCorpusFile(String filenamepath, IBioTMLCorpus corpusToWrite) throws BioTMLException{

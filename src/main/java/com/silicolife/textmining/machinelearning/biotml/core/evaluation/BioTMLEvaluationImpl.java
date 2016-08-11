@@ -10,7 +10,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLE
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLEvaluation implements IBioTMLEvaluation{
+public class BioTMLEvaluationImpl implements IBioTMLEvaluation{
 	
 	private float precision;
 	private float recall;
@@ -26,14 +26,14 @@ public class BioTMLEvaluation implements IBioTMLEvaluation{
 	 * @param fscore - F-score.
 	 */
 	
-	public BioTMLEvaluation(float precision, float recall, float fscore){
+	public BioTMLEvaluationImpl(float precision, float recall, float fscore){
 		this.precision = precision;
 		this.recall = recall;
 		this.fscore = fscore;
 		this.evaluationDescription = new String();
 	}
 	
-	public BioTMLEvaluation(float precision, float recall, float fscore, String evaluationDescription){
+	public BioTMLEvaluationImpl(float precision, float recall, float fscore, String evaluationDescription){
 		this(precision, recall, fscore);
 		this.evaluationDescription = evaluationDescription;
 	}

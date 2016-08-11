@@ -7,7 +7,7 @@ import java.io.Serializable;
  * BioTML annotation interface.
  * 
  * @since 1.0.0
- * @version 1.0.1
+ * @version 1.0.2
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
@@ -20,6 +20,15 @@ public interface IBioTMLAnnotation extends Comparable<IBioTMLAnnotation>, Serial
 	 * @return Document ID.
 	 */
 	public long getDocID();
+	
+
+	/**
+	 * 
+	 * Method to get the annotation offsets pair.
+	 * 
+	 * @return {@link IBioTMLOffsetsPair}
+	 */
+	public IBioTMLOffsetsPair getAnnotationOffsets();
 	
 	/**
 	 * 
@@ -52,14 +61,5 @@ public interface IBioTMLAnnotation extends Comparable<IBioTMLAnnotation>, Serial
 	 * @return score.
 	 */
 	public double getScore();
-	
-	/**
-	 * 
-	 * Method that compares the offsets of two Annotations.
-	 * 
-	 * @param annotationToCompare - Annotation ({@link IBioTMLAnnotation}) to compare.
-	 * @return Boolean that validates if the two annotations have the same offsets.
-	 */
-	public boolean haveTheSameOffsets(IBioTMLAnnotation annotationToCompare);
 
 }

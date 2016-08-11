@@ -15,9 +15,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPOutputStream;
 
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLEvaluation;
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationResults;
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLMultiEvaluation;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLEvaluationImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationResultsImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLMultiEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.utils.BioTMLCrossValidationCorpusIterator;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeaturesManager;
@@ -139,12 +139,6 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 		return pipe;
 	}
 
-	@SuppressWarnings("unused")
-	private InstanceList loadCorpus(IBioTMLCorpus corpusToLoad) throws BioTMLException{
-		IBioTMLCorpusToInstanceMallet malletCorpus = new BioTMLCorpusToInstanceMallet(corpusToLoad, getModelConfiguration().getClassType(), getModelConfiguration().getIEType());
-		return malletCorpus.exportToMallet(getPipe());
-	}
-
 	private InstanceList loadCorpus(IBioTMLCorpus corpusToLoad, int numThreads) throws BioTMLException{
 		IBioTMLCorpusToInstanceMallet malletCorpus = new BioTMLCorpusToInstanceMallet(corpusToLoad, getModelConfiguration().getClassType(), getModelConfiguration().getIEType());
 		return malletCorpus.exportToMalletFeatures(getPipe(), numThreads, getFeatureConfiguration());
@@ -189,7 +183,7 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 			recall += trial.getRecall(i);
 			f1 += trial.getF1(i);
 		}
-		return new BioTMLEvaluation((float)precision/(float)size, (float)recall/(float)size, (float)f1/(float)size);
+		return new BioTMLEvaluationImpl((float)precision/(float)size, (float)recall/(float)size, (float)f1/(float)size);
 	}
 
 	private IBioTMLEvaluation evaluateByDocumentCrossValidation() throws BioTMLException{
@@ -209,8 +203,8 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 		} catch (InterruptedException exc) {
 			throw new BioTMLException(21, exc);
 		}
-		IBioTMLMultiEvaluation modelScores = new BioTMLMultiEvaluation(multiEvaluations);
-		return new BioTMLEvaluation(modelScores.getMeanPrecision(), modelScores.getMeanRecall(), modelScores.getMeanFscore());
+		IBioTMLMultiEvaluation modelScores = new BioTMLMultiEvaluationImpl(multiEvaluations);
+		return new BioTMLEvaluationImpl(modelScores.getMeanPrecision(), modelScores.getMeanRecall(), modelScores.getMeanFscore());
 	}
 
 	private IBioTMLEvaluation evaluateBySentenceCrossValidation() throws BioTMLException{
@@ -231,8 +225,8 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 		} catch (InterruptedException exc) {
 			throw new BioTMLException(21, exc);
 		}
-		IBioTMLMultiEvaluation modelScores = new BioTMLMultiEvaluation(multiEvaluations);
-		return new BioTMLEvaluation(modelScores.getMeanPrecision(), modelScores.getMeanRecall(), modelScores.getMeanFscore());
+		IBioTMLMultiEvaluation modelScores = new BioTMLMultiEvaluationImpl(multiEvaluations);
+		return new BioTMLEvaluationImpl(modelScores.getMeanPrecision(), modelScores.getMeanRecall(), modelScores.getMeanFscore());
 	}
 
 	public IBioTMLModelEvaluationResults evaluate() throws BioTMLException{
@@ -243,7 +237,7 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 		if(getModelEvaluationConfiguration().isUseCrossValidationBySentences()){
 			evaluationResults.put("CVbySENT", evaluateBySentenceCrossValidation());
 		}
-		return new BioTMLModelEvaluationResults(evaluationResults);
+		return new BioTMLModelEvaluationResultsImpl(evaluationResults);
 	}
 
 	private void setClassifierModel(Classifier model){

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpus;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotationsRelation;
@@ -26,7 +26,7 @@ import cc.mallet.fst.Transducer;
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
+public class BioTMLMalletAnnotatorImpl implements IBioTMLAnnotator{
 
 	private IBioTMLCorpus corpus;
 	private boolean stop = false;
@@ -39,7 +39,7 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 	 * 
 	 * @param corpus - Unannotated {@link IBioTMLCorpus}.
 	 */
-	public BioTMLMalletAnnotator(IBioTMLCorpus corpus){
+	public BioTMLMalletAnnotatorImpl(IBioTMLCorpus corpus){
 		this.corpus = corpus;
 	}
 
@@ -60,9 +60,9 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 		generateNewAnnotationsOrRelations(model, threads, annotations, relations);
 
 		if(!relations.isEmpty()){
-			return new BioTMLCorpus(getBasedBioTMCorpus().getDocuments(), annotations, relations, getBasedBioTMCorpus().toString());
+			return new BioTMLCorpusImpl(getBasedBioTMCorpus().getDocuments(), annotations, relations, getBasedBioTMCorpus().toString());
 		}else{
-			return new BioTMLCorpus(getBasedBioTMCorpus().getDocuments(), annotations, getBasedBioTMCorpus().toString());
+			return new BioTMLCorpusImpl(getBasedBioTMCorpus().getDocuments(), annotations, getBasedBioTMCorpus().toString());
 		}
 	}
 
@@ -98,9 +98,9 @@ public class BioTMLMalletAnnotator implements IBioTMLAnnotator{
 		}
 		
 		if(!relations.isEmpty()){
-			return new BioTMLCorpus(getBasedBioTMCorpus().getDocuments(), annotations, relations, getBasedBioTMCorpus().toString());
+			return new BioTMLCorpusImpl(getBasedBioTMCorpus().getDocuments(), annotations, relations, getBasedBioTMCorpus().toString());
 		}else{
-			return new BioTMLCorpus(getBasedBioTMCorpus().getDocuments(), annotations, getBasedBioTMCorpus().toString());
+			return new BioTMLCorpusImpl(getBasedBioTMCorpus().getDocuments(), annotations, getBasedBioTMCorpus().toString());
 		}
 	}
 

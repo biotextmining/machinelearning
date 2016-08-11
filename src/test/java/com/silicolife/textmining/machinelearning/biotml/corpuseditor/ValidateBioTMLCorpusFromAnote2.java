@@ -5,15 +5,15 @@ import org.junit.Test;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
-import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReader;
-import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLCorpusWriter;
+import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReaderImpl;
+import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLCorpusWriterImpl;
 
 public class ValidateBioTMLCorpusFromAnote2 {
 
 //	@Test
 	public void test() throws BioTMLException {
 		String bioTMLCorpusFileName = "C:\\Users\\RRodrigues\\Desktop\\corpora\\final\\biotmlcorpus\\tocreatemodels\\syngenta_corpus_clearnlp_training.gz";
-		BioTMLCorpusReader reader = new BioTMLCorpusReader();
+		BioTMLCorpusReaderImpl reader = new BioTMLCorpusReaderImpl();
 		IBioTMLCorpus corpus = reader.readBioTMLCorpusFromFile(bioTMLCorpusFileName);
 		for(IBioTMLDocument document : corpus.getDocuments()){
 			String alltext = document.toString();
@@ -30,10 +30,10 @@ public class ValidateBioTMLCorpusFromAnote2 {
 //	@Test
 	public void test2() throws BioTMLException{
 		String bioTMLCorpusFileName = "C:\\Users\\RRodrigues\\Desktop\\corpora\\entityentity\\annotated\\AImed_Corpus_training_anotated.gz";
-		BioTMLCorpusReader reader = new BioTMLCorpusReader();
+		BioTMLCorpusReaderImpl reader = new BioTMLCorpusReaderImpl();
 		IBioTMLCorpus corpus = reader.readBioTMLCorpusFromFile(bioTMLCorpusFileName);
 		String bioTMLCorpus2FileName = "C:\\Users\\RRodrigues\\Desktop\\corpora\\entityentity\\tocreatemodels\\AImed_Corpus_training.gz";
-		BioTMLCorpusReader reader2 = new BioTMLCorpusReader();
+		BioTMLCorpusReaderImpl reader2 = new BioTMLCorpusReaderImpl();
 		IBioTMLCorpus corpus2 = reader2.readBioTMLCorpusFromFile(bioTMLCorpus2FileName);
 		for(IBioTMLDocument doc : corpus.getDocuments()){
 			boolean docFound = false;
@@ -51,16 +51,16 @@ public class ValidateBioTMLCorpusFromAnote2 {
 //	@Test	
 	public void test3() throws BioTMLException{
 		String bioTMLCorpusFileName = "C:\\Users\\RRodrigues\\Desktop\\corpora\\final\\biotmlcorpus\\exported\\syn_only_one_type_relation.gz";
-		BioTMLCorpusReader reader = new BioTMLCorpusReader();
+		BioTMLCorpusReaderImpl reader = new BioTMLCorpusReaderImpl();
 		IBioTMLCorpus corpus = reader.readBioTMLCorpusFromFile(bioTMLCorpusFileName);
-		BioTMLCorpusWriter writer = new BioTMLCorpusWriter(corpus);
+		BioTMLCorpusWriterImpl writer = new BioTMLCorpusWriterImpl(corpus);
 		writer.writeBioTMLCorpusFileSplitedForML("C:\\Users\\RRodrigues\\Desktop\\corpora\\final\\biotmlcorpus\\tomodeltest");
 	}
 	
 	@Test
 	public void test4() throws BioTMLException {
 		String bioTMLCorpusFileName = "C:/Users/RRodrigues/Desktop/Syngenta_Models/corpus/syn_old_corpus.gz";
-		BioTMLCorpusReader reader = new BioTMLCorpusReader();
+		BioTMLCorpusReaderImpl reader = new BioTMLCorpusReaderImpl();
 		IBioTMLCorpus corpus = reader.readBioTMLCorpusFromFile(bioTMLCorpusFileName);
 		System.out.println(corpus.getAnnotations());
 		System.out.println(corpus.getRelations());

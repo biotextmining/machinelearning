@@ -7,7 +7,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 public class Read {
 
 	public static void main(String[] args) throws BioTMLException {
-		IBioTMLModelReader reader = new BioTMLModelReader();
+		IBioTMLModelReader reader = new BioTMLModelReaderImpl();
 		IBioTMLModel model = reader.loadConfigurationsModelFromGZFile("C:\\Users\\RRodrigues\\Desktop\\BioTML Models\\chemical_systematic.gz");
 		System.out.println(model);
 	}

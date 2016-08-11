@@ -3,7 +3,7 @@ package com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet
 import java.util.List;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLTokensWithFeaturesAndLabels;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLTokensWithFeaturesAndLabels;
 
 import cc.mallet.pipe.Pipe;
 import cc.mallet.types.Instance;

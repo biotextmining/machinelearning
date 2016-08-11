@@ -22,7 +22,7 @@ import com.silicolife.textmining.ie.schemas.create.model.configuration.INERSchem
 import com.silicolife.textmining.ie.schemas.create.model.configuration.NERSchemaCreateModelConfigurationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeatureGeneratorConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeatureGeneratorConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeaturesManager;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
@@ -65,7 +65,7 @@ public class CreateBioTMLModelFromNERSchemaTest {
 	private IBioTMLFeatureGeneratorConfigurator getSelectedFeatures() throws BioTMLException{
 		BioTMLFeaturesManager featuresManager = BioTMLFeaturesManager.getInstance();
 		Set<String> features = featuresManager.getRecomendedDefaultFeatures();
-		return new BioTMLFeatureGeneratorConfigurator(features);
+		return new BioTMLFeatureGeneratorConfiguratorImpl(features);
 	}
 	
 	/**

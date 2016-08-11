@@ -37,7 +37,7 @@ public class BioTMLCorpusEvaluator {
 
 		Set<IBioTMLEvaluation> evaluations = calculateEvaluationsByAnnotType(onlyToCompareMap, onlyGoldStandardMap, inBothCorpusMap, keySet);
 
-		return new BioTMLMultiEvaluation(evaluations);
+		return new BioTMLMultiEvaluationImpl(evaluations);
 	}
 
 	public IBioTMLMultiEvaluation evaluateREForSameExternalIDs(IBioTMLCorpus goldStandard, IBioTMLCorpus toCompare){
@@ -56,7 +56,7 @@ public class BioTMLCorpusEvaluator {
 		keySet.addAll(inBothCorpusMap.keySet());
 
 		Set<IBioTMLEvaluation> evaluations = calculateEvaluationsByAnnotType(onlyToCompareMap, onlyGoldStandardMap, inBothCorpusMap, keySet);;
-		return new BioTMLMultiEvaluation(evaluations);
+		return new BioTMLMultiEvaluationImpl(evaluations);
 	}
 
 	private void fillREAnnotationSets(IBioTMLCorpus goldStandard, IBioTMLCorpus toCompare,
@@ -103,7 +103,7 @@ public class BioTMLCorpusEvaluator {
 			float precision = calculatePrecision(onlyToCompareSize, inBothCorpusSize);
 			float recall = calculateRecall(onlyGoldStandardSize, inBothCorpusSize);
 			float fscore = calculateFScore(onlyToCompareSize, onlyGoldStandardSize, inBothCorpusSize);
-			evaluationsPerAnnotType.add(new BioTMLEvaluation(precision, recall, fscore, annotType));
+			evaluationsPerAnnotType.add(new BioTMLEvaluationImpl(precision, recall, fscore, annotType));
 		}
 		return evaluationsPerAnnotType;
 	}
@@ -177,7 +177,7 @@ public class BioTMLCorpusEvaluator {
 		int i = 0;
 		while(i<toCompareAnnots.size() && !found){
 			IBioTMLAnnotation toCompareAnnot = toCompareAnnots.get(i);
-			if(goldAnnot.haveTheSameOffsets(toCompareAnnot)){
+			if(goldAnnot.getAnnotationOffsets().equals(toCompareAnnot.getAnnotationOffsets())){
 				if(goldAnnot.getAnnotType().equals(toCompareAnnot.getAnnotType())){
 					found = true;
 					inBothCorpusAnnotations.add(goldAnnot);

@@ -11,9 +11,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotation;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocSentTokenIDs;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLTokensWithFeaturesAndLabels;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentTokenIDs;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLTokensWithFeaturesAndLabels;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotationsRelation;
@@ -25,11 +25,9 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLS
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.multithread.CorpusSentenceAndFeaturesToInstanceThread;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.multithread.InstanceListExtended;
-import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.multithread.MalletSentenceCorpusToInstanceThread;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLREModelTypes;
 
 import cc.mallet.pipe.Pipe;
-import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
 
 /**
@@ -37,7 +35,7 @@ import cc.mallet.types.InstanceList;
  * A class responsible for corpus ({@link IBioTMLCorpus}) conversion into Mallet Instances.
  * 
  * @since 1.0.0
- * @version 1.0.1
+ * @version 1.0.2
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
@@ -73,160 +71,6 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 
 	public String getIEAnnotationType(){
 		return ieType;
-	}
-
-	public InstanceList exportToMallet(Pipe p) throws BioTMLException{
-		InstanceList instances = new InstanceList(p);
-		for(IBioTMLDocument doc : getCorpusToConvert().getDocuments()){
-			for( int sentID=0; sentID < doc.getSentences().size(); sentID++){
-				IBioTMLSentence sentence = doc.getSentence(sentID);
-				if(getIEAnnotationType().equals(BioTMLConstants.re.toString())){
-					transformToREInstances(instances, doc, sentID, sentence);
-				}else{
-					transformToNERInstances(instances, doc, sentID, sentence);
-				}
-			}
-		}
-		return instances;
-	}
-
-	private void transformToNERInstances(InstanceList instances, IBioTMLDocument doc, int sentID,
-			IBioTMLSentence sentence) throws BioTMLException {
-		BioTMLTokensWithFeaturesAndLabels text = sentenceToExportForNER(doc.getID(), sentence);
-		BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(doc.getID(), sentID);
-		instances.addThruPipe(new Instance(text, null, ids, null ));
-	}
-
-	private void transformToREInstances(InstanceList instances, IBioTMLDocument doc, int sentID,
-			IBioTMLSentence sentence) throws BioTMLException {
-		if(getConsideredAnnotationType().equals(BioTMLREModelTypes.entityclue.toString())
-				|| getConsideredAnnotationType().equals(BioTMLREModelTypes.entityclueonlyannotations.toString())){
-			List<IBioTMLAnnotation> clues = getClueAnnotations(doc.getID(), sentence);
-			for(IBioTMLAnnotation clue : clues){
-				BioTMLTokensWithFeaturesAndLabels text = sentenceToExportForRE(doc.getID(), sentence, clue);
-				if(text != null && !text.getTokens().isEmpty()){
-					BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(doc.getID(), sentID);
-					instances.addThruPipe(new Instance(text, null, ids, null ));
-				}
-			}
-		}else{
-			List<IBioTMLAnnotation> annotations = getSentenceAnnotations(doc.getID(), sentence);
-			for(IBioTMLAnnotation annotation :annotations){
-				BioTMLTokensWithFeaturesAndLabels text = sentenceToExportForRE(doc.getID(), sentence, annotation);
-				if(text != null && !text.getTokens().isEmpty()){
-					BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(doc.getID(), sentID);
-					instances.addThruPipe(new Instance(text, null, ids, null ));
-				}
-			}
-		}
-	}
-
-	public InstanceList exportToMallet(Pipe p, int threads) throws BioTMLException{
-		InstanceListExtended instances = new InstanceListExtended(p);
-		final AtomicLong count = new AtomicLong(0);
-		executor = Executors.newFixedThreadPool(threads,new ThreadFactory(){
-			@Override
-			public Thread newThread(Runnable runnable) {
-				Thread thread = new Thread(runnable);
-				thread.setName("BioTML-Features-Generation-Thread-" + count.getAndIncrement());
-				thread.setDaemon(false);
-				thread.setPriority(Thread.NORM_PRIORITY);
-				return thread;
-			};
-		});
-		int docID=0;
-		while(docID < getCorpusToConvert().getDocuments().size() && !stop){
-			IBioTMLDocument doc = getCorpusToConvert().getDocument(docID);
-			for( int sentID=0; sentID < doc.getSentences().size(); sentID++){
-				IBioTMLSentence sentence = doc.getSentence(sentID);
-				if(getIEAnnotationType().equals(BioTMLConstants.re.toString())){
-					if(getConsideredAnnotationType().equals(BioTMLREModelTypes.entityclue.toString())){
-						List<IBioTMLAnnotation> clues = getClueAnnotations(doc.getID(), sentence);
-						List<IBioTMLAnnotation> annotations = getSentenceAnnotations(doc.getID(), sentence);
-						//						Collections.sort(annotations);
-						for(IBioTMLAnnotation clue : clues){
-							//TODO model type clue(cluelemma). Get all clues that have that lemma and predict relations.
-							//							List<IBioTMLAnnotation> tokenClues = divideAnnotationInSingleTokenAnnotations(clue, sentence);
-							//							for(IBioTMLAnnotation subclue : tokenClues){
-							//								String sentenceText = sentenceToExportForRE(doc.getID(), sentence, clue);//or subclue
-							BioTMLTokensWithFeaturesAndLabels sentenceText = sentenceToExportForRE(doc.getID(), sentence, clue);
-							if(sentenceText != null && !sentenceText.getTokens().isEmpty()){
-								BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(doc.getID(), sentID);
-								ids.setAnnotTokenStartIndex(sentenceText.getAnnotationForRelationStartIndex());
-								ids.setAnnotTokenEndIndex(sentenceText.getAnnotationForRelationStartIndex());
-								executor.execute(new MalletSentenceCorpusToInstanceThread(ids, sentenceText, instances));
-							}
-							//							}
-						}
-					}
-					else if(getConsideredAnnotationType().equals(BioTMLREModelTypes.entityclueonlyannotations.toString())){
-						List<IBioTMLAnnotation> clues = getClueAnnotations(doc.getID(), sentence);
-						List<IBioTMLAnnotation> annotations = getSentenceAnnotations(doc.getID(), sentence);
-						//						Collections.sort(annotations);
-						for(IBioTMLAnnotation clue : clues){
-							//TODO model type clue(cluelemma). Get all clues that have that lemma and predict relations.
-							//							List<IBioTMLAnnotation> tokenClues = divideAnnotationInSingleTokenAnnotations(clue, sentence);
-							//							for(IBioTMLAnnotation subclue : tokenClues){
-							//								String sentenceText = sentenceToExportForRE(doc.getID(), sentence, clue);//or subclue
-							BioTMLTokensWithFeaturesAndLabels sentenceText = sentenceToExportForREOnlyAnnotations(doc.getID(), sentence, clue, annotations);
-							if(sentenceText != null && !sentenceText.getTokens().isEmpty()){
-								BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(doc.getID(), sentID);
-								ids.setAnnotTokenStartIndex(sentenceText.getAnnotationForRelationStartIndex());
-								ids.setAnnotTokenEndIndex(sentenceText.getAnnotationForRelationStartIndex());
-								executor.execute(new MalletSentenceCorpusToInstanceThread(ids, sentenceText, instances));
-							}
-							//							}
-						}
-					}else if(getConsideredAnnotationType().equals(BioTMLREModelTypes.entityentiy.toString())){
-						List<IBioTMLAnnotation> annotations = getSentenceAnnotations(doc.getID(), sentence);
-						//						Collections.sort(annotations);
-						for(IBioTMLAnnotation annotation :annotations){
-							//							List<IBioTMLAnnotation> subAnnots = divideAnnotationInSingleTokenAnnotations(annotation, sentence);
-							//							for(IBioTMLAnnotation subAnnot: subAnnots){
-							//								String sentenceText = sentenceToExportForRE(doc.getID(), sentence, annotation);
-							BioTMLTokensWithFeaturesAndLabels sentenceText = sentenceToExportForRE(doc.getID(), sentence, annotation);
-							if(sentenceText != null && !sentenceText.getTokens().isEmpty()){
-								BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(doc.getID(), sentID);
-								ids.setAnnotTokenStartIndex(sentenceText.getAnnotationForRelationStartIndex());
-								ids.setAnnotTokenEndIndex(sentenceText.getAnnotationForRelationStartIndex());
-								executor.execute(new MalletSentenceCorpusToInstanceThread(ids, sentenceText, instances));
-							}
-							//							}
-						}
-					}else{
-						List<IBioTMLAnnotation> annotations = getSentenceAnnotations(doc.getID(), sentence);
-						//						Collections.sort(annotations);
-						for(IBioTMLAnnotation annotation :annotations){
-							//							List<IBioTMLAnnotation> subAnnots = divideAnnotationInSingleTokenAnnotations(annotation, sentence);
-							//							for(IBioTMLAnnotation subAnnot: subAnnots){
-							//								String sentenceText = sentenceToExportForRE(doc.getID(), sentence, annotation);
-							BioTMLTokensWithFeaturesAndLabels sentenceText = sentenceToExportForREOnlyAnnotations(doc.getID(), sentence, annotation, annotations);
-							if(sentenceText != null && !sentenceText.getTokens().isEmpty()){
-								BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(doc.getID(), sentID);
-								ids.setAnnotTokenStartIndex(sentenceText.getAnnotationForRelationStartIndex());
-								ids.setAnnotTokenEndIndex(sentenceText.getAnnotationForRelationStartIndex());
-								executor.execute(new MalletSentenceCorpusToInstanceThread(ids, sentenceText, instances));
-							}
-							//							}
-						}
-					}
-				}
-				if(getIEAnnotationType().equals(BioTMLConstants.ner.toString())){
-					BioTMLTokensWithFeaturesAndLabels sentenceText = sentenceToExportForNER(doc.getID(), sentence);
-					BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(doc.getID(), sentID);
-					executor.execute(new MalletSentenceCorpusToInstanceThread(ids, sentenceText, instances));
-				}	
-			}
-			docID++;
-		}
-		executor.shutdown();
-		try {
-			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		executor = null;
-		return instances;
 	}
 
 	public InstanceList exportToMalletFeatures(Pipe p, int threads,  IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException{
@@ -366,18 +210,6 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 		return tokensWithLabels;
 	}
 
-	@SuppressWarnings("unused")
-	private List<IBioTMLAnnotation> divideAnnotationInSingleTokenAnnotations(IBioTMLAnnotation annotation, IBioTMLSentence sentence){
-		List<IBioTMLAnnotation> subAnnots = new ArrayList<>();
-		try { 
-			List<IBioTMLToken> tokens = sentence.getTokensbyOffsets(annotation.getStartOffset(), annotation.getEndOffset());
-			for(IBioTMLToken token : tokens){
-				subAnnots.add(new BioTMLAnnotation(annotation.getDocID(), annotation.getAnnotType(), token.getStartOffset(), token.getEndOffset()));
-			}
-		} catch (BioTMLException e) {}
-		return subAnnots;
-	}
-
 	private BioTMLTokensWithFeaturesAndLabels sentenceToExportForREOnlyAnnotations(long docID, IBioTMLSentence sentence, IBioTMLAnnotation annotation, List<IBioTMLAnnotation> annotations) throws BioTMLException{
 		BioTMLTokensWithFeaturesAndLabels tokensWithLabels = new BioTMLTokensWithFeaturesAndLabels();
 		for( IBioTMLToken token : sentence.getTokens()){
@@ -393,19 +225,6 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 					listIndex.get(0), listIndex.size()-1);
 		}
 		return tokensWithLabels;
-	}
-
-	private List<Integer> getAnnotationIndexInAnnotationList(IBioTMLAnnotation annotation, List<IBioTMLAnnotation> annotations){
-		List<Integer> result = new ArrayList<>();
-		int i = 0;
-		for(IBioTMLAnnotation annot : annotations){
-			if(annot.equals(annotation)){
-				result.add(i);
-				return result;
-			}
-			i++;
-		}
-		return result;
 	}
 
 	private boolean isTokenInAnnotations(List<IBioTMLAnnotation> annotations, IBioTMLToken token){

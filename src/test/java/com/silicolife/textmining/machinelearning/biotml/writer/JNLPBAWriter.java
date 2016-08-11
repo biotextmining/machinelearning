@@ -16,14 +16,14 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLC
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
-import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReader;
+import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReaderImpl;
 
 public class JNLPBAWriter {
 	
 	private static String jnlpbatoread = "C:/Users/RRodrigues/Desktop/JNLPBA/Genia4EReval2_annotated_final.gz";
 	private static String jnlpbatowrite = "C:/Users/RRodrigues/Desktop/JNLPBA/test/result_all.iob2";
 	private static File jnlpbaFile = new File(jnlpbatowrite);
-	private static IBioTMLCorpusReader reader = new BioTMLCorpusReader();
+	private static IBioTMLCorpusReader reader = new BioTMLCorpusReaderImpl();
 
 	@Test
 	public void test() throws IOException {

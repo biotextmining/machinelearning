@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLSentence;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLToken;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLSentenceImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLTokenImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 
@@ -104,11 +104,11 @@ public class BioTMLStanfordNLP {
 		for(List<CoreLabel> sentenceCoreLabels : sentencesCoreLabels){
 			List<IBioTMLToken> tokens = new ArrayList<IBioTMLToken>();
 			for(CoreLabel token : sentenceCoreLabels){
-				tokens.add(new BioTMLToken(token.originalText(), (long) token.beginPosition(), (long)token.endPosition()));
+				tokens.add(new BioTMLTokenImpl(token.originalText(), (long) token.beginPosition(), (long)token.endPosition()));
 			}
 			long start = tokens.get(0).getStartOffset();
 			long end = tokens.get(tokens.size()-1).getEndOffset();
-			sentences.add(new BioTMLSentence(tokens, document.substring((int)start, (int)end)));
+			sentences.add(new BioTMLSentenceImpl(tokens, document.substring((int)start, (int)end)));
 		}
 		return sentences;
 	}

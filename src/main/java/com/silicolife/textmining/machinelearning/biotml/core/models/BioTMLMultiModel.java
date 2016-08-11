@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
-import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMalletAnnotator;
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMalletAnnotatorImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
@@ -25,8 +25,8 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelWriter;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiModel;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithms;
-import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReader;
-import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLModelWriter;
+import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReaderImpl;
+import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLModelWriterImpl;
 
 /**
  * 
@@ -55,7 +55,7 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 	 */
 	public BioTMLMultiModel(String file) throws BioTMLException{
 		this.corpus = null;
-		IBioTMLModelReader reader = new BioTMLModelReader();
+		IBioTMLModelReader reader = new BioTMLModelReaderImpl();
 		List<IBioTMLModelConfigurator> configurations = new ArrayList<>();
 		this.models = reader.loadModelFromZipFile(file);
 		this.featureConfiguration = models.get(0).getFeatureConfiguration();
@@ -63,7 +63,7 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 			configurations.add(model.getModelConfiguration());
 		}
 		this.modelConfigurations = configurations;
-		this.modelEvaluationConfiguration = new BioTMLModelEvaluationConfigurator();
+		this.modelEvaluationConfiguration = new BioTMLModelEvaluationConfiguratorImpl();
 		this.evaluationByTypes = new HashMap<String, IBioTMLModelEvaluationResults>();
 	}
 
@@ -83,7 +83,7 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 		this.corpus = corpus;
 		this.featureConfiguration = featureConfiguration;
 		this.modelConfigurations = modelConfigurations;
-		this.modelEvaluationConfiguration = new BioTMLModelEvaluationConfigurator();
+		this.modelEvaluationConfiguration = new BioTMLModelEvaluationConfiguratorImpl();
 		this.evaluationByTypes = new HashMap<String, IBioTMLModelEvaluationResults>();
 	}
 	
@@ -173,7 +173,7 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 	}
 	
 	public void trainAndSaveFile(String modelPathAndFilename) throws BioTMLException{
-		IBioTMLModelWriter writer = new BioTMLModelWriter(modelPathAndFilename);
+		IBioTMLModelWriter writer = new BioTMLModelWriterImpl(modelPathAndFilename);
 		List<String> modelPaths = new ArrayList<>();
 		for( IBioTMLModelConfigurator configuration : getModelConfigurations()){
 			if(configuration.getAlgorithmType().equals(BioTMLAlgorithms.malletcrf.toString()) 
@@ -200,7 +200,7 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 	}
 
 	public IBioTMLCorpus annotate(IBioTMLCorpus corpusToAnotate) throws BioTMLException {
-		IBioTMLAnnotator annotator = new BioTMLMalletAnnotator(corpusToAnotate);
+		IBioTMLAnnotator annotator = new BioTMLMalletAnnotatorImpl(corpusToAnotate);
 		return annotator.generateAnnotatedBioTMCorpus(getModels(),getModelConfigurations().get(0).getNumThreads());
 	}
 

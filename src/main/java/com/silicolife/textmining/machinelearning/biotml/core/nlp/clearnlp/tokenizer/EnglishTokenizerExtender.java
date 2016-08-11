@@ -28,7 +28,7 @@ import com.clearnlp.util.UTArray;
 import com.clearnlp.util.UTInput;
 import com.clearnlp.util.pair.IntIntPair;
 import com.clearnlp.util.pair.Pair;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLToken;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLTokenImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.clearnlp.StringBooleanPair;
 
@@ -128,7 +128,7 @@ public class EnglishTokenizerExtender extends AbstractTokenizer{
 		
 		List<IBioTMLToken> tokens = new ArrayList<IBioTMLToken>(lTokens.size());
 		for (StringBooleanPair token : lTokens){
-			tokens.add(new BioTMLToken( token.s, token.start, token.end));
+			tokens.add(new BioTMLTokenImpl( token.s, token.start, token.end));
 		}
 		return tokens;
 	}

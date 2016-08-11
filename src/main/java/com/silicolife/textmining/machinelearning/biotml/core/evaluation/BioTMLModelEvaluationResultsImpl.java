@@ -13,7 +13,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLModelEvaluationResults implements IBioTMLModelEvaluationResults{
+public class BioTMLModelEvaluationResultsImpl implements IBioTMLModelEvaluationResults{
 	
 	private Map<String, IBioTMLEvaluation> evaluationResults;
 
@@ -24,7 +24,7 @@ public class BioTMLModelEvaluationResults implements IBioTMLModelEvaluationResul
 	 * @param evaluationResults - Map of evaluation type with {@link IBioTMLEvaluation} scores.
 	 */
 	
-	public BioTMLModelEvaluationResults(Map<String, IBioTMLEvaluation> evaluationResults){
+	public BioTMLModelEvaluationResultsImpl(Map<String, IBioTMLEvaluation> evaluationResults){
 		this.evaluationResults = evaluationResults;
 	}
 

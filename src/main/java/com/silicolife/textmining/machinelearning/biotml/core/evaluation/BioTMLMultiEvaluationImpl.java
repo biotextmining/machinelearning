@@ -15,7 +15,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLMultiEvaluation implements IBioTMLMultiEvaluation{
+public class BioTMLMultiEvaluationImpl implements IBioTMLMultiEvaluation{
 	
 	private Set<IBioTMLEvaluation> multiEvaluations;
 	private float meanPrecision;
@@ -29,7 +29,7 @@ public class BioTMLMultiEvaluation implements IBioTMLMultiEvaluation{
 	 * @param multiEvaluations - Set of {@link IBioTMLEvaluation}.
 	 */
 	
-	public BioTMLMultiEvaluation(Set<IBioTMLEvaluation> multiEvaluations)
+	public BioTMLMultiEvaluationImpl(Set<IBioTMLEvaluation> multiEvaluations)
 	{
 		this.multiEvaluations = multiEvaluations;
 		this.calculateScores();

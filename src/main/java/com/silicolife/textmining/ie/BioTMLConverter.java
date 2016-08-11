@@ -32,10 +32,10 @@ import com.silicolife.textmining.core.interfaces.core.report.processes.IREProces
 import com.silicolife.textmining.core.interfaces.process.ProcessTypeEnum;
 import com.silicolife.textmining.core.interfaces.process.IE.IIEProcess;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotation;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationsRelation;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpus;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationsRelationImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotationsRelation;
@@ -94,7 +94,7 @@ public class BioTMLConverter {
 		stop = true;
 	}
 
-	private BioTMLCorpus convertAnoteCorpusWithProcess(IIEProcess baseProcess, BioTMLNLPSystemsEnum nlpSystem) throws ANoteException, BioTMLException {
+	private BioTMLCorpusImpl convertAnoteCorpusWithProcess(IIEProcess baseProcess, BioTMLNLPSystemsEnum nlpSystem) throws ANoteException, BioTMLException {
 		IDocumentSet docs = baseProcess.getCorpus().getArticlesCorpus();
 		List<IBioTMLDocument> listDocuments = new ArrayList<IBioTMLDocument>();
 		List<IBioTMLAnnotation> listAnnotations = new ArrayList<IBioTMLAnnotation>();
@@ -117,14 +117,14 @@ public class BioTMLConverter {
 			}
 			String title = (annotDoc.getTitle()!=null)?annotDoc.getTitle():new String();
 			String extenalLinks = PublicationImpl.getPublicationExternalIDsStream(annotDoc);
-			listDocuments.add(new BioTMLDocument(annotDoc.getId(), title, extenalLinks, sentences));
+			listDocuments.add(new BioTMLDocumentImpl(annotDoc.getId(), title, extenalLinks, sentences));
 			long lastIndex = sentences.get(sentences.size()-1).getEndSentenceOffset();
 			for(IEntityAnnotation entity : annotDoc.getEntitiesAnnotations()){
 				String classType = entity.getClassAnnotation().getName();
 				if(entity.getStartOffset()>lastIndex|| entity.getEndOffset()>lastIndex){
 					throw new BioTMLException("The annotation offsets are bigger than the document size!");
 				}
-				listAnnotations.add(new BioTMLAnnotation(doc.getId(),classType, entity.getStartOffset(), entity.getEndOffset()));
+				listAnnotations.add(new BioTMLAnnotationImpl(doc.getId(),classType, entity.getStartOffset(), entity.getEndOffset()));
 			}
 
 			if(baseProcess.getType().getType().equals(ProcessTypeEnum.RE.toString())){
@@ -141,13 +141,13 @@ public class BioTMLConverter {
 					}
 					if(!leftannots.isEmpty() && !rightannots.isEmpty()){
 						addEventAnnotationsToBioTMLRelation(relation, leftannots, doc.getId());
-						IBioTMLAnnotation clue = new BioTMLAnnotation(doc.getId(), BioTMLConstants.clue.toString(), event.getStartOffset(), event.getEndOffset());
+						IBioTMLAnnotation clue = new BioTMLAnnotationImpl(doc.getId(), BioTMLConstants.clue.toString(), event.getStartOffset(), event.getEndOffset());
 						if(clue.getStartOffset() != clue.getEndOffset()){
 							listAnnotations.add(clue);
 							relation.add(clue);
 						}
 						addEventAnnotationsToBioTMLRelation(relation, rightannots, doc.getId());
-						listRelations.add(new BioTMLAnnotationsRelation(relation));
+						listRelations.add(new BioTMLAnnotationsRelationImpl(relation));
 					}
 
 				}
@@ -155,15 +155,15 @@ public class BioTMLConverter {
 		}
 
 		if(!listRelations.isEmpty()){
-			return new BioTMLCorpus(listDocuments, listAnnotations, listRelations, baseProcess.getCorpus().toString());
+			return new BioTMLCorpusImpl(listDocuments, listAnnotations, listRelations, baseProcess.getCorpus().toString());
 		}else{
-			return new BioTMLCorpus(listDocuments, listAnnotations, baseProcess.getCorpus().toString());
+			return new BioTMLCorpusImpl(listDocuments, listAnnotations, baseProcess.getCorpus().toString());
 		}
 	}
 
 	private void addEventAnnotationsToBioTMLRelation(Set<IBioTMLAnnotation> relation, List<IEntityAnnotation> annotationsInEvent, long docID){
 		for(IEntityAnnotation entity : annotationsInEvent){
-			relation.add(new BioTMLAnnotation(docID, entity.getClassAnnotation().getName(), entity.getStartOffset(), entity.getEndOffset()));
+			relation.add(new BioTMLAnnotationImpl(docID, entity.getClassAnnotation().getName(), entity.getStartOffset(), entity.getEndOffset()));
 		}
 	}
 

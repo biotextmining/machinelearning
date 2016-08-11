@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotation;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationsRelation;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationsRelationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotationsRelation;
@@ -56,7 +56,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 
 		IBioTMLToken token = doc.getSentence(sentIndex).getToken(tokenIndex);
 		if(prediction.equals(BioTMLConstants.b.toString())){
-			IBioTMLAnnotation annot = new BioTMLAnnotation(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
+			IBioTMLAnnotation annot = new BioTMLAnnotationImpl(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
 			annotations.add(annot);
 		}else if(prediction.equals(BioTMLConstants.i.toString())){
 			joinTokenToLastAnnotation(annotations, doc, tokenClass, predictionScore, token);
@@ -86,15 +86,15 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 				}
 			}
 			if(foundPreviousAnnotation && annotiationBegin != null && annotations.remove(annotiationBegin)){
-				IBioTMLAnnotation newannot = new BioTMLAnnotation(doc.getID(), tokenClass, annotiationBegin.getStartOffset(), token.getEndOffset(), predictionScore);
+				IBioTMLAnnotation newannot = new BioTMLAnnotationImpl(doc.getID(), tokenClass, annotiationBegin.getStartOffset(), token.getEndOffset(), predictionScore);
 				annotations.add(newannot);
 			}else{
-				IBioTMLAnnotation annot = new BioTMLAnnotation(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
+				IBioTMLAnnotation annot = new BioTMLAnnotationImpl(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
 				annotations.add(annot);
 			}
 		}
 		else{
-			IBioTMLAnnotation annot = new BioTMLAnnotation(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
+			IBioTMLAnnotation annot = new BioTMLAnnotationImpl(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
 			annotations.add(annot);
 		}
 	}
@@ -177,7 +177,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 
 		if(prediction.equals(BioTMLConstants.b.toString())){
 			if(annotation == null){
-				annotation = new BioTMLAnnotation(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
+				annotation = new BioTMLAnnotationImpl(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
 			}
 			relations = addRelation(relations, annotation, firstAnnotation, predictionScore);
 		}else if(prediction.equals(BioTMLConstants.i.toString())){
@@ -221,7 +221,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 		if(foundPrevTokenInRelation && prevAnnotation != null){
 			correctRelationsWithPreviousAnnotation(relations, doc, tokenClass, predictionScore, token, annotationsToRelations, prevAnnotation);
 		}else{
-			annotation = new BioTMLAnnotation(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
+			annotation = new BioTMLAnnotationImpl(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
 			relations = addRelation(relations, annotation, firstAnnotation, predictionScore);
 		}
 		return relations;
@@ -271,7 +271,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 		
 		IBioTMLAnnotation annotation;
 		Set<IBioTMLAnnotationsRelation> relationsToFix = annotationsToRelations.get(prevAnnotation);
-		annotation = new BioTMLAnnotation(doc.getID(), tokenClass, prevAnnotation.getStartOffset(), token.getEndOffset(), predictionScore);
+		annotation = new BioTMLAnnotationImpl(doc.getID(), tokenClass, prevAnnotation.getStartOffset(), token.getEndOffset(), predictionScore);
 		relations.removeAll(relationsToFix);
 		
 		for(IBioTMLAnnotationsRelation relation : relationsToFix){
@@ -283,7 +283,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 					relationannots.add(annotation);
 				}
 			}
-			relations.add(new BioTMLAnnotationsRelation(relationannots, relation.getScore()));
+			relations.add(new BioTMLAnnotationsRelationImpl(relationannots, relation.getScore()));
 		}
 	}
 	
@@ -304,12 +304,12 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 		if(firstAnnotation.getStartOffset()>annotation.getEndOffset()){
 			relation.add(annotation);
 			relation.add(firstAnnotation);
-			relations.add(new BioTMLAnnotationsRelation(relation, score));
+			relations.add(new BioTMLAnnotationsRelationImpl(relation, score));
 		}
 		if(firstAnnotation.getEndOffset()<annotation.getStartOffset()){
 			relation.add(firstAnnotation);
 			relation.add(annotation);
-			relations.add(new BioTMLAnnotationsRelation(relation, score));
+			relations.add(new BioTMLAnnotationsRelationImpl(relation, score));
 		}
 		return relations;
 	}

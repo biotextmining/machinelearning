@@ -15,9 +15,9 @@ import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.FilenameUtils;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotation;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpus;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
@@ -38,7 +38,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.nlp.stanford.BioTML
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLCorpusReader implements IBioTMLCorpusReader{
+public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 
 	private Map<String, Long> mapDocNameToDocID;
 	
@@ -47,7 +47,7 @@ public class BioTMLCorpusReader implements IBioTMLCorpusReader{
 	 * Initializes the corpus reader.
 	 * 
 	 */
-	public BioTMLCorpusReader() {
+	public BioTMLCorpusReaderImpl() {
 		mapDocNameToDocID = new HashMap<>();
 	}
 
@@ -149,11 +149,11 @@ public class BioTMLCorpusReader implements IBioTMLCorpusReader{
 					startOffset = startOffset + textSize;
 					endOffset = endOffset + textSize;
 				}
-				annotations.add(new BioTMLAnnotation(document.getID(), annoation[5], startOffset, endOffset));
+				annotations.add(new BioTMLAnnotationImpl(document.getID(), annoation[5], startOffset, endOffset));
 			}
 		}
 		reader.close();
-		return new BioTMLCorpus(documentCorpus.getDocuments(), annotations, documentCorpus.toString());
+		return new BioTMLCorpusImpl(documentCorpus.getDocuments(), annotations, documentCorpus.toString());
 		} catch (IOException exc) {
 			throw new BioTMLException(exc);
 		}
@@ -181,11 +181,11 @@ public class BioTMLCorpusReader implements IBioTMLCorpusReader{
 				if(nlpSystem == BioTMLNLPSystemsEnum.stanfordnlp){
 					sentences = BioTMLStanfordNLP.getInstance().getSentences(document[2]+System.lineSeparator()+document[1]);
 				}
-				documents.add(new BioTMLDocument(docID, document[1], document[0], sentences));
+				documents.add(new BioTMLDocumentImpl(docID, document[1], document[0], sentences));
 				docID++;
 			}
 			reader.close();
-			return new BioTMLCorpus(documents, FilenameUtils.getBaseName(corpusFile.getName()));
+			return new BioTMLCorpusImpl(documents, FilenameUtils.getBaseName(corpusFile.getName()));
 		} catch (IOException exc) {
 			throw new BioTMLException(exc);
 		}
@@ -225,10 +225,10 @@ public class BioTMLCorpusReader implements IBioTMLCorpusReader{
 					if(nlpSystem == BioTMLNLPSystemsEnum.stanfordnlp){
 						sentences = BioTMLStanfordNLP.getInstance().getSentences(documentText.toString());
 					}
-					documents.add(new BioTMLDocument(getMapDocNameToDocID().get(externalID), title, externalID, sentences));
+					documents.add(new BioTMLDocumentImpl(getMapDocNameToDocID().get(externalID), title, externalID, sentences));
 				}
 			}
-			return new BioTMLCorpus(documents, annotations, FilenameUtils.getBaseName(corpusFolder.getName()));
+			return new BioTMLCorpusImpl(documents, annotations, FilenameUtils.getBaseName(corpusFolder.getName()));
 		} catch (IOException exc) {
 			throw new BioTMLException(exc);
 		}
@@ -244,7 +244,7 @@ public class BioTMLCorpusReader implements IBioTMLCorpusReader{
 				if(!getMapDocNameToDocID().containsKey(annotationLine[0])){
 					getMapDocNameToDocID().put(annotationLine[0], getLastDocID()+1);
 				}
-				annotations.add(new BioTMLAnnotation(getMapDocNameToDocID().get(annotationLine[0]), annotationLine[1], Long.valueOf(annotationLine[2]), Long.valueOf(annotationLine[3])));
+				annotations.add(new BioTMLAnnotationImpl(getMapDocNameToDocID().get(annotationLine[0]), annotationLine[1], Long.valueOf(annotationLine[2]), Long.valueOf(annotationLine[3])));
 			}
 			reader.close();
 			return annotations;

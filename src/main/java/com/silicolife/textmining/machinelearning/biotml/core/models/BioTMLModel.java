@@ -1,6 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.models;
 
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
@@ -39,7 +39,7 @@ public abstract class BioTMLModel implements IBioTMLModel{
 					IBioTMLModelConfigurator modelConfiguration){
 		this.featureConfiguration = featureConfiguration;
 		this.modelConfiguration = modelConfiguration; 
-		this.modelEvaluationConfiguration = new BioTMLModelEvaluationConfigurator();
+		this.modelEvaluationConfiguration = new BioTMLModelEvaluationConfiguratorImpl();
 	}
 
 	/**

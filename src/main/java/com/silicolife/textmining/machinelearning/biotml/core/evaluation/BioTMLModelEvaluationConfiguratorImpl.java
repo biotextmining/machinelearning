@@ -10,7 +10,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLModelEvaluationConfigurator implements IBioTMLModelEvaluationConfigurator{
+public class BioTMLModelEvaluationConfiguratorImpl implements IBioTMLModelEvaluationConfigurator{
 	
 	private int cvFoldsByDoc;
 	private int cvFoldsBySent;
@@ -21,7 +21,7 @@ public class BioTMLModelEvaluationConfigurator implements IBioTMLModelEvaluation
 	 * 
 	 */
 	
-	public BioTMLModelEvaluationConfigurator(){
+	public BioTMLModelEvaluationConfiguratorImpl(){
 		this.cvFoldsByDoc = 0;
 		this.cvFoldsBySent = 0;
 	}

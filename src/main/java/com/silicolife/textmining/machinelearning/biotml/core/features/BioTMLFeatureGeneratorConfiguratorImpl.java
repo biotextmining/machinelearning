@@ -12,7 +12,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLF
  * @since 1.0.0
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
-public class BioTMLFeatureGeneratorConfigurator implements IBioTMLFeatureGeneratorConfigurator{
+public class BioTMLFeatureGeneratorConfiguratorImpl implements IBioTMLFeatureGeneratorConfigurator{
 
 	private static final long serialVersionUID = 1L;
 	private Set<String> featuresUIDs;
@@ -24,7 +24,7 @@ public class BioTMLFeatureGeneratorConfigurator implements IBioTMLFeatureGenerat
 	 * 
 	 * @param featuresUIDs - Set of feature names.
 	 */
-	public BioTMLFeatureGeneratorConfigurator(Set<String> featuresUIDs){
+	public BioTMLFeatureGeneratorConfiguratorImpl(Set<String> featuresUIDs){
 		this.featuresUIDs = featuresUIDs;
 	}
 

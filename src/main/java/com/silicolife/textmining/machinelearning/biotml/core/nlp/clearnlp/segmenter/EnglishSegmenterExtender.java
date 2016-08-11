@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import com.clearnlp.segmentation.EnglishSegmenter;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocument;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLSentence;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLSentenceImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
@@ -38,7 +38,7 @@ public class EnglishSegmenterExtender extends AbstractSegmenter{
 		List<IBioTMLDocument> documents = new ArrayList<IBioTMLDocument>();
 		long docID = 0;
 		for( String doc : documentTexts){
-			documents.add(new BioTMLDocument(docID, String.valueOf(docID), getSentences(doc)));
+			documents.add(new BioTMLDocumentImpl(docID, String.valueOf(docID), getSentences(doc)));
 			docID++;	
 		}
 		return documents;
@@ -100,7 +100,7 @@ public class EnglishSegmenterExtender extends AbstractSegmenter{
 					List<IBioTMLToken> sentence = new ArrayList<IBioTMLToken>(tokens.subList(bIdx, bIdx = i+1));
 					long startOff = sentence.get(0).getStartOffset();
 					long endoff = sentence.get(sentence.size()-1).getEndOffset();
-					sentences.add(new BioTMLSentence(sentence, document.substring((int)startOff, (int)endoff)));
+					sentences.add(new BioTMLSentenceImpl(sentence, document.substring((int)startOff, (int)endoff)));
 					isTerminal = false;
 				}
 			}
@@ -109,7 +109,7 @@ public class EnglishSegmenterExtender extends AbstractSegmenter{
 			List<IBioTMLToken> sentence = new ArrayList<IBioTMLToken>(tokens.subList(bIdx, size));
 			long startOff = sentence.get(0).getStartOffset();
 			long endoff = sentence.get(sentence.size()-1).getEndOffset();
-			sentences.add(new BioTMLSentence(sentence, document.substring((int)startOff, (int)endoff)));
+			sentences.add(new BioTMLSentenceImpl(sentence, document.substring((int)startOff, (int)endoff)));
 		}
 		return sentences;
 	}
@@ -145,7 +145,7 @@ public class EnglishSegmenterExtender extends AbstractSegmenter{
 					List<IBioTMLToken> sentence = new ArrayList<IBioTMLToken>(tokens.subList(bIdx, bIdx = i+1));
 					long startOff = sentence.get(0).getStartOffset();
 					long endoff = sentence.get(sentence.size()-1).getEndOffset();
-					sentences.add(new BioTMLSentence(sentence, document.substring((int)startOff, (int)endoff)));
+					sentences.add(new BioTMLSentenceImpl(sentence, document.substring((int)startOff, (int)endoff)));
 					isTerminal = false;
 				}
 			}
@@ -155,7 +155,7 @@ public class EnglishSegmenterExtender extends AbstractSegmenter{
 			List<IBioTMLToken> sentence = new ArrayList<IBioTMLToken>(tokens.subList(bIdx, size));
 			long startOff = sentence.get(0).getStartOffset();
 			long endoff = sentence.get(sentence.size()-1).getEndOffset();
-			sentences.add(new BioTMLSentence(sentence, document.substring((int)startOff, (int)endoff)));
+			sentences.add(new BioTMLSentenceImpl(sentence, document.substring((int)startOff, (int)endoff)));
 		}
 
 		return sentences;

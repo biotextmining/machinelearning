@@ -36,4 +36,11 @@ public interface IBioTMLToken extends Serializable, Comparable<IBioTMLToken>{
 	 */
 	public long getEndOffset();
 	
+	/**
+	 * 
+	 * Method to return the token pair offsets. 
+	 * 
+	 * @return {@link IBioTMLOffsetsPair}.
+	 */
+	public IBioTMLOffsetsPair getTokenOffsetsPair();
 }

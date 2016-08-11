@@ -1,4 +1,4 @@
-package com.silicolife.textmining.machinelearning.biotml.core.corpora;
+package com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures;
 
 public class BioTMLDocSentTokenIDs {
 	

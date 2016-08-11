@@ -32,7 +32,7 @@ import cc.mallet.types.Alphabet;
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLModelWriter implements IBioTMLModelWriter {
+public class BioTMLModelWriterImpl implements IBioTMLModelWriter {
 	
 	private String filename;
 
@@ -42,7 +42,7 @@ public class BioTMLModelWriter implements IBioTMLModelWriter {
 	 * 
 	 * @param filename Absolute path file to save the model.
 	 */
-	public BioTMLModelWriter(String filename){
+	public BioTMLModelWriterImpl(String filename){
 		this.filename = filename;
 	}
 	

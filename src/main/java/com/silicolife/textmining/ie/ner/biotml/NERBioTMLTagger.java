@@ -28,8 +28,8 @@ import com.silicolife.textmining.core.interfaces.process.IE.ner.INERConfiguratio
 import com.silicolife.textmining.ie.BioTMLConverter;
 import com.silicolife.textmining.ie.ner.biotml.configuration.INERBioTMLAnnotatorConfiguration;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
-import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMalletAnnotator;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpus;
+import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMalletAnnotatorImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeaturesManager;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotator;
@@ -37,7 +37,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLC
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
-import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReader;
+import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReaderImpl;
 
 public class NERBioTMLTagger implements INERProcess{
 
@@ -73,7 +73,7 @@ public class NERBioTMLTagger implements INERProcess{
 
 			IBioTMLCorpus biotmlCorpus = getConverter().convertToBioTMLCorpus();
 
-			IBioTMLModelReader modelreader = new BioTMLModelReader();
+			IBioTMLModelReader modelreader = new BioTMLModelReaderImpl();
 			List<String> submodelsFilename = new ArrayList<>();
 			if(nerBioTMLConfiguration.getModelPath().endsWith(".zip")){
 				submodelsFilename = modelreader.loadSubmodelsToStringFromZipFile(nerBioTMLConfiguration.getModelPath());
@@ -125,7 +125,7 @@ public class NERBioTMLTagger implements INERProcess{
 		Iterator<IBioTMLDocument> itDocuments = documents.iterator();
 		while(itDocuments.hasNext() && !stop){
 			List<IBioTMLDocument> documentsStep = getDocumentsInStep(itDocuments);
-			annotator = new BioTMLMalletAnnotator(new BioTMLCorpus(documentsStep, new String()));
+			annotator = new BioTMLMalletAnnotatorImpl(new BioTMLCorpusImpl(documentsStep, new String()));
 			IBioTMLCorpus anotatedDocument = annotator.generateAnnotatedBioTMCorpus(submodel, configuration.getThreads());
 			getConverter().convertBioTMLCorpusToAnote(nerProcess,anotatedDocument, report);
 			annotator = null;
