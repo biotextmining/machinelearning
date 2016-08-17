@@ -94,9 +94,6 @@ public class BioTMLAnnotationImpl implements IBioTMLAnnotation{
 		result = prime * result + ((annotType == null) ? 0 : annotType.hashCode());
 		result = prime * result + ((annotationOffsets == null) ? 0 : annotationOffsets.hashCode());
 		result = prime * result + (int) (docID ^ (docID >>> 32));
-		long temp;
-		temp = Double.doubleToLongBits(score);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 
@@ -120,8 +117,6 @@ public class BioTMLAnnotationImpl implements IBioTMLAnnotation{
 		} else if (!annotationOffsets.equals(other.annotationOffsets))
 			return false;
 		if (docID != other.docID)
-			return false;
-		if (Double.doubleToLongBits(score) != Double.doubleToLongBits(other.score))
 			return false;
 		return true;
 	}
@@ -149,12 +144,12 @@ public class BioTMLAnnotationImpl implements IBioTMLAnnotation{
 		if(o.getEndOffset()>this.getEndOffset()){
 			return -1;
 		}
-		if(o.getScore()<this.getScore()){
-			return 1;
-		}
-		if(o.getScore()>this.getScore()){
-			return -1;
-		}
+//		if(o.getScore()<this.getScore()){
+//			return 1;
+//		}
+//		if(o.getScore()>this.getScore()){
+//			return -1;
+//		}
 		return o.getAnnotType().compareTo(this.getAnnotType());
 	}
 }
