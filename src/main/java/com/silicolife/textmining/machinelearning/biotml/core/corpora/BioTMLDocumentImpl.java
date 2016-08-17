@@ -57,10 +57,8 @@ public class BioTMLDocumentImpl implements IBioTMLDocument{
 	 */
 
 	public BioTMLDocumentImpl(long id, String title, String externalID, List<IBioTMLSentence> sentences){
-		this.id = id;
-		this.title = title;
+		this(id, title, sentences);
 		this.externalID = externalID;
-		this.sentences = sentences;
 	}
 
 

@@ -15,6 +15,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLA
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotationsRelation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 
 /**
@@ -43,10 +44,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	 */
 
 	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, String name){
-		this.documents = documents;
-		this.annotations = new ArrayList<IBioTMLAnnotation>();
-		this.relations = new ArrayList<IBioTMLAnnotationsRelation>();
-		this.name = name;
+		this(documents, new ArrayList<>(), new ArrayList<>(), name);
 	}
 
 	/**
@@ -59,10 +57,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	 */
 
 	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, List<IBioTMLAnnotation> annotations, String name){
-		this.documents = documents;
-		this.annotations = annotations;
-		this.relations = new ArrayList<IBioTMLAnnotationsRelation>();
-		this.name = name;
+		this(documents, annotations, new ArrayList<>(), name);
 	}
 
 	/**
@@ -275,18 +270,78 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	public IBioTMLAnnotation getAnnotationFromDocAndOffsets(long docID, long startOffset, long endOffset) throws BioTMLException{
 		List<IBioTMLAnnotation> annots = getAllDocAnnotations(docID);
 		for(IBioTMLAnnotation annot : annots){
-//			if(annot.getStartOffset()<=startOffset
-//					&& annot.getEndOffset()>=endOffset){
-//				return annot;
-//			}
-			if(!(annot.getEndOffset() <= startOffset) && !(annot.getStartOffset() >= endOffset)){
+			if(annot.getAnnotationOffsets().offsetsOverlap(startOffset, endOffset)){
 				return annot;
 			}
 		}
 		throw new BioTMLException(29);
 	}
+	
+	@Override
+	public Set<IBioTMLAnnotation> getAnnotationsFromDocAndOffsets(long docID, long startOffset, long endOffset){
+		Set<IBioTMLAnnotation> resultAnnotations = new HashSet<>();
+		List<IBioTMLAnnotation> annots = getAllDocAnnotations(docID);
+		for(IBioTMLAnnotation annot : annots){
+			if(annot.getAnnotationOffsets().offsetsOverlap(startOffset, endOffset)){
+				resultAnnotations.add(annot);
+			}
+		}
+		return resultAnnotations;
+	}
+	
+	@Override
+	public Set<IBioTMLAnnotation> getAnnotationsFromSentenceInDocumentId(long docID, IBioTMLSentence sentence){
+		Set<IBioTMLAnnotation> annotations = new HashSet<>();
+		IBioTMLDocument document;
+		try {
+			document = getDocumentByID(docID);
+		} catch (BioTMLException e) {
+			return annotations;
+		}
+		List<IBioTMLAnnotation> documentAnnotations = getDocAnnotations(docID);
+		if(!documentAnnotations.isEmpty() && document.getSentences().contains(sentence)){
+			Iterator<IBioTMLAnnotation> itAnnot = documentAnnotations.iterator();
+			while(itAnnot.hasNext()){
+				IBioTMLAnnotation annotation = itAnnot.next();
+				if(sentence.getSentenceOffsetsPair().containsInside(annotation.getAnnotationOffsets())){
+					annotations.add(annotation);
+				}
+			}
+		}
+		return annotations;
+	}
+	
+	@Override
+	public Set<IBioTMLAnnotation> getAnnotationsFromSentenceInDocumentIdAndTokenIndex(long docId,
+			IBioTMLSentence sentence, int annotationTokenIndex) throws BioTMLException {
+		Set<IBioTMLAnnotation> sentenceAnnotations = getAnnotationsFromSentenceInDocumentId(docId, sentence);
+		if(!sentenceAnnotations.isEmpty()){
+			int index = 0;
+			for(IBioTMLToken token :sentence.getTokens()){
+				if(isTokenInAnnotations(sentenceAnnotations, token)){
+					if(index == annotationTokenIndex){
+						return getAnnotationsFromDocAndOffsets(docId, token.getStartOffset(), token.getEndOffset());
+					}
+					index++;
+				}
+			}
+		}
+		throw new BioTMLException("Annotation Token Index not found!");
+	}
+	
+	@Override
+	public boolean isTokenInAnnotations(Set<IBioTMLAnnotation> annotations, IBioTMLToken token){
+		for(IBioTMLAnnotation annotation : annotations){
+			if(annotation.getAnnotationOffsets().offsetsOverlap(token.getTokenOffsetsPair())){
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public String toString() {
 		return name;
 	}
+
+
 }

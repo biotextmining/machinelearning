@@ -124,4 +124,48 @@ public interface IBioTMLCorpus extends Serializable {
 	 * @throws {@link BioTMLException}.
 	 */
 	public IBioTMLAnnotation getAnnotationFromDocAndOffsets(long docID, long startOffset, long endOffset) throws BioTMLException;
+
+	/**
+	 * 
+	 * Get all annotations from a sentence in a document id
+	 * 
+	 * @param docID
+	 * @param sentence
+	 * @return
+	 */
+	public Set<IBioTMLAnnotation> getAnnotationsFromSentenceInDocumentId(long docID, IBioTMLSentence sentence);
+	
+	/**
+	 * 
+	 * Get all annotations from a token index in sentence in a document id.
+	 * (A token could have multiple annotations)
+	 * 
+	 * @param docId
+	 * @param sentence
+	 * @param annotationTokenIndex
+	 * @return
+	 * @throws BioTMLException
+	 */
+	public Set<IBioTMLAnnotation> getAnnotationsFromSentenceInDocumentIdAndTokenIndex(long docId, IBioTMLSentence sentence, int annotationTokenIndex) throws BioTMLException;
+
+	/**
+	 * 
+	 * Verifies if exists a anotation that contains the token.
+	 * 
+	 * @param annotations
+	 * @param token
+	 * @return
+	 */
+	public boolean isTokenInAnnotations(Set<IBioTMLAnnotation> annotations, IBioTMLToken token);
+
+	/**
+	 * 
+	 * Get all annotations from a document offsets range.
+	 * 
+	 * @param docID
+	 * @param startOffset
+	 * @param endOffset
+	 * @return
+	 */
+	public Set<IBioTMLAnnotation> getAnnotationsFromDocAndOffsets(long docID, long startOffset, long endOffset);
 }
