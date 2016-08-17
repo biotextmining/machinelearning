@@ -33,7 +33,7 @@ public class BioTMLSentenceImpl implements IBioTMLSentence{
 	 */
 	public BioTMLSentenceImpl(List<IBioTMLToken> sentence, String source){
 		this.sentence = sentence;
-		this.sentenceOffsetsPair = new BioTMLOffsetsPairImpl(sentence.get(0).getStartOffset(), sentence.get(getTokens().size()-1).getEndOffset());
+		this.sentenceOffsetsPair = new BioTMLOffsetsPairImpl(sentence.get(0).getStartOffset(), sentence.get(sentence.size()-1).getEndOffset());
 		this.source = source;
 	}
 
