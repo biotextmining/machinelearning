@@ -32,11 +32,7 @@ public class BioTMLAnnotationsRelationImpl implements IBioTMLAnnotationsRelation
 	 */
 	
 	public BioTMLAnnotationsRelationImpl(Set<IBioTMLAnnotation> relation) throws BioTMLException{
-		if(!relationIsValid(relation)){
-			throw new BioTMLException(26);
-		}
-		this.relation = relation;
-		this.score = 0;
+		this(relation, 0.0);
 	}
 	
 	public BioTMLAnnotationsRelationImpl(Set<IBioTMLAnnotation> relation, double score) throws BioTMLException{
@@ -92,7 +88,7 @@ public class BioTMLAnnotationsRelationImpl implements IBioTMLAnnotationsRelation
 	
 	public boolean findAnnotationInRelation(IBioTMLAnnotation annot){
 		for(IBioTMLAnnotation annotInRelation : getRelation()){
-			if(annot.compareTo(annotInRelation) == 0){
+			if(annot.equals(annotInRelation)){
 				return true;
 			}
 		}
@@ -103,7 +99,7 @@ public class BioTMLAnnotationsRelationImpl implements IBioTMLAnnotationsRelation
 		Iterator<IBioTMLAnnotation> itAnnotation = getRelation().iterator();
 		while(itAnnotation.hasNext()){
 			IBioTMLAnnotation annot = itAnnotation.next();
-			if(annot.getAnnotationOffsets().offsetsEquals(startOffset, endOffset)){
+			if(annot.getAnnotationOffsets().offsetsOverlap(startOffset, endOffset)){
 				return annot;
 			}
 		}
@@ -176,10 +172,7 @@ public class BioTMLAnnotationsRelationImpl implements IBioTMLAnnotationsRelation
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((relation == null) ? 0 : relation.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(score);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((relation == null) ? 0 : relation.toString().hashCode());
 		return result;
 	}
 
@@ -195,10 +188,19 @@ public class BioTMLAnnotationsRelationImpl implements IBioTMLAnnotationsRelation
 		if (relation == null) {
 			if (other.relation != null)
 				return false;
-		} else if (!relation.equals(other.relation))
+		} else if(relation.size()!= other.relation.size()){
 			return false;
-		if (Double.doubleToLongBits(score) != Double.doubleToLongBits(other.score))
-			return false;
+		} else {
+			Iterator<IBioTMLAnnotation> itRe = relation.iterator();
+			Iterator<IBioTMLAnnotation> itotherRe = other.relation.iterator();
+			while(itRe.hasNext() && itotherRe.hasNext()){
+				IBioTMLAnnotation a = itRe.next();
+				IBioTMLAnnotation b = itotherRe.next();
+				if(!a.equals(b)){
+					return false;
+				}
+			}
+		}
 		return true;
 	}
 
