@@ -4,6 +4,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLO
 
 public class BioTMLOffsetsPairImpl implements IBioTMLOffsetsPair{
 
+	private static final long serialVersionUID = 1L;
 	private long startOffset;
 	private long endOffset;
 
@@ -39,13 +40,13 @@ public class BioTMLOffsetsPairImpl implements IBioTMLOffsetsPair{
 	
 	@Override
 	public boolean containsInside(long startOffset, long endOffset){
-		IBioTMLOffsetsPair pairToCompare = new BioTMLOffsetsPairImpl(startOffset, endOffset);
-		return this.containsInside(pairToCompare);
+		IBioTMLOffsetsPair pairToBeInside = new BioTMLOffsetsPairImpl(startOffset, endOffset);
+		return this.containsInside(pairToBeInside);
 	}
 	
 	@Override
-	public boolean containsInside(IBioTMLOffsetsPair pairToCompare){
-		if(getStartOffset()<= pairToCompare.getStartOffset() && getEndOffset() >= pairToCompare.getEndOffset()){
+	public boolean containsInside(IBioTMLOffsetsPair pairToBeInside){
+		if(getStartOffset()<= pairToBeInside.getStartOffset() && getEndOffset() >= pairToBeInside.getEndOffset()){
 			return true;
 		}
 		return false;
