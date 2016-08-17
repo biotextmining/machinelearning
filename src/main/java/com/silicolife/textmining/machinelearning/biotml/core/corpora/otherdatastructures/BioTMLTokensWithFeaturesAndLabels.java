@@ -12,9 +12,6 @@ public class BioTMLTokensWithFeaturesAndLabels {
 	List<BioTMLConstants> labels;
 	List<BioTMLConstants> isAnnotationOrNot;
 	List<List<String>> tokenFeatures;
-	int annotationForRelationStartIndex = -1;
-	int annotationForRelationEndIndex = -1;
-	
 	
 	public BioTMLTokensWithFeaturesAndLabels(){
 		this.tokens = new ArrayList<>();
@@ -32,54 +29,30 @@ public class BioTMLTokensWithFeaturesAndLabels {
 		}
 	}
 	
-	public void addTokenForNER(String token){
+	public void addTokenForPrediction(String token){
 		getTokens().add(token);
 		getTokenFeatures().add(new ArrayList<>());
 		
 	}
 	
-	public void addTokenForNERModel(String token, BioTMLConstants label){
-		getTokens().add(token);
+	public void addTokenForModel(String token, BioTMLConstants label){
+		this.addTokenForPrediction(token);
 		getLabels().add(label);
-		getTokenFeatures().add(new ArrayList<>());
-		
 	}
 	
-	public void addTokenForNERModel(String token, BioTMLConstants label, BioTMLConstants isAnnotationOrNot){
-		getTokens().add(token);
-		getLabels().add(label);
+	public void addTokenForPredictionAnnotationFiltering(String token, BioTMLConstants isAnnotationOrNot){
+		this.addTokenForPrediction(token);
 		getIsAnnotationOrNot().add(isAnnotationOrNot);
-		getTokenFeatures().add(new ArrayList<>());
 	}
 	
-	public void addTokenForRE(String token, int annotationForRelationStartIndex, int annotationForRelationEndIndex){
-		getTokens().add(token);
-		getTokenFeatures().add(new ArrayList<>());
-		this.annotationForRelationStartIndex = annotationForRelationStartIndex;
-		this.annotationForRelationEndIndex = annotationForRelationEndIndex;
-	}
-	
-	public void addTokenForREModel(String token, BioTMLConstants label, int annotationForRelationStartIndex, int annotationForRelationEndIndex){
-		getTokens().add(token);
+	public void addTokenForModelAnnotationFiltering(String token, BioTMLConstants label, BioTMLConstants isAnnotationOrNot){
+		this.addTokenForPredictionAnnotationFiltering(token, isAnnotationOrNot);
 		getLabels().add(label);
-		getTokenFeatures().add(new ArrayList<>());
-		this.annotationForRelationStartIndex = annotationForRelationStartIndex;
-		this.annotationForRelationEndIndex = annotationForRelationEndIndex;
-	}
-	
-	public void addTokenForREModel(String token, BioTMLConstants label, BioTMLConstants isAnnotationOrNot, int annotationForRelationStartIndex, int annotationForRelationEndIndex){
-		getTokens().add(token);
-		getLabels().add(label);
-		getTokenFeatures().add(new ArrayList<>());
-		getIsAnnotationOrNot().add(isAnnotationOrNot);
-		this.annotationForRelationStartIndex = annotationForRelationStartIndex;
-		this.annotationForRelationEndIndex = annotationForRelationEndIndex;
 	}
 
 	public List<String> getTokens() {
 		return tokens;
 	}
-
 
 	public List<BioTMLConstants> getLabels() {
 		return labels;
@@ -94,14 +67,4 @@ public class BioTMLTokensWithFeaturesAndLabels {
 		return isAnnotationOrNot;
 	}
 
-
-	public int getAnnotationForRelationStartIndex() {
-		return annotationForRelationStartIndex;
-	}
-
-
-	public int getAnnotationForRelationEndIndex() {
-		return annotationForRelationEndIndex;
-	}
-	
 }

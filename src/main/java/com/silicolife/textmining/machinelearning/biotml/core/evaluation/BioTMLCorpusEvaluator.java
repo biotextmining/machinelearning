@@ -1,6 +1,5 @@
 package com.silicolife.textmining.machinelearning.biotml.core.evaluation;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +30,7 @@ public class BioTMLCorpusEvaluator {
 		Map<String, Integer> onlyGoldStandardMap = countByAnnotationType(onlyGoldStandardAnnotations);
 		Map<String, Integer> inBothCorpusMap = countByAnnotationType(inBothCorpusAnnotations);
 		Set<String> keySet = new HashSet<>();
-		keySet.addAll(onlyToCompareMap.keySet());
+//		keySet.addAll(onlyToCompareMap.keySet());
 		keySet.addAll(onlyGoldStandardMap.keySet());
 		keySet.addAll(inBothCorpusMap.keySet());
 
@@ -51,7 +50,7 @@ public class BioTMLCorpusEvaluator {
 		Map<String, Integer> inBothCorpusMap = countByRelationType(inBothCorpusRelations);
 		
 		Set<String> keySet = new HashSet<>();
-		keySet.addAll(onlyToCompareMap.keySet());
+//		keySet.addAll(onlyToCompareMap.keySet());
 		keySet.addAll(onlyGoldStandardMap.keySet());
 		keySet.addAll(inBothCorpusMap.keySet());
 
@@ -71,7 +70,7 @@ public class BioTMLCorpusEvaluator {
 			} catch (BioTMLException e) {};
 			if(toCompareDoc != null){
 				Set<IBioTMLAnnotationsRelation> goldRels = goldStandard.getDocAnnotationRelations(goldDoc.getID());
-				List<IBioTMLAnnotationsRelation> toCompareRels =  new ArrayList<>(toCompare.getDocAnnotationRelations(toCompareDoc.getID()));
+				Set<IBioTMLAnnotationsRelation> toCompareRels =  toCompare.getDocAnnotationRelations(toCompareDoc.getID());
 				for(IBioTMLAnnotationsRelation goldRel : goldRels){
 					boolean found = findGoldRelationInToCompareDocument(inBothCorpusRelations,toCompareRels, goldRel);
 					if(!found){
@@ -156,19 +155,15 @@ public class BioTMLCorpusEvaluator {
 	}
 
 	private boolean findGoldRelationInToCompareDocument(Set<IBioTMLAnnotationsRelation> inBothCorpusRelations,
-			List<IBioTMLAnnotationsRelation> toCompareRelations, IBioTMLAnnotationsRelation goldRel){
-		boolean found = false;
-		int i = 0;
-		while(i<toCompareRelations.size() && !found){
-			IBioTMLAnnotationsRelation toCompareRelation = toCompareRelations.get(i);
+			Set<IBioTMLAnnotationsRelation> toCompareRelations, IBioTMLAnnotationsRelation goldRel){
+		for(IBioTMLAnnotationsRelation toCompareRelation : toCompareRelations){
 			if(goldRel.haveTheSameOffsetsAndAnnotationTypes(toCompareRelation)){
-				found = true;
 				inBothCorpusRelations.add(goldRel);
-				toCompareRelations.remove(i);
+				toCompareRelations.remove(toCompareRelation);
+				return true;
 			}
-			i++;
 		}
-		return found;
+		return false;
 	}
 
 	private boolean findGoldAnnotationInToCompareDocument(Set<IBioTMLAnnotation> inBothCorpusAnnotations,

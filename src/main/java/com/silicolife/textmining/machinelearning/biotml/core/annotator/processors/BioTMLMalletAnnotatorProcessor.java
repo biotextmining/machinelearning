@@ -15,6 +15,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLA
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotationsRelation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLREModelTypes;
 
@@ -31,11 +32,11 @@ import cc.mallet.types.InstanceList;
  */
 
 public abstract class BioTMLMalletAnnotatorProcessor {
-	
+
 	public BioTMLMalletAnnotatorProcessor(){
-		
+
 	}
-	
+
 	public abstract InstanceList generatePredictionMatrix() throws BioTMLException;
 
 	/**
@@ -98,7 +99,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 			annotations.add(annot);
 		}
 	}
-	
+
 	/**
 	 * 
 	 * Method that validates if the previous annotation contains offsets of tokens that are next to the inputed token in the same document.
@@ -117,7 +118,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 
 	 * Method to retrieve the annotation in one sentence.
@@ -136,7 +137,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 		} catch (BioTMLException e) {}
 		return annotation;
 	}
-	
+
 	/**
 	 * 
 	 * Method to add a predicted relation.
@@ -144,8 +145,8 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 * @param relations - Set of all relations ({@link IBioTMLAnnotationsRelation}) predicted to add the relation.
 	 * @param doc - Document in which the relation is present.
 	 * @param sentIndex - Sentence index.
-	 * @param tokenIndex - Token index.
-	 * @param firstAnnotation - Annotation of the relation to be associated.
+	 * @param tokenOrAnnotationIndex - Token index.
+	 * @param annotationOrClue - Annotation of the relation to be associated.
 	 * @param tokenClass - Token class type.
 	 * @param prediction - Prediction value (e.g. B, I or O).
 	 * @param predictionScore - Prediction score.
@@ -156,35 +157,45 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 			Set<IBioTMLAnnotationsRelation> relations, 
 			IBioTMLDocument doc,
 			int sentIndex,
-			int tokenIndex,
-			IBioTMLAnnotation firstAnnotation,
+			int tokenOrAnnotationIndex,
+			IBioTMLAnnotation annotationOrClue,
+			boolean onlyAnnotations,
 			String tokenClass,
 			String prediction,
 			double predictionScore) throws BioTMLException{
-
-		IBioTMLToken token = doc.getSentence(sentIndex).getToken(tokenIndex);
-		IBioTMLAnnotation annotation = null;
-		try {
-			annotation = corpus.getAnnotationFromDocAndOffsets(doc.getID(), token.getStartOffset(), token.getEndOffset());
-		} catch (BioTMLException e) {
-			if(!(tokenClass.equals(BioTMLREModelTypes.entitycluegenerateentity.toString()) 
-					|| tokenClass.equals(BioTMLREModelTypes.entityentiygenerateentity.toString())
-					|| tokenClass.equals(BioTMLREModelTypes.entityclueonlyannotationsgenerateentity.toString())
-					|| tokenClass.equals(BioTMLREModelTypes.entityentiyonlyannotationsgenerateentity.toString()))){
-				return relations;
+		
+		IBioTMLSentence sentence = doc.getSentence(sentIndex);
+		
+		if(!onlyAnnotations){
+			IBioTMLToken token = sentence.getToken(tokenOrAnnotationIndex);
+			IBioTMLAnnotation annotationToAssociate = null;
+			try {
+				annotationToAssociate = corpus.getAnnotationFromDocAndOffsets(doc.getID(), token.getStartOffset(), token.getEndOffset());
+			} catch (BioTMLException e) {
+				if(!tokenClass.equals(BioTMLREModelTypes.entitycluegenerateentity.toString())
+						&& !tokenClass.equals(BioTMLREModelTypes.entityentiygenerateentity.toString())
+						&& !tokenClass.equals(BioTMLREModelTypes.entityclueonlyannotationsgenerateentity.toString())
+						&& !tokenClass.equals(BioTMLREModelTypes.entityentiyonlyannotationsgenerateentity.toString())){
+					return relations;
+				}else if(annotationToAssociate == null){
+					annotationToAssociate = new BioTMLAnnotationImpl(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
+				}
+				if(prediction.equals(BioTMLConstants.i.toString())){
+					relations = joinTokenToLastAnnotationAndCorrectRelations(relations, doc, annotationOrClue, tokenClass, predictionScore, token, annotationToAssociate);
+				}
+			}
+			if(prediction.equals(BioTMLConstants.b.toString())){
+				relations = addRelation(relations, annotationToAssociate, annotationOrClue, predictionScore);
+			}
+		}else{
+			Set<IBioTMLAnnotation> annotationsToAssociate = corpus.getAnnotationsFromSentenceInDocumentIdAndTokenIndex(doc.getID(), sentence, tokenOrAnnotationIndex);
+			if(prediction.equals(BioTMLConstants.b.toString())){
+				for(IBioTMLAnnotation annotationToAssociate : annotationsToAssociate){
+					relations = addRelation(relations, annotationToAssociate, annotationOrClue, predictionScore);
+				}
 			}
 		}
 
-		if(prediction.equals(BioTMLConstants.b.toString())){
-			if(annotation == null){
-				annotation = new BioTMLAnnotationImpl(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
-			}
-			relations = addRelation(relations, annotation, firstAnnotation, predictionScore);
-		}else if(prediction.equals(BioTMLConstants.i.toString())){
-			if(annotation == null){
-				relations = joinTokenToLastAnnotationAndCorrectRelations(relations, doc, firstAnnotation, tokenClass, predictionScore, token, annotation);
-			}
-		}
 		return relations;
 	}
 
@@ -268,12 +279,12 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 			String tokenClass, double predictionScore, IBioTMLToken token,
 			Map<IBioTMLAnnotation, Set<IBioTMLAnnotationsRelation>> annotationsToRelations,
 			IBioTMLAnnotation prevAnnotation) throws BioTMLException {
-		
+
 		IBioTMLAnnotation annotation;
 		Set<IBioTMLAnnotationsRelation> relationsToFix = annotationsToRelations.get(prevAnnotation);
 		annotation = new BioTMLAnnotationImpl(doc.getID(), tokenClass, prevAnnotation.getStartOffset(), token.getEndOffset(), predictionScore);
 		relations.removeAll(relationsToFix);
-		
+
 		for(IBioTMLAnnotationsRelation relation : relationsToFix){
 			Set<IBioTMLAnnotation> relationannots = new LinkedHashSet<>();
 			for(IBioTMLAnnotation annotationInRelation : relation.getRelation()){
@@ -286,31 +297,39 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 			relations.add(new BioTMLAnnotationsRelationImpl(relationannots, relation.getScore()));
 		}
 	}
-	
+
 
 	/**
 	 * 
-	 * Method that adds a relation regarding the position of the annotation and token.
+	 * Method to add a relation.
 	 * 
 	 * @param relations - Set of all relations ({@link IBioTMLAnnotationsRelation}) predicted to add the relation.
-	 * @param annotation - Annotation ({@link IBioTMLAnnotation}) that belongs to the relation.
-	 * @param firstAnnotation - Annotation ({@link IBioTMLAnnotation}) that belongs to the relation.
+	 * @param annotationToAssociate - Annotation ({@link IBioTMLAnnotation}) that belongs to the relation.
+	 * @param annotationOrClue - Annotation ({@link IBioTMLAnnotation}) that belongs to the relation.
 	 * @param score - Score value associated to the prediction.
 	 * @return Set of all relations ({@link IBioTMLAnnotationsRelation}) predicted.
 	 * @throws BioTMLException
 	 */
-	private Set<IBioTMLAnnotationsRelation> addRelation(Set<IBioTMLAnnotationsRelation> relations, IBioTMLAnnotation annotation, IBioTMLAnnotation firstAnnotation, double score) throws BioTMLException{
+	private Set<IBioTMLAnnotationsRelation> addRelation(Set<IBioTMLAnnotationsRelation> relations, IBioTMLAnnotation annotationToAssociate, IBioTMLAnnotation annotationOrClue, double score) throws BioTMLException{
 		Set<IBioTMLAnnotation> relation = new LinkedHashSet<>();
-		if(firstAnnotation.getStartOffset()>annotation.getEndOffset()){
-			relation.add(annotation);
-			relation.add(firstAnnotation);
+		//		if(annotationOrClue.getStartOffset()>annotationToAssociate.getEndOffset()){
+		//			relation.add(annotationToAssociate);
+		//			relation.add(annotationOrClue);
+		//			relations.add(new BioTMLAnnotationsRelationImpl(relation, score));
+		//		}
+		//		if(annotationOrClue.getEndOffset()<annotationToAssociate.getStartOffset()){
+		//			relation.add(annotationOrClue);
+		//			relation.add(annotationToAssociate);
+		//			relations.add(new BioTMLAnnotationsRelationImpl(relation, score));
+		//		}
+
+		relation.add(annotationToAssociate);
+		relation.add(annotationOrClue);
+
+		if(relation.size()>1){
 			relations.add(new BioTMLAnnotationsRelationImpl(relation, score));
 		}
-		if(firstAnnotation.getEndOffset()<annotation.getStartOffset()){
-			relation.add(firstAnnotation);
-			relation.add(annotation);
-			relations.add(new BioTMLAnnotationsRelationImpl(relation, score));
-		}
+
 		return relations;
 	}
 }

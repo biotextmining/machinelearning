@@ -41,7 +41,7 @@ public class CorpusWithFeatures2TokenSequence extends Pipe {
 	 * @return Processed instance with correct token and label.
 	 */
 	public synchronized Instance pipe(Instance carrier) {
-		BioTMLTokensWithFeaturesAndLabels tokensWithLabels = (BioTMLTokensWithFeaturesAndLabels) carrier.getData();;
+		BioTMLTokensWithFeaturesAndLabels tokensWithLabels = (BioTMLTokensWithFeaturesAndLabels) carrier.getData();
 		TokenSequence intancesData = new TokenSequence(tokensWithLabels.getTokens().size());
 		LabelSequence targetData = new LabelSequence((LabelAlphabet) getTargetAlphabet(), tokensWithLabels.getTokens().size());
 		StringBuilder sourceData = new StringBuilder();
@@ -55,14 +55,6 @@ public class CorpusWithFeatures2TokenSequence extends Pipe {
 				for(String feature: features){
 					token.setFeatureValue(feature, 1.0);
 				}
-				if(tokensWithLabels.getAnnotationForRelationStartIndex() != -1){
-					token.setProperty("startAnnotIndex", tokensWithLabels.getAnnotationForRelationStartIndex());
-				}
-				
-				if(tokensWithLabels.getAnnotationForRelationEndIndex() != -1){
-					token.setProperty("endAnnotIndex", tokensWithLabels.getAnnotationForRelationEndIndex());
-				}
-				
 				intancesData.add(token);
 				if(!tokensWithLabels.getLabels().isEmpty()){
 					targetData.add(tokensWithLabels.getLabels().get(i).toString());

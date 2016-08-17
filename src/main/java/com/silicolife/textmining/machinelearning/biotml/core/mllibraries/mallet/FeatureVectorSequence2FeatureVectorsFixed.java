@@ -47,9 +47,7 @@ public class FeatureVectorSequence2FeatureVectorsFixed extends Pipe
 			assert (dataSubiterator.hasNext());
 			assert (targetSubiterator.hasNext());
 			BioTMLDocSentTokenIDs oldIDs = (BioTMLDocSentTokenIDs)superInstance.getName();
-			BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(oldIDs.getDocId(), oldIDs.getSentId(), count++);
-			ids.setAnnotTokenStartIndex(oldIDs.getAnnotTokenStartIndex());
-			ids.setAnnotTokenEndIndex(oldIDs.getAnnotTokenEndIndex());
+			BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(oldIDs.getDocId(), oldIDs.getSentId(), count++, oldIDs.getAnnotTokenRelationStartIndex(), oldIDs.getAnnotTokenRelationEndIndex(), oldIDs.isOnlyAnnotations());
 			return new Instance (dataSubiterator.next(), targetSubiterator.next(), ids,	superInstance.getSource());
 		}
 		public boolean hasNext () {

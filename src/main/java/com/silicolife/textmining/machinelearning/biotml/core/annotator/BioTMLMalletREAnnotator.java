@@ -72,12 +72,12 @@ public class BioTMLMalletREAnnotator {
 			Double predictionScore = transducerProcessor.getPredictionScoreForInstance(sentence);
 			BioTMLDocSentTokenIDs ids = (BioTMLDocSentTokenIDs)sentence.getName();
 			IBioTMLDocument doc = corpus.getDocumentByID(ids.getDocId());
-			for(int tokenIndex=0; tokenIndex<predictedLabels.size(); tokenIndex++){
-				String prediction = predictedLabels.get(tokenIndex).toString();
-				if(!prediction.equals(BioTMLConstants.o.toString())){
-					IBioTMLAnnotation annotation = transducerProcessor.getAnnotation(corpus, doc, ids.getSentId(),ids.getAnnotTokenStartIndex(), ids.getAnnotTokenEndIndex());
-					if(annotation != null){
-						transducerProcessor.addPredictedRelation(corpus, relations, doc, ids.getSentId(), tokenIndex, annotation, model.getModelConfiguration().getClassType(), prediction, predictionScore);
+			for(int tokenIndexOrAnnotationIndex=0; tokenIndexOrAnnotationIndex<predictedLabels.size(); tokenIndexOrAnnotationIndex++){
+				String prediction = predictedLabels.get(tokenIndexOrAnnotationIndex).toString();
+				if(!prediction.equals(BioTMLConstants.o.toString()) && ids.getAnnotTokenRelationStartIndex() != -1 && ids.getAnnotTokenRelationEndIndex() != -1){
+					IBioTMLAnnotation annotationOrClue = transducerProcessor.getAnnotation(corpus, doc, ids.getSentId(),ids.getAnnotTokenRelationStartIndex(), ids.getAnnotTokenRelationEndIndex());
+					if(annotationOrClue != null){
+						transducerProcessor.addPredictedRelation(corpus, relations, doc, ids.getSentId(), tokenIndexOrAnnotationIndex, annotationOrClue, ids.isOnlyAnnotations(), model.getModelConfiguration().getClassType(), prediction, predictionScore);
 					}
 				}
 			}
@@ -96,10 +96,10 @@ public class BioTMLMalletREAnnotator {
 			Double predictionScore = classifierProcessor.getPredictionScoreForInstance(token);
 			BioTMLDocSentTokenIDs ids = (BioTMLDocSentTokenIDs)token.getName();
 			IBioTMLDocument doc = corpus.getDocumentByID(ids.getDocId());
-			if(!predictedLabel.equals(BioTMLConstants.o.toString())){
-				IBioTMLAnnotation annotation = classifierProcessor.getAnnotation(corpus, doc, ids.getSentId(),ids.getAnnotTokenStartIndex(), ids.getAnnotTokenEndIndex());
-				if(annotation != null){
-					classifierProcessor.addPredictedRelation(corpus, relations, doc, ids.getSentId(), ids.getTokenId(), annotation, model.getModelConfiguration().getClassType(), predictedLabel, predictionScore);
+			if(!predictedLabel.equals(BioTMLConstants.o.toString()) && ids.getAnnotTokenRelationStartIndex() != -1 && ids.getAnnotTokenRelationEndIndex() != -1){
+				IBioTMLAnnotation annotationOrClue = classifierProcessor.getAnnotation(corpus, doc, ids.getSentId(),ids.getAnnotTokenRelationStartIndex(), ids.getAnnotTokenRelationEndIndex());
+				if(annotationOrClue != null){
+					classifierProcessor.addPredictedRelation(corpus, relations, doc, ids.getSentId(), ids.getTokenId(), annotationOrClue, ids.isOnlyAnnotations(), model.getModelConfiguration().getClassType(), predictedLabel, predictionScore);
 				}
 			}
 		}

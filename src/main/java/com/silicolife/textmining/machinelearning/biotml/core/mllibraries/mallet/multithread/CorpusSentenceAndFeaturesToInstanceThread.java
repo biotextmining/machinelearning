@@ -82,8 +82,8 @@ public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 				try {
 					IBioTMLFeatureGenerator classProcesser = BioTMLFeaturesManager.getInstance().getClass(classUID);
 					visitedUID.addAll(classProcesser.getUIDs());
-					if(getTokensWithFeaturesAndLabels().getAnnotationForRelationStartIndex() != -1){
-						allColumns.add(classProcesser.getFeatureColumnsForRelations(getTokensWithFeaturesAndLabels().getTokens(), getTokensWithFeaturesAndLabels().getAnnotationForRelationStartIndex(), getTokensWithFeaturesAndLabels().getAnnotationForRelationEndIndex(),  getConfiguration()));
+					if(getDocIDandSentIdx().getAnnotTokenRelationStartIndex() != -1 && getDocIDandSentIdx().getAnnotTokenRelationEndIndex() != -1){
+						allColumns.add(classProcesser.getFeatureColumnsForRelations(getTokensWithFeaturesAndLabels().getTokens(), getDocIDandSentIdx().getAnnotTokenRelationStartIndex(), getDocIDandSentIdx().getAnnotTokenRelationEndIndex(),  getConfiguration()));
 					}else{
 						allColumns.add(classProcesser.getFeatureColumns(getTokensWithFeaturesAndLabels().getTokens(),  getConfiguration()));
 					}

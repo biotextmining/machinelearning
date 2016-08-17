@@ -5,18 +5,25 @@ public class BioTMLDocSentTokenIDs {
 	private long docId;
 	private int sentId;
 	private int tokenId;
-	private int annotTokenStartIndex;
-	private int annotTokenEndIndex;
+	private int annotTokenRelationStartIndex = -1;
+	private int annotTokenRelationEndIndex = -1;
+	private boolean onlyAnnotations = false;
 
 	public BioTMLDocSentTokenIDs(long docId, int sentId){
-		this.docId = docId;
-		this.sentId = sentId;
+		this(docId, sentId, -1, -1, -1, false);
 	}
 	
-	public BioTMLDocSentTokenIDs(long docId, int sentId, int tokenId){
+	public BioTMLDocSentTokenIDs(long docId, int sentId, int annotTokenRelationStartIndex, int annotTokenRelationEndIndex, boolean onlyAnnotations){
+		this(docId, sentId, -1, annotTokenRelationStartIndex, annotTokenRelationEndIndex, onlyAnnotations);
+	}
+	
+	public BioTMLDocSentTokenIDs(long docId, int sentId, int tokenId, int annotTokenRelationStartIndex, int annotTokenRelationEndIndex, boolean onlyAnnotations){
 		this.docId = docId;
 		this.sentId = sentId;
 		this.tokenId = tokenId;
+		this.annotTokenRelationStartIndex = annotTokenRelationStartIndex;
+		this.annotTokenRelationEndIndex = annotTokenRelationEndIndex;
+		this.onlyAnnotations = onlyAnnotations;
 	}
 
 	public long getDocId() {
@@ -31,28 +38,23 @@ public class BioTMLDocSentTokenIDs {
 		return tokenId;
 	}
 	
-	public int getAnnotTokenStartIndex(){
-		return annotTokenStartIndex;
+	public int getAnnotTokenRelationStartIndex(){
+		return annotTokenRelationStartIndex;
 	}
 	
-	public int getAnnotTokenEndIndex(){
-		return annotTokenEndIndex;
+	public int getAnnotTokenRelationEndIndex(){
+		return annotTokenRelationEndIndex;
 	}
 
-	public void setAnnotTokenStartIndex(int annotTokenStartIndex) {
-		this.annotTokenStartIndex = annotTokenStartIndex;
-	}
-
-	public void setAnnotTokenEndIndex(int annotTokenEndIndex) {
-		this.annotTokenEndIndex = annotTokenEndIndex;
+	public boolean isOnlyAnnotations() {
+		return onlyAnnotations;
 	}
 
 	@Override
 	public String toString() {
 		return "BioTMLDocSentTokenIDs [docId=" + docId + ", sentId=" + sentId + ", tokenId=" + tokenId
-				+ ", annotTokenStartIndex=" + annotTokenStartIndex + ", annotTokenEndIndex=" + annotTokenEndIndex + "]";
+				+ ", annotTokenRelationStartIndex=" + annotTokenRelationStartIndex + ", annotTokenRelationEndIndex="
+				+ annotTokenRelationEndIndex + ", onlyAnnotations=" + onlyAnnotations + "]";
 	}
-	
-	
 	
 }
