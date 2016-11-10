@@ -1,8 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.interfaces;
 
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPSystemsEnum;
-
 /**
  * 
  * BioTML corpus reader interface.

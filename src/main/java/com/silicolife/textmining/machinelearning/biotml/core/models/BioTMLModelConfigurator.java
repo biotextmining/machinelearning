@@ -5,7 +5,6 @@ import java.lang.reflect.Modifier;
 
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithms;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPSystemsEnum;
 
 import libsvm.svm_parameter;
 
@@ -40,7 +39,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 		this.numThreads = Runtime.getRuntime().availableProcessors();
 		this.algorithm = BioTMLAlgorithms.malletcrf.toString();
 		this.svmparams = svmdefparams();
-		this.nlpSystemUsed = BioTMLNLPSystemsEnum.clearnlp.toString();
+		this.nlpSystemUsed = "clearnlp";
 	}
 
 	/**
@@ -57,7 +56,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 		this.numThreads = Runtime.getRuntime().availableProcessors();
 		this.algorithm = BioTMLAlgorithms.malletcrf.toString();
 		this.svmparams = svmdefparams();
-		this.nlpSystemUsed = BioTMLNLPSystemsEnum.clearnlp.toString();
+		this.nlpSystemUsed = "clearnlp";
 	}
 	
 	public String getClassType(){

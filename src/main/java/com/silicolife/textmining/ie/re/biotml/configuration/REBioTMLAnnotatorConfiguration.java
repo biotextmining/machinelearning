@@ -6,7 +6,6 @@ import java.util.Map;
 import com.silicolife.textmining.core.datastructures.process.re.REConfigurationImpl;
 import com.silicolife.textmining.core.interfaces.core.document.corpus.ICorpus;
 import com.silicolife.textmining.core.interfaces.process.IE.IIEProcess;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPSystemsEnum;
 
 public class REBioTMLAnnotatorConfiguration extends REConfigurationImpl implements IREBioTMLAnnotatorConfiguration{
 	
