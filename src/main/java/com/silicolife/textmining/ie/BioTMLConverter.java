@@ -17,7 +17,6 @@ import com.silicolife.textmining.core.datastructures.documents.AnnotatedDocument
 import com.silicolife.textmining.core.datastructures.documents.PublicationImpl;
 import com.silicolife.textmining.core.datastructures.general.AnoteClass;
 import com.silicolife.textmining.core.datastructures.init.InitConfiguration;
-import com.silicolife.textmining.core.datastructures.textprocessing.NormalizationForm;
 import com.silicolife.textmining.core.interfaces.core.annotation.IEntityAnnotation;
 import com.silicolife.textmining.core.interfaces.core.annotation.IEventAnnotation;
 import com.silicolife.textmining.core.interfaces.core.dataaccess.exception.ANoteException;
@@ -42,23 +41,15 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLA
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPSystemsEnum;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.clearnlp.BioTMLClearNLP;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.opennlp.BioTMLOpenNLP;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.stanford.BioTMLStanfordNLP;
+import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPManager;
 
 public class BioTMLConverter {
 
 	private IIEProcess process;
-	private BioTMLNLPSystemsEnum nlpSystem;
+	private String nlpSystem;
 	private boolean stop = false;
 
-	public BioTMLConverter(BioTMLNLPSystemsEnum nlpSystem, IIEProcess process){
-		this.process = process;
-		this.nlpSystem = nlpSystem;
-	}
-
-	public BioTMLConverter(IIEProcess process, BioTMLNLPSystemsEnum nlpSystem){
+	public BioTMLConverter(String nlpSystem, IIEProcess process){
 		this.process = process;
 		this.nlpSystem = nlpSystem;
 	}
@@ -67,7 +58,7 @@ public class BioTMLConverter {
 		return process;
 	}
 
-	private BioTMLNLPSystemsEnum getNLPSystem(){
+	private String getNLPSystem(){
 		return nlpSystem;
 	}
 
@@ -94,7 +85,7 @@ public class BioTMLConverter {
 		stop = true;
 	}
 
-	private BioTMLCorpusImpl convertAnoteCorpusWithProcess(IIEProcess baseProcess, BioTMLNLPSystemsEnum nlpSystem) throws ANoteException, BioTMLException {
+	private BioTMLCorpusImpl convertAnoteCorpusWithProcess(IIEProcess baseProcess, String nlpSystem) throws ANoteException, BioTMLException {
 		IDocumentSet docs = baseProcess.getCorpus().getArticlesCorpus();
 		List<IBioTMLDocument> listDocuments = new ArrayList<IBioTMLDocument>();
 		List<IBioTMLAnnotation> listAnnotations = new ArrayList<IBioTMLAnnotation>();
@@ -104,13 +95,16 @@ public class BioTMLConverter {
 			List<IBioTMLSentence> sentences = null;
 			String text = annotDoc.getDocumentAnnotationText();
 			text = text.replaceAll("\\p{C}", " ");
-			if(nlpSystem == BioTMLNLPSystemsEnum.clearnlp){
-				sentences = BioTMLClearNLP.getInstance().getSentences(text);
-			}else if(nlpSystem == BioTMLNLPSystemsEnum.opennlp){
-				sentences = BioTMLOpenNLP.getInstance().getSentences(text);
-			}else if(nlpSystem == BioTMLNLPSystemsEnum.stanfordnlp){
-				sentences = BioTMLStanfordNLP.getInstance().getSentences(text);
-			}
+			if(BioTMLNLPManager.getInstance().getNLPById(nlpSystem)==null)
+				throw new BioTMLException("The NLP System is not recognized!");
+			sentences = BioTMLNLPManager.getInstance().getNLPById(nlpSystem).getSentences(text);
+//			if(nlpSystem == BioTMLNLPSystemsEnum.clearnlp){
+//				sentences = BioTMLClearNLP.getInstance().getSentences(text);
+//			}else if(nlpSystem == BioTMLNLPSystemsEnum.opennlp){
+//				sentences = BioTMLOpenNLP.getInstance().getSentences(text);
+//			}else if(nlpSystem == BioTMLNLPSystemsEnum.stanfordnlp){
+//				sentences = BioTMLStanfordNLP.getInstance().getSentences(text);
+//			}
 
 			if(sentences == null){
 				throw new BioTMLException("The document text wasn't tokenized by the nlp system!");

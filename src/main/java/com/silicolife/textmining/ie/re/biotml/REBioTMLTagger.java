@@ -67,10 +67,10 @@ public class REBioTMLTagger implements IREProcess{
 			IEProcessImpl reProcess = new IEProcessImpl(configuration.getCorpus(), REBioTMLTagger.bioTMLTagger  + " " +Utils.SimpleDataFormat.format(new Date()),
 					configuration.getProcessNotes(), ProcessTypeImpl.getREProcessType(), bioTMLOrigin, gereateProperties(reconfiguration));
 			InitConfiguration.getDataAccess().createIEProcess(reProcess);
-			this.converter = new BioTMLConverter(reProcess, reconfiguration.getNLPSystem());
+			this.converter = new BioTMLConverter(reconfiguration.getNLPSystem(), reProcess);
 			long startime = GregorianCalendar.getInstance().getTimeInMillis();
 			IREProcessReport report = new REProcessReportImpl(LanguageProperties.getLanguageStream("pt.uminho.anote2.biotml.operation.report.title"), configuration.getEntityBasedProcess(),reProcess, false);
-			BioTMLConverter anoteconverter = new BioTMLConverter(reProcess, reconfiguration.getNLPSystem());
+			BioTMLConverter anoteconverter = new BioTMLConverter(reconfiguration.getNLPSystem(), reProcess);
 			IBioTMLCorpus biotmlCorpus = null;
 
 			biotmlCorpus = anoteconverter.convertToBioTMLCorpus();

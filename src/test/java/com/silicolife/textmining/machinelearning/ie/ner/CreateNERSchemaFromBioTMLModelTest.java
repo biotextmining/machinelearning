@@ -17,7 +17,6 @@ import com.silicolife.textmining.core.interfaces.process.IR.exception.InternetCo
 import com.silicolife.textmining.ie.ner.biotml.NERBioTMLTagger;
 import com.silicolife.textmining.ie.ner.biotml.configuration.INERBioTMLAnnotatorConfiguration;
 import com.silicolife.textmining.ie.ner.biotml.configuration.NERBioTMLAnnotatorConfiguration;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPSystemsEnum;
 import com.silicolife.textmining.processes.corpora.loaders.CreateCorpusFromPublicationManagerTest;
 
 public class CreateNERSchemaFromBioTMLModelTest {
@@ -25,7 +24,7 @@ public class CreateNERSchemaFromBioTMLModelTest {
 	@Test
 	public void test() throws InvalidDatabaseAccess, ANoteException, InternetConnectionProblemException, InvalidConfigurationException {
 		ICorpus corpusToAnnotate = createCorpus();
-		BioTMLNLPSystemsEnum nlpSystemSelected = BioTMLNLPSystemsEnum.clearnlp;
+		String nlpSystemSelected = "clearnlp";
 		Set<String> nerClasses = getNERClasses();
 		int numberThreads = Runtime.getRuntime().availableProcessors();
 		String biotmlModelFile = "src/test/resources/BioTMLModelTest.zip";

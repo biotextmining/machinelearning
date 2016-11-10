@@ -3,22 +3,21 @@ package com.silicolife.textmining.ie.schemas.create.model.configuration;
 import com.silicolife.textmining.core.interfaces.process.IE.IRESchema;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPSystemsEnum;
 
 public class RESchemaCreateModelConfigurationImpl implements IRESchemaCreateModelConfiguration{
 	
 	
 	private IRESchema reSchema;
-	private BioTMLNLPSystemsEnum bioTMLNLPSystems;
+	private String nlpId;
 	private IBioTMLFeatureGeneratorConfigurator configurator;
 	private IBioTMLModelConfigurator modelConfiguration;
 	private String fileModelPath;
 
-	public RESchemaCreateModelConfigurationImpl(IRESchema reSchema,BioTMLNLPSystemsEnum bioTMLNLPSystems,IBioTMLFeatureGeneratorConfigurator configurator,
+	public RESchemaCreateModelConfigurationImpl(IRESchema reSchema,String bioTMLNLPSystems,IBioTMLFeatureGeneratorConfigurator configurator,
 			IBioTMLModelConfigurator modelConfiguration, String fileModelPath)
 	{
 		this.reSchema=reSchema;
-		this.bioTMLNLPSystems=bioTMLNLPSystems;
+		this.nlpId=bioTMLNLPSystems;
 		this.configurator=configurator;
 		this.modelConfiguration=modelConfiguration;
 		this.fileModelPath=fileModelPath;
@@ -30,8 +29,8 @@ public class RESchemaCreateModelConfigurationImpl implements IRESchemaCreateMode
 	}
 
 	@Override
-	public BioTMLNLPSystemsEnum getBioTMLNLPSystem() {
-		return bioTMLNLPSystems;
+	public String getBioTMLNLPSystem() {
+		return nlpId;
 	}
 
 	@Override

@@ -27,7 +27,6 @@ import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeat
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfigurator;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPSystemsEnum;
 import com.silicolife.textmining.processes.corpora.loaders.CreateCorpusFromPublicationManagerTest;
 import com.silicolife.textmining.processes.ie.ner.linnaeus.LinnaeusTest;
 
@@ -38,7 +37,7 @@ public class CreateBioTMLModelFromNERSchemaTest {
 		INERSchema nerSchema = createNERSchema();
 		CreateNERModelFile biotmlModelCreator = new CreateNERModelFile();
 		String outputModelFolder = "src/test/resources/BioTMLModelResult.zip";
-		BioTMLNLPSystemsEnum nlpSystemSelected = BioTMLNLPSystemsEnum.clearnlp;
+		String nlpSystemSelected = "clearnlp";
 		IBioTMLFeatureGeneratorConfigurator mlFeaturesConfiguration = getSelectedFeatures();
 		List<IBioTMLModelConfigurator> nerModels = getSubModelsConfigurations();
 		INERSchemaCreateModelConfiguration creationConfiguration = 

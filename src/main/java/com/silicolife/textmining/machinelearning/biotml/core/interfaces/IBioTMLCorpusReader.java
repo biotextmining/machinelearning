@@ -22,7 +22,7 @@ public interface IBioTMLCorpusReader {
 	 * @return {@link IBioTMLCorpus} loaded.
 	 * @throws BioTMLException
 	 */
-	public IBioTMLCorpus readBioTMLCorpusFromDirFolder(String corpusDirFolder, BioTMLNLPSystemsEnum nlpSystem) throws BioTMLException;
+	public IBioTMLCorpus readBioTMLCorpusFromDirFolder(String corpusDirFolder, String nlpSystem) throws BioTMLException;
 	
 	/**
 	 * 
@@ -33,7 +33,7 @@ public interface IBioTMLCorpusReader {
 	 * @return {@link IBioTMLCorpus} loaded.
 	 * @throws BioTMLException
 	 */
-	public IBioTMLCorpus readBioTMLCorpusFromBioCFiles(String documentFile, BioTMLNLPSystemsEnum nlpSystem) throws BioTMLException;
+	public IBioTMLCorpus readBioTMLCorpusFromBioCFiles(String documentFile, String nlpSystem) throws BioTMLException;
 	
 	/**
 	 * 
@@ -45,7 +45,7 @@ public interface IBioTMLCorpusReader {
 	 * @return {@link IBioTMLCorpus} loaded.
 	 * @throws BioTMLException
 	 */
-	public IBioTMLCorpus readBioTMLCorpusFromBioCFiles(String documentFile, String annotationsFile,  BioTMLNLPSystemsEnum nlpSystem) throws BioTMLException;
+	public IBioTMLCorpus readBioTMLCorpusFromBioCFiles(String documentFile, String annotationsFile,  String nlpSystem) throws BioTMLException;
 	
 	/**
 	 * 

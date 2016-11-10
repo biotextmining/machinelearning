@@ -13,21 +13,21 @@ public class REBioTMLAnnotatorConfiguration extends REConfigurationImpl implemen
 	public static String reBioTMLUID = "re.biotml";
 
 	
-	private BioTMLNLPSystemsEnum nlpsystem;
+	private String nlpsystem;
 	private int threads;
 	private String modelpath;
 	
 	public static final String bioTMLTagger = "BioTML RE Tagger";
 
 	
-	public REBioTMLAnnotatorConfiguration(ICorpus corpus, BioTMLNLPSystemsEnum nlpSystemSelected, IIEProcess iieprocess, int threadsnumber, String modelFilename){
+	public REBioTMLAnnotatorConfiguration(ICorpus corpus, String nlpSystemSelected, IIEProcess iieprocess, int threadsnumber, String modelFilename){
 		super(bioTMLTagger, corpus,iieprocess,false,null);
 		this.nlpsystem = nlpSystemSelected;
 		this.threads = threadsnumber;
 		this.modelpath = modelFilename;
 	}
 
-	public BioTMLNLPSystemsEnum getNLPSystem() {
+	public String getNLPSystem() {
 		return nlpsystem;
 	}
 

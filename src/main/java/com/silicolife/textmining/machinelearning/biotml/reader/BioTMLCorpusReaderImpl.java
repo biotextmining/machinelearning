@@ -24,10 +24,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLC
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusReader;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPSystemsEnum;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.clearnlp.BioTMLClearNLP;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.opennlp.BioTMLOpenNLP;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.stanford.BioTMLStanfordNLP;
+import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPManager;
 
 /**
  * 
@@ -51,35 +48,31 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 		mapDocNameToDocID = new HashMap<>();
 	}
 
-	public IBioTMLCorpus readBioTMLCorpusFromDirFolder(String corpusDirFolder, BioTMLNLPSystemsEnum nlpSystem) throws BioTMLException{
+	public IBioTMLCorpus readBioTMLCorpusFromDirFolder(String corpusDirFolder, String nlpSystem) throws BioTMLException{
 		File corpusFolder = new File(corpusDirFolder);
 		if(!corpusFolder.isDirectory()){
 			throw new BioTMLException("The dirFolder string must be a path to a folder!");
 		}
-		if(nlpSystem == BioTMLNLPSystemsEnum.clearnlp 
-		|| nlpSystem == BioTMLNLPSystemsEnum.opennlp 
-		|| nlpSystem == BioTMLNLPSystemsEnum.stanfordnlp){
+		if(BioTMLNLPManager.getInstance().getNLPById(nlpSystem)!=null){
 			return readCorpusFolderWithNLPSystem(corpusFolder, nlpSystem);
 		}else{
 			throw new BioTMLException("The NLP System is not recognized!");
 		}
 	}
 	
-	public IBioTMLCorpus readBioTMLCorpusFromBioCFiles(String documentFile, BioTMLNLPSystemsEnum nlpSystem) throws BioTMLException{
+	public IBioTMLCorpus readBioTMLCorpusFromBioCFiles(String documentFile, String nlpSystem) throws BioTMLException{
 		File corpusFile = new File(documentFile);
 		if(!corpusFile.isFile()){
 			throw new BioTMLException("The documentFile string must be a path to a file!");
 		}
-		if(nlpSystem == BioTMLNLPSystemsEnum.clearnlp 
-		|| nlpSystem == BioTMLNLPSystemsEnum.opennlp 
-		|| nlpSystem == BioTMLNLPSystemsEnum.stanfordnlp){
+		if(BioTMLNLPManager.getInstance().getNLPById(nlpSystem)!=null){
 			return readDocumentsFromBioCFile(corpusFile, nlpSystem);
 		}else{
 			throw new BioTMLException("The NLP System is not recognized!");
 		}
 	}
 	
-	public IBioTMLCorpus readBioTMLCorpusFromBioCFiles(String documentFile, String annotationsFile,  BioTMLNLPSystemsEnum nlpSystem) throws BioTMLException{
+	public IBioTMLCorpus readBioTMLCorpusFromBioCFiles(String documentFile, String annotationsFile,  String nlpSystem) throws BioTMLException{
 		File corpusFile = new File(documentFile);
 		File corpusAnnotationsFile = new File(annotationsFile);
 		if(!corpusFile.isFile()){
@@ -88,9 +81,7 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 		if(!corpusAnnotationsFile.isFile()){
 			throw new BioTMLException("The annotationsFile string must be a path to a file!");
 		}
-		if(nlpSystem == BioTMLNLPSystemsEnum.clearnlp 
-		|| nlpSystem == BioTMLNLPSystemsEnum.opennlp 
-		|| nlpSystem == BioTMLNLPSystemsEnum.stanfordnlp){
+		if(BioTMLNLPManager.getInstance().getNLPById(nlpSystem)!=null){
 			IBioTMLCorpus corpus = readDocumentsFromBioCFile(corpusFile, nlpSystem);
 			return readAnnotationsFromBioCFile(corpus, corpusAnnotationsFile);
 		}else{
@@ -159,7 +150,7 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 		}
 	}
 	
-	private IBioTMLCorpus readDocumentsFromBioCFile(File corpusFile, BioTMLNLPSystemsEnum nlpSystem) throws BioTMLException{
+	private IBioTMLCorpus readDocumentsFromBioCFile(File corpusFile, String nlpSystem) throws BioTMLException{
 		try {
 			List<IBioTMLDocument> documents = new ArrayList<IBioTMLDocument>();
 			BufferedReader reader = new BufferedReader(new FileReader(corpusFile));
@@ -172,15 +163,17 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 					throw new BioTMLException("The documentFile is not a compatible BioCreative document file!");
 				}
 				List<IBioTMLSentence> sentences = new ArrayList<IBioTMLSentence>();
-				if(nlpSystem == BioTMLNLPSystemsEnum.clearnlp){
-					sentences = BioTMLClearNLP.getInstance().getSentences(document[2]+System.lineSeparator()+document[1]);
-				}
-				if(nlpSystem == BioTMLNLPSystemsEnum.opennlp ){
-					sentences = BioTMLOpenNLP.getInstance().getSentences(document[2]+System.lineSeparator()+document[1]);
-				}
-				if(nlpSystem == BioTMLNLPSystemsEnum.stanfordnlp){
-					sentences = BioTMLStanfordNLP.getInstance().getSentences(document[2]+System.lineSeparator()+document[1]);
-				}
+				sentences = BioTMLNLPManager.getInstance().getNLPById(nlpSystem).getSentences(document[2]+System.lineSeparator()+document[1]);
+
+//				if(nlpSystem == BioTMLNLPSystemsEnum.clearnlp){
+//					sentences = BioTMLClearNLP.getInstance().getSentences(document[2]+System.lineSeparator()+document[1]);
+//				}
+//				if(nlpSystem == BioTMLNLPSystemsEnum.opennlp ){
+//					sentences = BioTMLOpenNLP.getInstance().getSentences(document[2]+System.lineSeparator()+document[1]);
+//				}
+//				if(nlpSystem == BioTMLNLPSystemsEnum.stanfordnlp){
+//					sentences = BioTMLStanfordNLP.getInstance().getSentences(document[2]+System.lineSeparator()+document[1]);
+//				}
 				documents.add(new BioTMLDocumentImpl(docID, document[1], document[0], sentences));
 				docID++;
 			}
@@ -191,7 +184,7 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 		}
 	}
 
-	private IBioTMLCorpus readCorpusFolderWithNLPSystem(File corpusFolder, BioTMLNLPSystemsEnum nlpSystem) throws BioTMLException{
+	private IBioTMLCorpus readCorpusFolderWithNLPSystem(File corpusFolder, String nlpSystem) throws BioTMLException{
 		try {
 			List<IBioTMLDocument> documents = new ArrayList<IBioTMLDocument>();
 			List<IBioTMLAnnotation> annotations = new ArrayList<IBioTMLAnnotation>();
@@ -216,15 +209,16 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 						getMapDocNameToDocID().put(externalID, getLastDocID()+1);
 					}
 					List<IBioTMLSentence> sentences = new ArrayList<IBioTMLSentence>();
-					if(nlpSystem == BioTMLNLPSystemsEnum.clearnlp){
-						sentences = BioTMLClearNLP.getInstance().getSentences(documentText.toString());
-					}
-					if(nlpSystem == BioTMLNLPSystemsEnum.opennlp ){
-						sentences = BioTMLOpenNLP.getInstance().getSentences(documentText.toString());
-					}
-					if(nlpSystem == BioTMLNLPSystemsEnum.stanfordnlp){
-						sentences = BioTMLStanfordNLP.getInstance().getSentences(documentText.toString());
-					}
+					sentences = BioTMLNLPManager.getInstance().getNLPById(nlpSystem).getSentences(documentText.toString());
+//					if(nlpSystem == BioTMLNLPSystemsEnum.clearnlp){
+//						sentences = BioTMLClearNLP.getInstance().getSentences(documentText.toString());
+//					}
+//					if(nlpSystem == BioTMLNLPSystemsEnum.opennlp ){
+//						sentences = BioTMLOpenNLP.getInstance().getSentences(documentText.toString());
+//					}
+//					if(nlpSystem == BioTMLNLPSystemsEnum.stanfordnlp){
+//						sentences = BioTMLStanfordNLP.getInstance().getSentences(documentText.toString());
+//					}
 					documents.add(new BioTMLDocumentImpl(getMapDocNameToDocID().get(externalID), title, externalID, sentences));
 				}
 			}

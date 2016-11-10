@@ -67,7 +67,7 @@ public class NERBioTMLTagger implements INERProcess{
 			String notes = configuration.getProcessNotes();
 			IIEProcess runProcess =  new IEProcessImpl(configuration.getCorpus(), description , notes , ProcessTypeImpl.getNERProcessType(), bioTMLOrigin, properties );
 			InitConfiguration.getDataAccess().createIEProcess(runProcess);
-			this.converter = new BioTMLConverter(runProcess, nerBioTMLConfiguration.getNLPSystem());
+			this.converter = new BioTMLConverter(nerBioTMLConfiguration.getNLPSystem(), runProcess);
 			long startime = GregorianCalendar.getInstance().getTimeInMillis();
 			INERProcessReport report = new NERProcessReportImpl(LanguageProperties.getLanguageStream("pt.uminho.anote2.biotml.operation.report.title"), runProcess);
 
