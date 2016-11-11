@@ -36,7 +36,7 @@ public class BioTMLNLPManager {
 	 * @return OpenNLP instance.
 	 * @throws BioTMLException 
 	 */
-	public static synchronized BioTMLNLPManager getInstance() throws BioTMLException {
+	public static synchronized BioTMLNLPManager getInstance(){
 		if (_instance == null) {
 			BioTMLNLPManager.createInstance();
 		}
@@ -47,10 +47,14 @@ public class BioTMLNLPManager {
 	 * Creates the singleton instance.
 	 * @throws BioTMLException 
 	 */
-	private static void createInstance() throws BioTMLException{
+	private static void createInstance(){
 
 		if (_instance == null) {
-			_instance = new BioTMLNLPManager();
+			try {
+				_instance = new BioTMLNLPManager();
+			} catch (BioTMLException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
