@@ -44,7 +44,7 @@ public class NERBioTMLAnnotatorConfiguration extends NERConfigurationImpl implem
 	
 	public Map<String, String> getNERProperties() {
 		Map<String, String> properties = new HashMap<String, String>();
-		properties.put(NERBioTMLTaggerDefaultSettings.NLP_SYSTEM, getNLPSystem().toString());
+		properties.put(NERBioTMLTaggerDefaultSettings.NLP_SYSTEM_ID, getNLPSystem().toString());
 		properties.put(NERBioTMLTaggerDefaultSettings.NUM_THREADS, String.valueOf(getThreads()));
 		return properties;
 	}

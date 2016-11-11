@@ -40,7 +40,7 @@ public class REBioTMLAnnotatorConfiguration extends REConfigurationImpl implemen
 
 	public Map<String, String> getREProperties() {
 		Map<String, String> properties = new HashMap<String, String>();
-		properties.put(REBioTMLTaggerDefaultSettings.NLP_SYSTEM, getNLPSystem().toString());
+		properties.put(REBioTMLTaggerDefaultSettings.NLP_SYSTEM_ID, getNLPSystem().toString());
 		properties.put(REBioTMLTaggerDefaultSettings.NUM_THREADS, String.valueOf(getThreads()));
 		return properties;
 	}

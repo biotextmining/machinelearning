@@ -2,7 +2,7 @@ package com.silicolife.textmining.ie.re.biotml.configuration;
 
 public class REBioTMLTaggerDefaultSettings {
 	
-	public static final String NLP_SYSTEM = "RE.BioTMLTagger.NLPSystem";
+	public static final String NLP_SYSTEM_ID = "RE.BioTMLTagger.NLPSystemID";
 	public static final String ML_FEATURES = "RE.BioTMLTagger.MLFeatures";
 	public static final String ML_ALGORITHM = "RE.BioTMLTagger.MLAlgorithm";
 	public static final String NUM_THREADS = "RE.BioTMLTagger.NumThreads";
