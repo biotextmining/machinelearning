@@ -1,4 +1,4 @@
-package com.silicolife.textmining;
+package com.silicolife.textmining.machinelearning;
 
 import static org.junit.Assert.assertTrue;
 

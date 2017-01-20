@@ -1,4 +1,4 @@
-package com.silicolife.textmining.processes.corpora.loaders;
+package com.silicolife.textmining.machinelearning.processes.corpora.loaders;
 
 import static org.junit.Assert.assertTrue;
 
@@ -20,6 +20,8 @@ import com.silicolife.textmining.core.interfaces.core.document.IPublication;
 import com.silicolife.textmining.core.interfaces.core.document.corpus.CorpusTextType;
 import com.silicolife.textmining.core.interfaces.core.report.corpora.ICorpusCreateReport;
 import com.silicolife.textmining.processes.DatabaseConnectionInit;
+import com.silicolife.textmining.processes.corpora.loaders.CorpusCreation;
+import com.silicolife.textmining.processes.corpora.loaders.PDFDirectoryCorpusLoaders;
 
 public class CreateCorpusFromPDFDirectoryTest {
 

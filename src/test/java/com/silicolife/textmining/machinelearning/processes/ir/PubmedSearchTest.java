@@ -1,4 +1,4 @@
-package com.silicolife.textmining.processes.ir;
+package com.silicolife.textmining.machinelearning.processes.ir;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;

@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.silicolife.textmining.DatabaseConnectionInit;
 import com.silicolife.textmining.core.datastructures.exceptions.process.InvalidConfigurationException;
 import com.silicolife.textmining.core.datastructures.init.exception.InvalidDatabaseAccess;
 import com.silicolife.textmining.core.interfaces.core.dataaccess.exception.ANoteException;
@@ -17,7 +16,8 @@ import com.silicolife.textmining.core.interfaces.process.IR.exception.InternetCo
 import com.silicolife.textmining.ie.ner.biotml.NERBioTMLTagger;
 import com.silicolife.textmining.ie.ner.biotml.configuration.INERBioTMLAnnotatorConfiguration;
 import com.silicolife.textmining.ie.ner.biotml.configuration.NERBioTMLAnnotatorConfiguration;
-import com.silicolife.textmining.processes.corpora.loaders.CreateCorpusFromPublicationManagerTest;
+import com.silicolife.textmining.machinelearning.DatabaseConnectionInit;
+import com.silicolife.textmining.machinelearning.processes.corpora.loaders.CreateCorpusFromPublicationManagerTest;
 
 public class CreateNERSchemaFromBioTMLModelTest {
 

@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.silicolife.textmining.DatabaseConnectionInit;
 import com.silicolife.textmining.core.datastructures.exceptions.process.InvalidConfigurationException;
 import com.silicolife.textmining.core.datastructures.init.exception.InvalidDatabaseAccess;
 import com.silicolife.textmining.core.datastructures.schemas.NERSchemaImpl;
@@ -20,6 +19,7 @@ import com.silicolife.textmining.core.interfaces.resource.dictionary.IDictionary
 import com.silicolife.textmining.ie.schemas.CreateNERModelFile;
 import com.silicolife.textmining.ie.schemas.create.model.configuration.INERSchemaCreateModelConfiguration;
 import com.silicolife.textmining.ie.schemas.create.model.configuration.NERSchemaCreateModelConfigurationImpl;
+import com.silicolife.textmining.machinelearning.DatabaseConnectionInit;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeatureGeneratorConfiguratorImpl;
@@ -27,8 +27,8 @@ import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeat
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfigurator;
-import com.silicolife.textmining.processes.corpora.loaders.CreateCorpusFromPublicationManagerTest;
-import com.silicolife.textmining.processes.ie.ner.linnaeus.LinnaeusTest;
+import com.silicolife.textmining.machinelearning.processes.corpora.loaders.CreateCorpusFromPublicationManagerTest;
+import com.silicolife.textmining.machinelearning.processes.ie.ner.linnaeus.LinnaeusTest;
 
 public class CreateBioTMLModelFromNERSchemaTest {
 
