@@ -226,7 +226,7 @@ public class BioTMLConverter {
 						}
 					}
 				}else{
-					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)annotation.getStartOffset(), (int)annotation.getEndOffset()),new EntityAnnotationImpl(annotation.getStartOffset(), annotation.getEndOffset(), new AnoteClass(annotation.getAnnotType()), null, tokensString, false, null));
+					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)annotation.getStartOffset(), (int)annotation.getEndOffset()),new EntityAnnotationImpl(annotation.getStartOffset(), annotation.getEndOffset(), new AnoteClass(annotation.getAnnotType()), null, tokensString, false,false, null));
 				}
 			}
 		}
@@ -242,11 +242,11 @@ public class BioTMLConverter {
 				if(offset == 0){
 					endoffset = annotation.getStartOffset() + (long)token.length();
 
-					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)annotation.getStartOffset(), (int)endoffset),new EntityAnnotationImpl( annotation.getStartOffset(), endoffset, new AnoteClass(annotation.getAnnotType()), null, token, false, null));
+					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)annotation.getStartOffset(), (int)endoffset),new EntityAnnotationImpl( annotation.getStartOffset(), endoffset, new AnoteClass(annotation.getAnnotType()), null, token, false,false, null));
 				}else if(offset + (long)token.length() == annotation.getEndOffset()){
-					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)offset, (int)annotation.getEndOffset()),new EntityAnnotationImpl( offset, annotation.getEndOffset(), new AnoteClass(annotation.getAnnotType()), null, token, false, null));
+					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)offset, (int)annotation.getEndOffset()),new EntityAnnotationImpl( offset, annotation.getEndOffset(), new AnoteClass(annotation.getAnnotType()), null, token, false,false, null));
 				}else{
-					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)offset, (int)endoffset), new EntityAnnotationImpl( offset, endoffset, new AnoteClass(annotation.getAnnotType()), null, token, false, null));
+					positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)offset, (int)endoffset), new EntityAnnotationImpl( offset, endoffset, new AnoteClass(annotation.getAnnotType()), null, token, false,false, null));
 				}
 			}
 			offset = endoffset + (long)stringToRemove.length();
@@ -279,7 +279,7 @@ public class BioTMLConverter {
 					rightEnt = loadEntitiesInRelations(doc, rightAnnots, entities);
 				}
 				if(!(leftEnt.isEmpty() && rightEnt.isEmpty())){
-					events.add(new EventAnnotationImpl(clue.getStartOffset(), clue.getEndOffset(), AnnotationType.re.name(), new ArrayList<>(leftEnt), new ArrayList<>(rightEnt), doc.toString().substring((int)clue.getStartOffset(), (int)clue.getEndOffset()), 0L, new String(), new EventPropertiesImpl()));
+					events.add(new EventAnnotationImpl(clue.getStartOffset(), clue.getEndOffset(), AnnotationType.re.name(), new ArrayList<>(leftEnt), new ArrayList<>(rightEnt), doc.toString().substring((int)clue.getStartOffset(), (int)clue.getEndOffset()), new EventPropertiesImpl(),false));
 				}
 			}else{
 				Set<IBioTMLAnnotation> relationToAdd = relation.getRelation();
@@ -301,7 +301,7 @@ public class BioTMLConverter {
 					rightEnt = loadEntitiesInRelations(doc, rightAnnots, entities);
 				}
 				if(!(leftEnt.isEmpty() && rightEnt.isEmpty())){
-					events.add(new EventAnnotationImpl(1, 1, AnnotationType.re.name(), new ArrayList<>(leftEnt), new ArrayList<>(rightEnt), new String(), 0, new String(), new EventPropertiesImpl()));
+					events.add(new EventAnnotationImpl(1, 1, AnnotationType.re.name(), new ArrayList<>(leftEnt), new ArrayList<>(rightEnt), new String(),new EventPropertiesImpl(),false));
 
 				}
 			}
@@ -314,7 +314,7 @@ public class BioTMLConverter {
 		for(IBioTMLAnnotation annotation : annotationsInOneSide){
 			if(!annotation.getAnnotType().equals(BioTMLConstants.clue.toString())){
 				String tokensString = document.toString().substring((int)annotation.getStartOffset(), (int)annotation.getEndOffset());
-				IEntityAnnotation entityAnnotation = new EntityAnnotationImpl(annotation.getStartOffset(), annotation.getEndOffset(), new AnoteClass(annotation.getAnnotType()), null, tokensString, false, null);
+				IEntityAnnotation entityAnnotation = new EntityAnnotationImpl(annotation.getStartOffset(), annotation.getEndOffset(), new AnoteClass(annotation.getAnnotType()), null, tokensString, false,false, null);
 				boolean found = false;
 				Iterator<IEntityAnnotation> itEnt = entities.iterator();
 				while(!found && itEnt.hasNext()){
@@ -358,7 +358,7 @@ public class BioTMLConverter {
 						List<IEntityAnnotation> rightEnt = new ArrayList<IEntityAnnotation>();
 						rightEnt.addAll(relation.getEntitiesAtRight());
 						rightEnt.addAll(otherRelation.getEntitiesAtRight());
-						relations.add(new EventAnnotationImpl(relation.getStartOffset(), relation.getEndOffset(), ProcessTypeEnum.RE.toString(), leftEnt, rightEnt, relation.getEventClue(), 0L, new String(), new EventPropertiesImpl()));
+						relations.add(new EventAnnotationImpl(relation.getStartOffset(), relation.getEndOffset(), ProcessTypeEnum.RE.toString(), leftEnt, rightEnt, relation.getEventClue(), new EventPropertiesImpl(),false));
 					}
 				}
 			}
