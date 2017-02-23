@@ -7,8 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import cc.mallet.pipe.Pipe;
-
 import com.silicolife.textmining.core.datastructures.exceptions.process.InvalidConfigurationException;
 import com.silicolife.textmining.core.datastructures.init.InitConfiguration;
 import com.silicolife.textmining.core.datastructures.language.LanguageProperties;
@@ -40,6 +38,8 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReaderImpl;
 
+import cc.mallet.pipe.Pipe;
+
 public class REBioTMLTagger implements IREProcess{
 
 	public static final String bioTMLTagger = "BioTML RE Tagger";
@@ -64,8 +64,7 @@ public class REBioTMLTagger implements IREProcess{
 		try {
 			validateConfiguration(configuration);
 			IREBioTMLAnnotatorConfiguration reconfiguration = (IREBioTMLAnnotatorConfiguration) configuration;
-			IEProcessImpl reProcess = new IEProcessImpl(configuration.getCorpus(), REBioTMLTagger.bioTMLTagger  + " " +Utils.SimpleDataFormat.format(new Date()),
-					configuration.getProcessNotes(), ProcessTypeImpl.getREProcessType(), bioTMLOrigin, gereateProperties(reconfiguration));
+			IIEProcess reProcess = buildprocess(configuration, reconfiguration);
 			InitConfiguration.getDataAccess().createIEProcess(reProcess);
 			this.converter = new BioTMLConverter(reconfiguration.getNLPSystem(), reProcess);
 			long startime = GregorianCalendar.getInstance().getTimeInMillis();
@@ -139,6 +138,13 @@ public class REBioTMLTagger implements IREProcess{
 		} catch (BioTMLException e) {
 			throw new ANoteException(e);
 		}
+	}
+
+	private IIEProcess buildprocess(IREConfiguration configuration, IREBioTMLAnnotatorConfiguration reconfiguration) {
+		IIEProcess reProcess = configuration.getIEProcess();
+		reProcess.setName(REBioTMLTagger.bioTMLTagger  + " " +Utils.SimpleDataFormat.format(new Date()));
+		reProcess.setProperties(gereateProperties(reconfiguration));
+		return reProcess;
 	}
 
 	private List<IBioTMLAnnotation> getNERClues(IREBioTMLAnnotatorConfiguration configuration,IBioTMLCorpus biotmlCorpus, IBioTMLModel model) throws BioTMLException {

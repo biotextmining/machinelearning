@@ -1,11 +1,19 @@
 package com.silicolife.textmining.ie.ner.biotml.configuration;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
+import com.silicolife.textmining.core.datastructures.process.IEProcessImpl;
+import com.silicolife.textmining.core.datastructures.process.ProcessRunStatusConfigurationEnum;
+import com.silicolife.textmining.core.datastructures.process.ProcessTypeImpl;
 import com.silicolife.textmining.core.datastructures.process.ner.NERConfigurationImpl;
+import com.silicolife.textmining.core.datastructures.utils.Utils;
 import com.silicolife.textmining.core.interfaces.core.document.corpus.ICorpus;
+import com.silicolife.textmining.core.interfaces.process.IE.IIEProcess;
+import com.silicolife.textmining.ie.ner.biotml.NERBioTMLTagger;
 
 public class NERBioTMLAnnotatorConfiguration extends NERConfigurationImpl implements INERBioTMLAnnotatorConfiguration{
 	
@@ -18,12 +26,21 @@ public class NERBioTMLAnnotatorConfiguration extends NERConfigurationImpl implem
 	
 	public static final String bioTMLTagger = "BioTML NER Tagger";
 
-	public NERBioTMLAnnotatorConfiguration(ICorpus corpus, String nlpSystemSelected, Set<String> nerClasses, int threadsnumber, String modelFilename){
-		super(corpus, bioTMLTagger, bioTMLTagger);
+	public NERBioTMLAnnotatorConfiguration(ICorpus corpus,ProcessRunStatusConfigurationEnum processRunStatusConfigurationEnum, String nlpSystemSelected, Set<String> nerClasses, int threadsnumber, String modelFilename){
+		super(corpus, bioTMLTagger,build(corpus),processRunStatusConfigurationEnum);
 		this.nlpId = nlpSystemSelected;
 		this.nerclasses = nerClasses;
 		this.threads = threadsnumber;
 		this.modelpath = modelFilename;
+	}
+	
+	private static IIEProcess build(ICorpus corpus)
+	{
+		String description = NERBioTMLTagger.bioTMLTagger + " " +Utils.SimpleDataFormat.format(new Date());
+		Properties properties = new Properties();
+		String notes = new String();
+		IIEProcess runProcess =  new IEProcessImpl(corpus, description , notes , ProcessTypeImpl.getNERProcessType(), NERBioTMLTagger.bioTMLOrigin, properties );
+		return runProcess;
 	}
 
 	public String getNLPSystem() {

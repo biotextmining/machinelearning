@@ -7,14 +7,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import cc.mallet.pipe.Pipe;
-
 import com.silicolife.textmining.core.datastructures.exceptions.process.InvalidConfigurationException;
 import com.silicolife.textmining.core.datastructures.init.InitConfiguration;
 import com.silicolife.textmining.core.datastructures.language.LanguageProperties;
-import com.silicolife.textmining.core.datastructures.process.IEProcessImpl;
 import com.silicolife.textmining.core.datastructures.process.ProcessOriginImpl;
-import com.silicolife.textmining.core.datastructures.process.ProcessTypeImpl;
 import com.silicolife.textmining.core.datastructures.report.processes.NERProcessReportImpl;
 import com.silicolife.textmining.core.datastructures.utils.GenerateRandomId;
 import com.silicolife.textmining.core.datastructures.utils.Utils;
@@ -39,6 +35,8 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReaderImpl;
 
+import cc.mallet.pipe.Pipe;
+
 public class NERBioTMLTagger implements INERProcess{
 
 	public static final String bioTMLTagger = "BioTML NER Tagger";
@@ -62,10 +60,7 @@ public class NERBioTMLTagger implements INERProcess{
 		try {
 			validateConfiguration(configuration);
 			INERBioTMLAnnotatorConfiguration nerBioTMLConfiguration = (INERBioTMLAnnotatorConfiguration) configuration;
-			String description = NERBioTMLTagger.bioTMLTagger + " " +Utils.SimpleDataFormat.format(new Date());
-			Properties properties = gereateProperties(nerBioTMLConfiguration);
-			String notes = configuration.getProcessNotes();
-			IIEProcess runProcess =  new IEProcessImpl(configuration.getCorpus(), description , notes , ProcessTypeImpl.getNERProcessType(), bioTMLOrigin, properties );
+			IIEProcess runProcess = buildprocess(configuration, nerBioTMLConfiguration);
 			InitConfiguration.getDataAccess().createIEProcess(runProcess);
 			this.converter = new BioTMLConverter(nerBioTMLConfiguration.getNLPSystem(), runProcess);
 			long startime = GregorianCalendar.getInstance().getTimeInMillis();
@@ -118,6 +113,16 @@ public class NERBioTMLTagger implements INERProcess{
 		} catch (BioTMLException e) {
 			throw new ANoteException(e);
 		}
+	}
+
+	private IIEProcess buildprocess(INERConfiguration configuration,
+			INERBioTMLAnnotatorConfiguration nerBioTMLConfiguration) {
+		String description = NERBioTMLTagger.bioTMLTagger + " " +Utils.SimpleDataFormat.format(new Date());
+		Properties properties = gereateProperties(nerBioTMLConfiguration);
+		IIEProcess runProcess = configuration.getIEProcess();
+		runProcess.setName(description);
+		runProcess.setProperties(properties);
+		return runProcess;
 	}
 
 	private int processDocumentsWithSubModel(IIEProcess nerProcess,INERBioTMLAnnotatorConfiguration configuration,INERProcessReport report, long startimeannotation, List<IBioTMLDocument> documents, int counter, int maxCounter, IBioTMLModel submodel)

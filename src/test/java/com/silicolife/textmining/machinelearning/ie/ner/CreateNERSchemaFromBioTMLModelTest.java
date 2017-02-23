@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import com.silicolife.textmining.core.datastructures.exceptions.process.InvalidConfigurationException;
 import com.silicolife.textmining.core.datastructures.init.exception.InvalidDatabaseAccess;
+import com.silicolife.textmining.core.datastructures.process.ProcessRunStatusConfigurationEnum;
 import com.silicolife.textmining.core.interfaces.core.dataaccess.exception.ANoteException;
 import com.silicolife.textmining.core.interfaces.core.document.corpus.ICorpus;
 import com.silicolife.textmining.core.interfaces.core.report.processes.INERProcessReport;
@@ -29,7 +30,7 @@ public class CreateNERSchemaFromBioTMLModelTest {
 		int numberThreads = Runtime.getRuntime().availableProcessors();
 		String biotmlModelFile = "src/test/resources/BioTMLModelTest.zip";
 		INERBioTMLAnnotatorConfiguration nerTaggerConfiguration = 
-				new NERBioTMLAnnotatorConfiguration(corpusToAnnotate,nlpSystemSelected,nerClasses,numberThreads,biotmlModelFile);
+				new NERBioTMLAnnotatorConfiguration(corpusToAnnotate,ProcessRunStatusConfigurationEnum.createnew,nlpSystemSelected,nerClasses,numberThreads,biotmlModelFile);
 		NERBioTMLTagger tagger = new NERBioTMLTagger();
 		System.out.println("Execute BioTML NER Tagger");
 		INERProcessReport report = tagger.executeCorpusNER(nerTaggerConfiguration);

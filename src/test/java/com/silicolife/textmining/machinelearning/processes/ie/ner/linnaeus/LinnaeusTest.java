@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import com.silicolife.textmining.core.datastructures.exceptions.process.InvalidConfigurationException;
 import com.silicolife.textmining.core.datastructures.init.exception.InvalidDatabaseAccess;
+import com.silicolife.textmining.core.datastructures.process.ProcessRunStatusConfigurationEnum;
 import com.silicolife.textmining.core.datastructures.process.ner.NERCaseSensativeEnum;
 import com.silicolife.textmining.core.datastructures.process.ner.ResourcesToNerAnote;
 import com.silicolife.textmining.core.datastructures.resources.dictionary.loaders.DictionaryImpl;
@@ -61,7 +62,7 @@ public class LinnaeusTest {
 		int numThreads = 4;
 		boolean usingOtherResourceInfoToImproveRuleAnnotations = false;
 		int sizeOfSmallWordsToBeNotAnnotated = 0;
-		INERLinnaeusConfiguration configurations = new NERLinnaeusConfigurationImpl(corpus, patterns , resourceToNER, useabreviation , disambiguation , caseSensitive , normalized , numThreads , stopwords , preprocessing , usingOtherResourceInfoToImproveRuleAnnotations, sizeOfSmallWordsToBeNotAnnotated );
+		INERLinnaeusConfiguration configurations = new NERLinnaeusConfigurationImpl(corpus,ProcessRunStatusConfigurationEnum.createnew, patterns , resourceToNER, useabreviation , disambiguation , caseSensitive , normalized , numThreads , stopwords , preprocessing , usingOtherResourceInfoToImproveRuleAnnotations, sizeOfSmallWordsToBeNotAnnotated );
 		LinnaeusTagger linnaues = new LinnaeusTagger( );
 		System.out.println("Execute Linnaeus");
 		INERProcessReport report = linnaues.executeCorpusNER(configurations);
