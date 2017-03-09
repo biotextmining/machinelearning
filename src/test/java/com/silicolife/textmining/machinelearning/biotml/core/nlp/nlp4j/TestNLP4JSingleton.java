@@ -1,16 +1,16 @@
-package com.silicolife.textmining.machinelearning.biotml.core.nlp.clearnlp;
+package com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
 
-import com.clearnlp.dependency.DEPTree;
-import com.clearnlp.nlp.NLPGetter;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.clearnlp.BioTMLClearNLP;
 
-public class TestClearNLPSingleton {
+import edu.emory.mathcs.nlp.component.template.node.NLPNode;
+
+public class TestNLP4JSingleton {
 
 	public String document(){
 		return "Background\n"+
@@ -26,14 +26,16 @@ public class TestClearNLPSingleton {
 	@Test
 	public void test() throws BioTMLException {
 		
-		List<IBioTMLSentence> sentences = BioTMLClearNLP.getInstance().getSentences(document());
+		List<IBioTMLSentence> sentences = BioTMLNLP4J.getInstance().getSentences(document());
 		List<String> tokens = sentences.get(0).getTokenStrings();
-		DEPTree tree = NLPGetter.toDEPTree(tokens);
-		BioTMLClearNLP.getInstance().processPos(tree);
-		System.out.println(tree.toStringDEP());
-		BioTMLClearNLP.getInstance().processDependency(tree);
-		System.out.println(tree.toStringDEP());
-		BioTMLClearNLP.getInstance().clearModelsInMemory();
+		
+		String[] lemmas = BioTMLNLP4J.getInstance().processLemma(tokens.toArray(new String[0]));
+		System.out.println(Arrays.asList(lemmas));
+		String[] pos = BioTMLNLP4J.getInstance().processPos(tokens.toArray(new String[0]));
+		System.out.println(Arrays.asList(pos));
+		NLPNode[] nodes = BioTMLNLP4J.getInstance().processDependency(tokens.toArray(new String[0]));
+		System.out.println(nodes);
+		BioTMLNLP4J.getInstance().clearModelsInMemory();
 	}
 
 }

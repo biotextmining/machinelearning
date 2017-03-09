@@ -8,6 +8,7 @@ import java.util.TreeSet;
 
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeatureGeneratorConfiguratorImpl;
@@ -18,15 +19,15 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelWriter;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfigurator;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.clearnlp.segmenter.EnglishSegmenterExtender;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.clearnlp.tokenizer.AbstractTokenizer;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.clearnlp.tokenizer.EnglishTokenizerExtender;
+import com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j.BioTMLNLP4J;
 import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLModelWriterImpl;
 
 public class TestPipelineMEMM {
 	
 	private static List<IBioTMLDocument> loadDocuments(){
+		List<IBioTMLDocument> result = new ArrayList<>();
 		List<String> docInString = new ArrayList<String>();
 		docInString.add("Sl - ERF.B.3 ( Solanum lycopersicum ethylene response factor B.3 ) gene encodes for a tomato transcription factor of the ERF ( ethylene responsive factor ) family. Our results of real - time RT - PCR showed that Sl - ERF.B.3 is an abiotic stress responsive gene , which is induced by cold , heat , and flooding , but downregulated by salinity and drought. To get more insight into the role of Sl - ERF.B.3 in plant response to separate salinity and cold , a comparative study between wild type and two Sl - ERF.B.3 antisense transgenic tomato lines was achieved. Compared with wild type , Sl - ERF.B.3 antisense transgenic plants exhibited a salt stress dependent growth inhibition. This inhibition was significantly enhanced in shoots but reduced in roots , leading to an increased root to shoot ratio. Furthermore , the cold stress essay clearly revealed that introducing antisense Sl - ERF.B.3 in transgenic tomato plants reduces their cell injury and enhances their tolerance against 14 d of cold stress. All these results suggest that Sl - ERF.B.3 gene is involved in plant response to abiotic stresses and may play a role in the layout of stress symptoms under cold stress and in growth regulation under salinity. Ethylene Response Factor Sl - ERF.B.3 Is Responsive to Abiotic Stresses and Mediates Salt and Cold Stress Response Regulation in Tomato.");
 		docInString.add("Although posttranscriptional regulation of RNA metabolism is increasingly recognized as a key regulatory process in plant response to environmental stresses , reports demonstrating the importance of RNA metabolism control in crop improvement under adverse environmental stresses are severely limited.");
@@ -37,9 +38,13 @@ public class TestPipelineMEMM {
 		docInString.add("Reduced expression of the Aalpha subunit of protein phosphatase 2A in human gliomas in the absence of mutations in the Aalpha and Abeta subunit genes. Protein phosphatase 2A ( PP2A ) consists of 3 subunits: the catalytic subunit, C, and the regulatory subunits, A and B. The A and C subunits both exist as 2 isoforms (alpha and beta) and the B subunit as multiple forms subdivided into 3 families, B, B' and B'. It has been reported that the genes encoding the Aalpha and Abeta subunits are mutated in various human cancers, suggesting that they may function as tumor suppressors. We investigated whether Aalpha and Abeta mutations occur in human gliomas. Using single strand conformational polymorphism analysis and DNA sequencing, 58 brain tumors were investigated, including 23 glioblastomas, 19 oligodendrogliomas and 16 anaplastic oligodendrogliomas. Only silent mutations were detected in the Aalpha gene and no mutations in the Abeta gene. However, in 43% of the tumors, the level of Aalpha was reduced at least 10-fold. By comparison, the levels of the Balpha and Calpha subunits were mostly normal. Our data indicate that these tumors contain very low levels of core and holoenzyme and high amounts of unregulated catalytic C subunit. Reduced expression of the Aalpha subunit of protein phosphatase 2A in human gliomas in the absence of mutations in the Aalpha and Abeta subunit genes.");
 		docInString.add("The diazo compound, 2,2'-azobis [2-(2-imidazolin-2-yl) propane] dihydrochloride (AIPC), is a water-soluble radical initiator that can be activated at mild temperatures (37 degrees -40 degrees C). Potential biomedical applications of this compound include the fabrication of hydrogels by radical polymerization (e.g., cell encapsulation or drug delivery) and the thermal sensitization of cancerous cells to induce localized cell death. In this study we evaluated whether this compound could induce cell death at 37 degrees C in vitro and in vivo using a tumor animal model. Cytotoxicity was quantitated with a sulfo-rhodamine B colorimetric assay by monitoring growth inhibition of human glioma cells in vitro. AIPC was entrapped in fibrin gel and exposed to cells in culture as a potential way to localize the compound in a controlled release environment. The mechanism of action for cell death was evaluated by quantitating caspase-3 activity in cells. In vivo studies included human glioma tumors that were grown subcutaneously in rats to study the effect of intra-tumor injections of AIPC. AIPC was also injected subcutaneously into normal tissue. Concentrations of 0.2% and 0.02% (w/v in RPMI medium) showed 93% and 84% inhibition of cell growth in vitro, respectively. Cell-growth inhibition using gel-entrapped AIPC was comparable to that obtained with AIPC in solution after 48 hr (86% inhibition at 0.2% w/v). Exposure to AIPC resulted in a significant increase of caspase activity (up to 163 units after 20 min), suggesting induced apoptosis as a possible mechanism of action of the AIPC. Histological pictures showed that, relative to normal tissue, cancerous tissue was more sensitive to the effects of AIPC. Cell-killing potential of a water-soluble radical initiator. Cell-killing potential of a water-soluble radical initiator.");
 		docInString.add("The non-isotopic assay (NIRCA), based on the observation that RNAse is able to specifically cleave a single mismatch in RNA/RNA duplexes, has been recently proposed to detect p53 mutations. To verify the use of this method as a valid screening for P53 mutations in a routinely collected cancer series, we used this assay on 3 cases with normal and 5 cases with abnormal P53 expression detected by Western blots. In all cases, P53 exons 5-6, 7 and 8-9 regions were analyzed. There were mutations only in the five overexpressed cases: two cases showed mutations in exon 5, one between intron 6 and exon 6 and two in the region spanning exons 8 and 9. Our experience showed NIRCA to be fast, reliable and providing the ability to study long target regions in a single step, thus making this assay useful for genetic screenings. Mutations spanning P53 exons 5-9 detected by non-isotopic RNAse cleavage assay and protein expression in human colon cancer. Mutations spanning P53 exons 5-9 detected by non-isotopic RNAse cleavage assay and protein expression in human colon cancer.");
-		AbstractTokenizer tokenizer  = new EnglishTokenizerExtender();
-		EnglishSegmenterExtender segmenter = new EnglishSegmenterExtender(tokenizer);
-		return segmenter.getSentencesFromDocuments(docInString);
+		int i = 0;
+		for(String doc: docInString){
+			List<IBioTMLSentence> sentences = BioTMLNLP4J.getInstance().getSentences(doc);
+			result.add(new BioTMLDocumentImpl(i, "", sentences));
+			i++;
+		}
+		return result;
 	}
 	
 	private static List<IBioTMLAnnotation> loadAnnotations(){

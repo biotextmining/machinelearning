@@ -27,7 +27,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelWriter;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.models.MalletTransducerModel;
-import com.silicolife.textmining.machinelearning.biotml.core.nlp.clearnlp.BioTMLClearNLP;
+import com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j.BioTMLNLP4J;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReaderImpl;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReaderImpl;
 import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLCorpusWriterImpl;
@@ -226,7 +226,7 @@ public class TestModelCreationAndAnnotation {
 		docInString.add("The non-isotopic assay (NIRCA), based on the observation that RNAse is able to specifically cleave a single mismatch in RNA/RNA duplexes, has been recently proposed to detect p53 mutations. To verify the use of this method as a valid screening for P53 mutations in a routinely collected cancer series, we used this assay on 3 cases with normal and 5 cases with abnormal P53 expression detected by Western blots. In all cases, P53 exons 5-6, 7 and 8-9 regions were analyzed. There were mutations only in the five overexpressed cases: two cases showed mutations in exon 5, one between intron 6 and exon 6 and two in the region spanning exons 8 and 9. Our experience showed NIRCA to be fast, reliable and providing the ability to study long target regions in a single step, thus making this assay useful for genetic screenings. Mutations spanning P53 exons 5-9 detected by non-isotopic RNAse cleavage assay and protein expression in human colon cancer. Mutations spanning P53 exons 5-9 detected by non-isotopic RNAse cleavage assay and protein expression in human colon cancer.");
 		long id = 0;
 		for(String document : docInString){
-			docs.add(new BioTMLDocumentImpl(id, String.valueOf(id), BioTMLClearNLP.getInstance().getSentences(document)));
+			docs.add(new BioTMLDocumentImpl(id, String.valueOf(id), BioTMLNLP4J.getInstance().getSentences(document)));
 			id++;
 		}
 		return docs;

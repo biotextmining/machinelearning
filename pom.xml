@@ -6,7 +6,7 @@
 	<artifactId>machinelearning</artifactId>
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
-		<repositories>
+	<repositories>
 		<repository>
 			<releases>
 				<enabled>true</enabled>
@@ -21,16 +21,16 @@
 	</repositories>
 
 	<name>machinelearning</name>
-  	<url>http://anote-project.org</url>
+	<url>http://anote-project.org</url>
 
-    <licenses>
-        <license>
-            <name>LGPLv3</name>
-            <url>https://www.gnu.org/licenses/lgpl-3.0.en.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    
+	<licenses>
+		<license>
+			<name>LGPLv3</name>
+			<url>https://www.gnu.org/licenses/lgpl-3.0.en.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -62,19 +62,9 @@
 			<version>2.0.8-RC3-Unofficial</version>
 		</dependency>
 		<dependency>
-			<groupId>edu.emory.mathcs.nlp</groupId>
-			<artifactId>nlp4j</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>edu.emory.mathcs.nlp</groupId>
-			<artifactId>nlp4j-english</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>tw.edu.ntu.csie</groupId>
+			<groupId>com.datumbox</groupId>
 			<artifactId>libsvm</artifactId>
-			<version>3.17</version>
+			<version>3.22</version>
 		</dependency>
 		<dependency>
 			<groupId>org.clapper</groupId>
@@ -82,29 +72,14 @@
 			<version>3.1.1</version>
 		</dependency>
 		<dependency>
-			<groupId>com.clearnlp</groupId>
-			<artifactId>clearnlp</artifactId>
-			<version>2.0.2</version>
+			<groupId>edu.emory.mathcs.nlp</groupId>
+			<artifactId>nlp4j-api</artifactId>
+			<version>1.1.3</version>
 		</dependency>
 		<dependency>
-			<groupId>com.clearnlp</groupId>
-			<artifactId>clearnlp-dictionary</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.clearnlp</groupId>
-			<artifactId>clearnlp-medical-en-dep</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.clearnlp</groupId>
-			<artifactId>clearnlp-medical-en-pos</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.clearnlp</groupId>
-			<artifactId>clearnlp-medical-en-srl</artifactId>
-			<version>1.0</version>
+			<groupId>edu.emory.mathcs.nlp</groupId>
+			<artifactId>nlp4j-english</artifactId>
+			<version>1.1.3</version>
 		</dependency>
 	</dependencies>
 </project>
