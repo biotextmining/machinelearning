@@ -36,11 +36,11 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 	public Set<String> getUIDs() {
 		Set<String> uids = new TreeSet<String>();
 		uids.add("NLP4JLEMMA");
-		uids.add("NLP4JPPOS");
+		uids.add("NLP4JPOS");
 		uids.add("NLP4JDEPENDECY");//to be corrected for RE
 		//		uids.add("CLEARNLPSRL");
 		uids.add("CONJUCTNLP4JLEMMA");
-		uids.add("CONJUCTNLP4JPPOS");
+		uids.add("CONJUCTNLP4JPOS");
 		uids.add("WINDOWNLP4JLEMMA");
 		uids.add("WINDOWNLP4JPOS");
 		return uids;
@@ -58,7 +58,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 	public Map<String, String> getUIDInfos() {
 		Map<String, String> infoMap = new HashMap<>();
 		infoMap.put("NLP4JLEMMA", "The NLP4J lemmatization system is used to create a feature that stores the lemma of each token.");
-		infoMap.put("NLP4JPPOS", "The NLP4J part-of-speech system is used to create a feature that stores the POS of each token.");
+		infoMap.put("NLP4JPOS", "The NLP4J part-of-speech system is used to create a feature that stores the POS of each token.");
 		infoMap.put("NLP4JDEPENDECY", "The NLP4J dependency parsing system is used to create a feature that stores the dependecy label of each token.");
 		infoMap.put("CONJUCTNLP4JLEMMA", "An adaptation of conjunctions from mallet is used to create conjunctions for NLP4J lemmatization features.");
 		infoMap.put("CONJUCTNLP4JPOS", "An adaptation of conjunctions from mallet is used to create conjunctions for NLP4J part-of-speech features.");

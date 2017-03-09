@@ -151,12 +151,6 @@ public class BioTMLNLP4J {
 		NLPDecoder decoder = getDecoder(new MorphologicalAnalyzer<>(Language.ENGLISH));
 		NLPNode[] nodes = decoder.toNodeArray(convertArrayStringToListToken(sentence));
 		nodes = decoder.decode(nodes);
-		for(String t : sentence){
-			System.out.println(t);
-		}
-		for(NLPNode node : nodes){
-			System.out.println(node.toString());
-		}
 		for(int i=1; i<nodes.length; i++)
 			lemmas[i-1] = nodes[i].getLemma();
 		
