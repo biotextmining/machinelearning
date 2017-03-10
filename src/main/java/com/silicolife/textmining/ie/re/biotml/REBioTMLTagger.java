@@ -10,9 +10,7 @@ import java.util.Properties;
 import com.silicolife.textmining.core.datastructures.exceptions.process.InvalidConfigurationException;
 import com.silicolife.textmining.core.datastructures.init.InitConfiguration;
 import com.silicolife.textmining.core.datastructures.language.LanguageProperties;
-import com.silicolife.textmining.core.datastructures.process.IEProcessImpl;
 import com.silicolife.textmining.core.datastructures.process.ProcessOriginImpl;
-import com.silicolife.textmining.core.datastructures.process.ProcessTypeImpl;
 import com.silicolife.textmining.core.datastructures.report.processes.REProcessReportImpl;
 import com.silicolife.textmining.core.datastructures.utils.GenerateRandomId;
 import com.silicolife.textmining.core.datastructures.utils.Utils;
@@ -65,14 +63,12 @@ public class REBioTMLTagger implements IREProcess{
 			validateConfiguration(configuration);
 			IREBioTMLAnnotatorConfiguration reconfiguration = (IREBioTMLAnnotatorConfiguration) configuration;
 			IIEProcess reProcess = buildprocess(configuration, reconfiguration);
-			InitConfiguration.getDataAccess().createIEProcess(reProcess);
-			this.converter = new BioTMLConverter(reconfiguration.getNLPSystem(), reProcess);
+			
 			long startime = GregorianCalendar.getInstance().getTimeInMillis();
 			IREProcessReport report = new REProcessReportImpl(LanguageProperties.getLanguageStream("pt.uminho.anote2.biotml.operation.report.title"), configuration.getEntityBasedProcess(),reProcess, false);
-			BioTMLConverter anoteconverter = new BioTMLConverter(reconfiguration.getNLPSystem(), reProcess);
-			IBioTMLCorpus biotmlCorpus = null;
+			this.converter = new BioTMLConverter(reconfiguration.getNLPSystem(), reconfiguration.getEntityBasedProcess());
 
-			biotmlCorpus = anoteconverter.convertToBioTMLCorpus();
+			IBioTMLCorpus biotmlCorpus = getConverter().convertToBioTMLCorpus();
 			if(biotmlCorpus!= null){
 
 				if(!biotmlCorpus.getRelations().isEmpty()){
@@ -140,10 +136,11 @@ public class REBioTMLTagger implements IREProcess{
 		}
 	}
 
-	private IIEProcess buildprocess(IREConfiguration configuration, IREBioTMLAnnotatorConfiguration reconfiguration) {
+	private IIEProcess buildprocess(IREConfiguration configuration, IREBioTMLAnnotatorConfiguration reconfiguration) throws ANoteException {
 		IIEProcess reProcess = configuration.getIEProcess();
 		reProcess.setName(REBioTMLTagger.bioTMLTagger  + " " +Utils.SimpleDataFormat.format(new Date()));
 		reProcess.setProperties(gereateProperties(reconfiguration));
+		InitConfiguration.getDataAccess().createIEProcess(reProcess);
 		return reProcess;
 	}
 

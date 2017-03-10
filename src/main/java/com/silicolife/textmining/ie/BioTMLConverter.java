@@ -76,7 +76,7 @@ public class BioTMLConverter {
 	}
 
 	public void convertBioTMLCorpusToAnote(IIEProcess process,IBioTMLCorpus annotatedcorpus, IREProcessReport report) throws BioTMLException, ANoteException{
-		if(process.getType().equals(ProcessTypeEnum.RE.toString())){
+		if(process.getType().getType().equals(ProcessTypeEnum.RE.toString())){
 			annotateREInAnote(annotatedcorpus, process, false, true, report);
 		}
 	}

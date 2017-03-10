@@ -61,7 +61,7 @@ public class NERBioTMLTagger implements INERProcess{
 			validateConfiguration(configuration);
 			INERBioTMLAnnotatorConfiguration nerBioTMLConfiguration = (INERBioTMLAnnotatorConfiguration) configuration;
 			IIEProcess runProcess = buildprocess(configuration, nerBioTMLConfiguration);
-			InitConfiguration.getDataAccess().createIEProcess(runProcess);
+			
 			this.converter = new BioTMLConverter(nerBioTMLConfiguration.getNLPSystem(), runProcess);
 			long startime = GregorianCalendar.getInstance().getTimeInMillis();
 			INERProcessReport report = new NERProcessReportImpl(LanguageProperties.getLanguageStream("pt.uminho.anote2.biotml.operation.report.title"), runProcess);
@@ -116,12 +116,13 @@ public class NERBioTMLTagger implements INERProcess{
 	}
 
 	private IIEProcess buildprocess(INERConfiguration configuration,
-			INERBioTMLAnnotatorConfiguration nerBioTMLConfiguration) {
+			INERBioTMLAnnotatorConfiguration nerBioTMLConfiguration) throws ANoteException {
 		String description = NERBioTMLTagger.bioTMLTagger + " " +Utils.SimpleDataFormat.format(new Date());
 		Properties properties = gereateProperties(nerBioTMLConfiguration);
 		IIEProcess runProcess = configuration.getIEProcess();
 		runProcess.setName(description);
 		runProcess.setProperties(properties);
+		InitConfiguration.getDataAccess().createIEProcess(runProcess);
 		return runProcess;
 	}
 
