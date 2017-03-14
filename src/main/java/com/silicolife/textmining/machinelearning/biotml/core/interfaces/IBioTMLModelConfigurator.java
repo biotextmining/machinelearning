@@ -62,6 +62,8 @@ public interface IBioTMLModelConfigurator extends Serializable{
 	 */
 	public svm_parameter getSVMParameters();
 	
+	public String getREMethodology();
+	
 	/**
 	 * 
 	 * Method to get the NLP system to tokenize the text.
@@ -104,4 +106,6 @@ public interface IBioTMLModelConfigurator extends Serializable{
 	 * 
 	 */
 	public void setUsedNLPSystem(String nlpSystem);
+	
+	public void setREMethodology(String reMethodology);
 }

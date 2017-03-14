@@ -26,6 +26,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 	private String algorithm;
 	private svm_parameter svmparams;
 	private String nlpSystemUsed;
+	private String reMethodology;
 
 	/**
 	 * 
@@ -39,14 +40,15 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 		this.numThreads = Runtime.getRuntime().availableProcessors();
 		this.algorithm = BioTMLAlgorithms.malletcrf.toString();
 		this.svmparams = svmdefparams();
-		this.nlpSystemUsed = "clearnlp";
+		this.nlpSystemUsed = "nlp4j";
+		this.reMethodology = new String();
 	}
 
 	/**
 	 * 
 	 * Initializes Mallet model settings.
 	 * 
-	 * @param classType - A string that represents a trained model for a specific entity class type or relation class type.
+	 * @param classType - A string that represents a trained model for a specific entity class type or event class type.
 	 * @param ieType - A string that represents the type of Information Extraction (e.g NER or RE).
 	 */
 	public BioTMLModelConfigurator(String classType, String	ieType){
@@ -56,7 +58,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 		this.numThreads = Runtime.getRuntime().availableProcessors();
 		this.algorithm = BioTMLAlgorithms.malletcrf.toString();
 		this.svmparams = svmdefparams();
-		this.nlpSystemUsed = "clearnlp";
+		this.nlpSystemUsed = "nlp4j";
 	}
 	
 	public String getClassType(){
@@ -87,6 +89,14 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 		return nlpSystemUsed;
 	}
 	
+	public String getREMethodology() {
+		return reMethodology;
+	}
+
+	public void setREMethodology(String reMethodology) {
+		this.reMethodology = reMethodology;
+	}
+
 	public void setModelOrder(int modelOrder){
 		this.modelOrder = modelOrder;
 	}
