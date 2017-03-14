@@ -37,7 +37,7 @@ public interface IBioTMLOffsetsPair extends Comparable<IBioTMLOffsetsPair>, Seri
 	 * @param endOffset
 	 * @return Boolean
 	 */
-	boolean offsetsEquals(long startOffset, long endOffset);
+	public boolean offsetsEquals(long startOffset, long endOffset);
 	
 	/**
 	 * 
@@ -47,7 +47,7 @@ public interface IBioTMLOffsetsPair extends Comparable<IBioTMLOffsetsPair>, Seri
 	 * @param endOffset
 	 * @return
 	 */
-	boolean containsInside(long startOffset, long endOffset);
+	public boolean containsInside(long startOffset, long endOffset);
 	
 	/**
 	 * 
@@ -56,7 +56,7 @@ public interface IBioTMLOffsetsPair extends Comparable<IBioTMLOffsetsPair>, Seri
 	 * @param pairToCompare
 	 * @return
 	 */
-	boolean containsInside(IBioTMLOffsetsPair pairToCompare);
+	public boolean containsInside(IBioTMLOffsetsPair pairToCompare);
 	
 	/**
 	 * 
@@ -76,4 +76,12 @@ public interface IBioTMLOffsetsPair extends Comparable<IBioTMLOffsetsPair>, Seri
 	 */
 	public boolean offsetsOverlap(long startOffset, long endOffset);
 	
+	
+	public boolean startsWith(IBioTMLOffsetsPair pairToCompare);
+	
+	public boolean startsWith(long startOffset);
+	
+	public boolean endsWith(IBioTMLOffsetsPair pairToCompare);
+	
+	public boolean endsWith(long endOffset);
 }

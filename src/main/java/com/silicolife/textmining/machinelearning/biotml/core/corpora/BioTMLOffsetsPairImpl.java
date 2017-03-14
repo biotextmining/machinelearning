@@ -66,6 +66,27 @@ public class BioTMLOffsetsPairImpl implements IBioTMLOffsetsPair{
 	}
 
 	@Override
+	public boolean startsWith(IBioTMLOffsetsPair pairToCompare) {
+		return startsWith(pairToCompare.getStartOffset());
+	}
+
+	@Override
+	public boolean startsWith(long startOffset) {
+		return getStartOffset() == startOffset;
+	}
+	
+	@Override
+	public boolean endsWith(IBioTMLOffsetsPair pairToCompare) {
+		return endsWith(pairToCompare.getEndOffset());
+	}
+
+	@Override
+	public boolean endsWith(long endOffset) {
+		return getEndOffset() == endOffset;
+	}
+
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
