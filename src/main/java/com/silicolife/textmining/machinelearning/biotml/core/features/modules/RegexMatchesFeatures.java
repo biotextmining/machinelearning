@@ -9,7 +9,6 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLAssociationProcess;
 import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
@@ -179,17 +178,6 @@ public class RegexMatchesFeatures implements IBioTMLFeatureGenerator{
 		}
 
 		return new String();
-	}
-
-	public IBioTMLFeatureColumns getFeatureColumnsForRelations(List<String> tokensToProcess, int startAnnotationIndex, int endAnnotationIndex, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		if(tokensToProcess.isEmpty()){
-			throw new BioTMLException(27);
-		}
-		BioTMLAssociationProcess tokenAnnotProcess = new BioTMLAssociationProcess(tokensToProcess, startAnnotationIndex, endAnnotationIndex);
-		List<String> tokens = tokenAnnotProcess.getTokens();
-		IBioTMLFeatureColumns features = getFeatureColumns(tokens, configuration);
-		features.updateTokenFeaturesUsingAssociationProcess(tokenAnnotProcess);
-		return features;
 	}
 
 	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens,

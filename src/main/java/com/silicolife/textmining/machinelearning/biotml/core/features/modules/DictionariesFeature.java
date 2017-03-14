@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLAssociationProcess;
 import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
@@ -35,14 +34,6 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 		infoMap.put("INFREQUENTLIST", "Verifies if the token is present in the 10000 most frequent words.");
 		infoMap.put("INCLUESLIST", "Verifies if the token is present in clues list.");
 		return infoMap;
-	}
-	
-	public IBioTMLFeatureColumns getFeatureColumnsForRelations(List<String> tokensToProcess, int startAnnotationIndex, int endAnnotationIndex, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		BioTMLAssociationProcess tokenAnnotProcess = new BioTMLAssociationProcess(tokensToProcess, startAnnotationIndex, endAnnotationIndex);
-		List<String> tokens = tokenAnnotProcess.getTokens();
-		IBioTMLFeatureColumns features = getFeatureColumns(tokens, configuration);
-		features.updateTokenFeaturesUsingAssociationProcess(tokenAnnotProcess);
-		return features;
 	}
 
 	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens,

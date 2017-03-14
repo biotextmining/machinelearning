@@ -7,6 +7,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatast
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLTokensWithFeaturesAndLabels;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeaturesManager;
+import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLAssociationProcess;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
@@ -83,7 +84,11 @@ public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 					IBioTMLFeatureGenerator classProcesser = BioTMLFeaturesManager.getInstance().getClass(classUID);
 					visitedUID.addAll(classProcesser.getUIDs());
 					if(getDocIDandSentIdx().getAnnotTokenRelationStartIndex() != -1 && getDocIDandSentIdx().getAnnotTokenRelationEndIndex() != -1){
-						allColumns.add(classProcesser.getFeatureColumnsForRelations(getTokensWithFeaturesAndLabels().getTokens(), getDocIDandSentIdx().getAnnotTokenRelationStartIndex(), getDocIDandSentIdx().getAnnotTokenRelationEndIndex(),  getConfiguration()));
+						List<String> tokens = getTokensWithFeaturesAndLabels().getTokens();
+						BioTMLAssociationProcess tokenAnnotProcess = new BioTMLAssociationProcess(tokens, getDocIDandSentIdx().getAnnotTokenRelationStartIndex(), getDocIDandSentIdx().getAnnotTokenRelationEndIndex());
+						IBioTMLFeatureColumns features = classProcesser.getFeatureColumns(tokens, getConfiguration());
+						features.updateTokenFeaturesUsingAssociationProcess(tokenAnnotProcess);
+						allColumns.add(features);
 					}else{
 						allColumns.add(classProcesser.getFeatureColumns(getTokensWithFeaturesAndLabels().getTokens(),  getConfiguration()));
 					}
