@@ -35,11 +35,11 @@ public interface IBioTMLCorpus extends Serializable {
 	
 	/**
 	 * 
-	 * Method to get all relations between annotations in all documents;
+	 * Method to get all events in all documents;
 	 * 
-	 * @return List of {@link IBioTMLAnnotationsRelation}.
+	 * @return List of {@link IBioTMLEvent}.
 	 */
-	public List<IBioTMLAnnotationsRelation> getRelations();
+	public List<IBioTMLEvent> getEvents();
 	
 	/**
 	 * 
@@ -90,30 +90,21 @@ public interface IBioTMLCorpus extends Serializable {
 	
 	/**
 	 * 
-	 * Method to get all relations of annotations from a {@link IBioTMLDocument} ID.
+	 * Method to get all events from a {@link IBioTMLDocument} ID.
 	 * 
 	 * @param docID - {@link IBioTMLDocument} ID.
-	 * @return Set of {@link IBioTMLAnnotationsRelation}.
+	 * @return Set of {@link IBioTMLEvent}.
 	 */
-	public Set<IBioTMLAnnotationsRelation> getDocAnnotationRelations(long docID);
-	
-	/**
-	 * 
-	 * Method to get the relations of annotations with the best score  from a {@link IBioTMLDocument} ID.
-	 * 
-	 * @param docID - {@link IBioTMLDocument} ID.
-	 * @return Set of {@link IBioTMLAnnotationsRelation}.
-	 */
-	public Set<IBioTMLAnnotationsRelation> getDocAnnotationRelationsWithBestScore(long docID);
+	public Set<IBioTMLEvent> getDocAnnotationEvents(long docID);
 	
 	/**
 	 * 
 	 * Method to get all annotations from relations that are inputed.
 	 * 
-	 * @param relations - List of {@link IBioTMLAnnotationsRelation}.
+	 * @param relations - List of {@link IBioTMLEvent}.
 	 * @return List of {@link IBioTMLAnnotation}.
 	 */
-	public List<IBioTMLAnnotation> getAnnotationsFromRelations(List<IBioTMLAnnotationsRelation> relations);
+	public List<IBioTMLAnnotation> getAnnotationsFromEvents(List<IBioTMLEvent> relations);
 	
 	/**
 	 * 
@@ -168,4 +159,6 @@ public interface IBioTMLCorpus extends Serializable {
 	 * @return
 	 */
 	public Set<IBioTMLAnnotation> getAnnotationsFromDocAndOffsets(long docID, long startOffset, long endOffset);
+	
+	public Set<IBioTMLEvent> getDocEventsWithBestScore(long docID);
 }

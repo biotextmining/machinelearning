@@ -8,7 +8,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotationsRelation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
@@ -55,19 +55,19 @@ public class BioTMLMalletAnnotatorImpl implements IBioTMLAnnotator{
 		}
 
 		List<IBioTMLAnnotation> annotations = getBasedBioTMCorpus().getAnnotations();
-		List<IBioTMLAnnotationsRelation> relations = getBasedBioTMCorpus().getRelations();
+		List<IBioTMLEvent> events = getBasedBioTMCorpus().getEvents();
 
-		generateNewAnnotationsOrRelations(model, threads, annotations, relations);
+		generateNewAnnotationsOrEvents(model, threads, annotations, events);
 
-		if(!relations.isEmpty()){
-			return new BioTMLCorpusImpl(getBasedBioTMCorpus().getDocuments(), annotations, relations, getBasedBioTMCorpus().toString());
+		if(!events.isEmpty()){
+			return new BioTMLCorpusImpl(getBasedBioTMCorpus().getDocuments(), annotations, events, getBasedBioTMCorpus().toString());
 		}else{
 			return new BioTMLCorpusImpl(getBasedBioTMCorpus().getDocuments(), annotations, getBasedBioTMCorpus().toString());
 		}
 	}
 
-	private void generateNewAnnotationsOrRelations(IBioTMLModel model, int threads, List<IBioTMLAnnotation> annotations,
-			List<IBioTMLAnnotationsRelation> relations) throws BioTMLException {
+	private void generateNewAnnotationsOrEvents(IBioTMLModel model, int threads, List<IBioTMLAnnotation> annotations,
+			List<IBioTMLEvent> relations) throws BioTMLException {
 		
 		if(model.getModelConfiguration().getIEType().equals(BioTMLConstants.ner.toString()))
 		{
@@ -76,7 +76,7 @@ public class BioTMLMalletAnnotatorImpl implements IBioTMLAnnotator{
 		}
 		else if(model.getModelConfiguration().getIEType().equals(BioTMLConstants.re.toString()))
 		{
-			Set<IBioTMLAnnotationsRelation> newRelations = executeREAnnotation(model, threads);
+			Set<IBioTMLEvent> newRelations = executeREAnnotation(model, threads);
 			relations.addAll(newRelations);
 		}
 		
@@ -90,11 +90,11 @@ public class BioTMLMalletAnnotatorImpl implements IBioTMLAnnotator{
 		}
 
 		List<IBioTMLAnnotation> annotations = getBasedBioTMCorpus().getAnnotations();
-		List<IBioTMLAnnotationsRelation> relations = getBasedBioTMCorpus().getRelations();
+		List<IBioTMLEvent> relations = getBasedBioTMCorpus().getEvents();
 		Iterator<IBioTMLModel> itModels = models.iterator();
 		while(itModels.hasNext() && !stop){
 			IBioTMLModel model = itModels.next();
-			generateNewAnnotationsOrRelations(model, threads, annotations, relations);
+			generateNewAnnotationsOrEvents(model, threads, annotations, relations);
 		}
 		
 		if(!relations.isEmpty()){
@@ -104,7 +104,7 @@ public class BioTMLMalletAnnotatorImpl implements IBioTMLAnnotator{
 		}
 	}
 
-	private Set<IBioTMLAnnotationsRelation> executeREAnnotation(IBioTMLModel model, int threads) throws BioTMLException {
+	private Set<IBioTMLEvent> executeREAnnotation(IBioTMLModel model, int threads) throws BioTMLException {
 		reAnnotator = new BioTMLMalletREAnnotator();
 		return reAnnotator.generateRelations(getBasedBioTMCorpus(), model, threads);
 	}

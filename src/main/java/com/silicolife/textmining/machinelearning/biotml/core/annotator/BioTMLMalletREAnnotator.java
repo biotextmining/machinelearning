@@ -10,7 +10,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.annotator.processor
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentTokenIDs;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotationsRelation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
@@ -40,14 +40,14 @@ public class BioTMLMalletREAnnotator {
 
 	}
 
-	public Set<IBioTMLAnnotationsRelation> generateRelations(IBioTMLCorpus corpus, IBioTMLModel model, int threads) throws BioTMLException{
+	public Set<IBioTMLEvent> generateRelations(IBioTMLCorpus corpus, IBioTMLModel model, int threads) throws BioTMLException{
 
 		if(!validateModel(model))
 		{
 			throw new BioTMLException(5);
 		}
 		
-		Set<IBioTMLAnnotationsRelation> relations = new HashSet<>();
+		Set<IBioTMLEvent> relations = new HashSet<>();
 		if(model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.malletcrf.toString())
 				|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.mallethmm.toString()))
 		{
@@ -61,7 +61,7 @@ public class BioTMLMalletREAnnotator {
 	}
 
 	private void predictRelationsUsingTransducerProcessor(IBioTMLCorpus corpus, IBioTMLModel model, int threads,
-			Set<IBioTMLAnnotationsRelation> relations) throws BioTMLException {
+			Set<IBioTMLEvent> relations) throws BioTMLException {
 		transducerProcessor = new BioTMLMalletTransducerAnnotatorProcessor(corpus, model, threads);
 		InstanceList predictionMatrix = transducerProcessor.generatePredictionMatrix();
 		Iterator<Instance> itSentence = predictionMatrix.iterator();
@@ -77,7 +77,7 @@ public class BioTMLMalletREAnnotator {
 				if(!prediction.equals(BioTMLConstants.o.toString()) && ids.getAnnotTokenRelationStartIndex() != -1 && ids.getAnnotTokenRelationEndIndex() != -1){
 					IBioTMLAnnotation annotationOrClue = transducerProcessor.getAnnotation(corpus, doc, ids.getSentId(),ids.getAnnotTokenRelationStartIndex(), ids.getAnnotTokenRelationEndIndex());
 					if(annotationOrClue != null){
-						transducerProcessor.addPredictedRelation(corpus, relations, doc, ids.getSentId(), tokenIndexOrAnnotationIndex, annotationOrClue, ids.isOnlyAnnotations(), model.getModelConfiguration().getClassType(), prediction, predictionScore);
+						transducerProcessor.addPredictedRelation(corpus, relations, doc, ids.getSentId(), tokenIndexOrAnnotationIndex, annotationOrClue, ids.isOnlyAnnotations(), model.getModelConfiguration().getClassType(), model.getModelConfiguration().getREMethodology(), prediction, predictionScore);
 					}
 				}
 			}
@@ -86,7 +86,7 @@ public class BioTMLMalletREAnnotator {
 	}
 
 	private void predictRelationsUsingClassifierProcessor(IBioTMLCorpus corpus, IBioTMLModel model, int threads,
-			Set<IBioTMLAnnotationsRelation> relations) throws BioTMLException {
+			Set<IBioTMLEvent> relations) throws BioTMLException {
 		classifierProcessor = new BioTMLMalletClassifierAnnotatorProcessor(corpus, model, threads);
 		InstanceList predictionMatrix = classifierProcessor.generatePredictionMatrix();
 		Iterator<Instance> itToken = predictionMatrix.iterator();
@@ -97,9 +97,9 @@ public class BioTMLMalletREAnnotator {
 			BioTMLDocSentTokenIDs ids = (BioTMLDocSentTokenIDs)token.getName();
 			IBioTMLDocument doc = corpus.getDocumentByID(ids.getDocId());
 			if(!predictedLabel.equals(BioTMLConstants.o.toString()) && ids.getAnnotTokenRelationStartIndex() != -1 && ids.getAnnotTokenRelationEndIndex() != -1){
-				IBioTMLAnnotation annotationOrClue = classifierProcessor.getAnnotation(corpus, doc, ids.getSentId(),ids.getAnnotTokenRelationStartIndex(), ids.getAnnotTokenRelationEndIndex());
-				if(annotationOrClue != null){
-					classifierProcessor.addPredictedRelation(corpus, relations, doc, ids.getSentId(), ids.getTokenId(), annotationOrClue, ids.isOnlyAnnotations(), model.getModelConfiguration().getClassType(), predictedLabel, predictionScore);
+				IBioTMLAnnotation trigger = classifierProcessor.getAnnotation(corpus, doc, ids.getSentId(),ids.getAnnotTokenRelationStartIndex(), ids.getAnnotTokenRelationEndIndex());
+				if(trigger != null){
+					classifierProcessor.addPredictedRelation(corpus, relations, doc, ids.getSentId(), ids.getTokenId(), trigger, ids.isOnlyAnnotations(), model.getModelConfiguration().getClassType(), model.getModelConfiguration().getREMethodology(), predictedLabel, predictionScore);
 				}
 			}
 		}

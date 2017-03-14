@@ -140,7 +140,7 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 	}
 
 	private InstanceList loadCorpus(IBioTMLCorpus corpusToLoad, int numThreads) throws BioTMLException{
-		IBioTMLCorpusToInstanceMallet malletCorpus = new BioTMLCorpusToInstanceMallet(corpusToLoad, getModelConfiguration().getClassType(), getModelConfiguration().getIEType());
+		IBioTMLCorpusToInstanceMallet malletCorpus = new BioTMLCorpusToInstanceMallet(corpusToLoad, getModelConfiguration());
 		return malletCorpus.exportToMalletFeatures(getPipe(), numThreads, getFeatureConfiguration());
 	}
 

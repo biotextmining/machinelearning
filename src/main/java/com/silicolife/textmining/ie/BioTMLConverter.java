@@ -1,10 +1,11 @@
 package com.silicolife.textmining.ie;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.silicolife.textmining.core.datastructures.annotation.AnnotationPosition;
@@ -32,14 +33,16 @@ import com.silicolife.textmining.core.interfaces.process.ProcessTypeEnum;
 import com.silicolife.textmining.core.interfaces.process.IE.IIEProcess;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationsRelationImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAssociationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLEventImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotationsRelation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPManager;
 
@@ -89,7 +92,7 @@ public class BioTMLConverter {
 		IDocumentSet docs = baseProcess.getCorpus().getArticlesCorpus();
 		List<IBioTMLDocument> listDocuments = new ArrayList<IBioTMLDocument>();
 		List<IBioTMLAnnotation> listAnnotations = new ArrayList<IBioTMLAnnotation>();
-		List<IBioTMLAnnotationsRelation> listRelations = new ArrayList<IBioTMLAnnotationsRelation>();
+		List<IBioTMLEvent> listEvents = new ArrayList<IBioTMLEvent>();
 		for(IPublication doc:docs){
 			IAnnotatedDocument annotDoc = new AnnotatedDocumentImpl(doc, baseProcess, baseProcess.getCorpus());
 			List<IBioTMLSentence> sentences = null;
@@ -124,41 +127,56 @@ public class BioTMLConverter {
 			if(baseProcess.getType().getType().equals(ProcessTypeEnum.RE.toString())){
 
 				for(IEventAnnotation event : annotDoc.getEventAnnotations()){
-					Set<IBioTMLAnnotation> relation = new LinkedHashSet<IBioTMLAnnotation>();
-					List<IEntityAnnotation> leftannots = new ArrayList<IEntityAnnotation>();
-					for( IEntityAnnotation left : event.getEntitiesAtLeft()){
-						leftannots.add(left);
-					}
-					List<IEntityAnnotation> rightannots = new ArrayList<IEntityAnnotation>();
-					for( IEntityAnnotation right : event.getEntitiesAtRight()){
-						rightannots.add(right);
-					}
-					if(!leftannots.isEmpty() && !rightannots.isEmpty()){
-						addEventAnnotationsToBioTMLRelation(relation, leftannots, doc.getId());
-						IBioTMLAnnotation clue = new BioTMLAnnotationImpl(doc.getId(), BioTMLConstants.clue.toString(), event.getStartOffset(), event.getEndOffset());
-						if(clue.getStartOffset() != clue.getEndOffset()){
-							listAnnotations.add(clue);
-							relation.add(clue);
+					Set<IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation>> associations = new HashSet<>();
+					IBioTMLAnnotation trigger = new BioTMLAnnotationImpl(doc.getId(), BioTMLConstants.trigger.toString(), event.getStartOffset(), event.getEndOffset());
+					if(trigger.getStartOffset() != trigger.getEndOffset()){
+						Set<IBioTMLAnnotation> leftAnnots = convertEntityAnnotationsToBioTMLAnnotations(event.getEntitiesAtLeft(),  doc.getId());
+						for(IBioTMLAnnotation leftAnnot : leftAnnots){
+							associations.add(new BioTMLAssociationImpl<>(trigger, leftAnnot));
 						}
-						addEventAnnotationsToBioTMLRelation(relation, rightannots, doc.getId());
-						listRelations.add(new BioTMLAnnotationsRelationImpl(relation));
+						Set<IBioTMLAnnotation> rightAnnots = convertEntityAnnotationsToBioTMLAnnotations(event.getEntitiesAtRight(),  doc.getId());
+						for(IBioTMLAnnotation rightAnnot : rightAnnots){
+							associations.add(new BioTMLAssociationImpl<>(trigger, rightAnnot));
+						}
+					}else{
+						Set<IBioTMLAnnotation> annots = convertEntityAnnotationsToBioTMLAnnotations(event.getEntitiesAtLeft(),  doc.getId());
+						annots.addAll(convertEntityAnnotationsToBioTMLAnnotations(event.getEntitiesAtRight(),  doc.getId()));
+						Iterator<IBioTMLAnnotation> iteratorI = annots.iterator();
+						while(iteratorI.hasNext()){
+							IBioTMLAnnotation entity = iteratorI.next();
+							Iterator<IBioTMLAnnotation> iteratorJ = annots.iterator();
+							while(iteratorJ.hasNext()){
+								IBioTMLAnnotation secondEntity = iteratorJ.next();
+								IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation> association = new BioTMLAssociationImpl<>(entity, secondEntity);
+								if(association.isValid()){
+									associations.add(association);
+								}
+							}
+						}
+					}
+					
+					for(IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation> association : associations){
+						String eventType = new String(); //TODO: event property to get classification/type
+						listEvents.add(new BioTMLEventImpl(association, eventType));
 					}
 
 				}
 			} 
 		}
 
-		if(!listRelations.isEmpty()){
-			return new BioTMLCorpusImpl(listDocuments, listAnnotations, listRelations, baseProcess.getCorpus().toString());
+		if(!listEvents.isEmpty()){
+			return new BioTMLCorpusImpl(listDocuments, listAnnotations, listEvents, baseProcess.getCorpus().toString());
 		}else{
 			return new BioTMLCorpusImpl(listDocuments, listAnnotations, baseProcess.getCorpus().toString());
 		}
 	}
 
-	private void addEventAnnotationsToBioTMLRelation(Set<IBioTMLAnnotation> relation, List<IEntityAnnotation> annotationsInEvent, long docID){
-		for(IEntityAnnotation entity : annotationsInEvent){
-			relation.add(new BioTMLAnnotationImpl(docID, entity.getClassAnnotation().getName(), entity.getStartOffset(), entity.getEndOffset()));
+	private Set<IBioTMLAnnotation> convertEntityAnnotationsToBioTMLAnnotations(List<IEntityAnnotation> annotations, long docID){
+		Set<IBioTMLAnnotation> annotationsResult = new HashSet<>();
+		for(IEntityAnnotation entity : annotations){
+			annotationsResult.add(new BioTMLAnnotationImpl(docID, entity.getClassAnnotation().getName(), entity.getStartOffset(), entity.getEndOffset()));
 		}
+		return annotationsResult;
 	}
 
 
@@ -208,7 +226,7 @@ public class BioTMLConverter {
 	private AnnotationPositions loadAllDocEnities(IBioTMLCorpus annotatedCorpus, IBioTMLDocument doc, boolean loadCluesAsEntities) throws BioTMLException {
 		AnnotationPositions positions = new AnnotationPositions();
 		for(IBioTMLAnnotation annotation : annotatedCorpus.getDocAnnotations(doc.getID())){
-			if(loadCluesAsEntities || !annotation.getAnnotType().equals(BioTMLConstants.clue.toString())){
+			if(loadCluesAsEntities || !annotation.getAnnotType().equals(BioTMLConstants.trigger.toString())){
 				String tokensString = doc.toString().substring((int)annotation.getStartOffset(), (int)annotation.getEndOffset());
 				if(tokensString.length() > 499){
 					String[] tokenStrings = tokensString.split(", ");
@@ -254,65 +272,77 @@ public class BioTMLConverter {
 	}
 
 	private List<IEventAnnotation> loadAllDocEvents(IBioTMLCorpus annotatedCorpus, IBioTMLDocument doc, List<IEntityAnnotation> entities) throws BioTMLException {
-		Set<IBioTMLAnnotationsRelation> relations = annotatedCorpus.getDocAnnotationRelationsWithBestScore(doc.getID());
+		Set<IBioTMLEvent> biotmlEvents = annotatedCorpus.getDocEventsWithBestScore(doc.getID());
 		List<IEventAnnotation> events = new ArrayList<IEventAnnotation>();
-		for(IBioTMLAnnotationsRelation relation : relations){
+		Map<IBioTMLAnnotation, Set<IBioTMLAnnotation>> triggerToEntities = new HashMap<>();
+		for(IBioTMLEvent event : biotmlEvents){
 
-			Set<IEntityAnnotation> leftEnt = new HashSet<IEntityAnnotation>();
-			Set<IEntityAnnotation> rightEnt = new HashSet<IEntityAnnotation>();
-			Set<IBioTMLAnnotation> leftAnnots = new HashSet<IBioTMLAnnotation>();
-			Set<IBioTMLAnnotation> rightAnnots = new HashSet<IBioTMLAnnotation>();
 			IBioTMLAnnotation clue = null;
-
-			try{ clue = relation.getFirstAnnotationByType(BioTMLConstants.clue.toString()); }catch(BioTMLException e){};
+			if(event.getTrigger().getAnnotType().equals(BioTMLConstants.trigger.toString())){
+				clue = event.getTrigger();
+			}else if(event.getEntity().getAnnotType().equals(BioTMLConstants.trigger.toString())){
+				clue = event.getEntity();
+			}
 
 			if(clue !=null){
-				try{ leftAnnots = relation.getAnnotsAtLeftOfAnnotation(clue); }catch(BioTMLException e){}
-
-				if(!leftAnnots.isEmpty()){
-					leftEnt = loadEntitiesInRelations(doc, leftAnnots, entities);
-				}
-
-				try{ rightAnnots = relation.getAnnotsAtRightOfAnnotation(clue); }catch(BioTMLException e){}
-
-				if(!rightAnnots.isEmpty()){
-					rightEnt = loadEntitiesInRelations(doc, rightAnnots, entities);
-				}
-				if(!(leftEnt.isEmpty() && rightEnt.isEmpty())){
-					events.add(new EventAnnotationImpl(clue.getStartOffset(), clue.getEndOffset(), AnnotationType.re.name(), new ArrayList<>(leftEnt), new ArrayList<>(rightEnt), doc.toString().substring((int)clue.getStartOffset(), (int)clue.getEndOffset()), new EventPropertiesImpl(),false));
-				}
+				if(!triggerToEntities.containsKey(clue))
+					triggerToEntities.put(clue, new HashSet<>());
+				Set<IBioTMLAnnotation> entitiesonmap = triggerToEntities.get(clue);
+				if(!clue.equals(event.getTrigger()))
+					entitiesonmap.add(event.getTrigger());
+				if(!clue.equals(event.getEntity()))
+					entitiesonmap.add(event.getEntity());
+				triggerToEntities.put(clue, entitiesonmap);
 			}else{
-				Set<IBioTMLAnnotation> relationToAdd = relation.getRelation();
-				int relationsize = relationToAdd.size();
-				Iterator<IBioTMLAnnotation> itRelation = relationToAdd.iterator();
-				int i = 0;
-				while(itRelation.hasNext()){
-					if(i<relationsize/2){
-						leftAnnots.add(itRelation.next());
-					}else{
-						rightAnnots.add(itRelation.next());
-					}
-					i++;
-				}
-				if(!leftAnnots.isEmpty()){
+				
+				IBioTMLAnnotation entOne = event.getTrigger();
+				IBioTMLAnnotation entTwo = event.getEntity();
+				Set<IEntityAnnotation> leftEnt = new HashSet<>();
+				Set<IEntityAnnotation> rightEnt = new HashSet<>();
+				Set<IBioTMLAnnotation> leftAnnots = new HashSet<>();
+				Set<IBioTMLAnnotation> rightAnnots = new HashSet<>();
+				if(entOne.compareTo(entTwo)>0){
+					leftAnnots.add(entTwo);
+					rightAnnots.add(entOne);
 					leftEnt = loadEntitiesInRelations(doc, leftAnnots, entities);
-				}
-				if(!rightAnnots.isEmpty()){
+					rightEnt = loadEntitiesInRelations(doc, rightAnnots, entities);
+				}else{
+					leftAnnots.add(entOne);
+					leftAnnots.add(entTwo);
+					leftEnt = loadEntitiesInRelations(doc, leftAnnots, entities);
 					rightEnt = loadEntitiesInRelations(doc, rightAnnots, entities);
 				}
+
 				if(!(leftEnt.isEmpty() && rightEnt.isEmpty())){
 					events.add(new EventAnnotationImpl(1, 1, AnnotationType.re.name(), new ArrayList<>(leftEnt), new ArrayList<>(rightEnt), new String(),new EventPropertiesImpl(),false));
 
 				}
 			}
 		}
+		
+		for(IBioTMLAnnotation clue : triggerToEntities.keySet()){
+			Set<IBioTMLAnnotation> entitiesToOrder = triggerToEntities.get(clue);
+			Set<IBioTMLAnnotation> leftAnnots = new HashSet<>();
+			Set<IBioTMLAnnotation> rightAnnots = new HashSet<>();
+			for(IBioTMLAnnotation entityToOrder : entitiesToOrder){
+				if(clue.compareTo(entityToOrder)>0){
+					leftAnnots.add(entityToOrder);
+				}else{
+					rightAnnots.add(entityToOrder);
+				}
+			}
+			Set<IEntityAnnotation> leftEnt = loadEntitiesInRelations(doc, leftAnnots, entities);
+			Set<IEntityAnnotation> rightEnt = loadEntitiesInRelations(doc, rightAnnots, entities);
+			events.add(new EventAnnotationImpl(clue.getStartOffset(), clue.getEndOffset(), AnnotationType.re.name(), new ArrayList<>(leftEnt), new ArrayList<>(rightEnt), doc.toString().substring((int)clue.getStartOffset(), (int)clue.getEndOffset()), new EventPropertiesImpl(),false));
+		}
+	
 		return events;
 	}
 
 	private Set<IEntityAnnotation> loadEntitiesInRelations(IBioTMLDocument document, Set<IBioTMLAnnotation> annotationsInOneSide, List<IEntityAnnotation> entities) throws BioTMLException {
 		Set<IEntityAnnotation> entitiesInThatSide = new HashSet<>();
 		for(IBioTMLAnnotation annotation : annotationsInOneSide){
-			if(!annotation.getAnnotType().equals(BioTMLConstants.clue.toString())){
+			if(!annotation.getAnnotType().equals(BioTMLConstants.trigger.toString())){
 				String tokensString = document.toString().substring((int)annotation.getStartOffset(), (int)annotation.getEndOffset());
 				IEntityAnnotation entityAnnotation = new EntityAnnotationImpl(annotation.getStartOffset(), annotation.getEndOffset(), new AnoteClass(annotation.getAnnotType()), null, tokensString, false,false, null);
 				boolean found = false;

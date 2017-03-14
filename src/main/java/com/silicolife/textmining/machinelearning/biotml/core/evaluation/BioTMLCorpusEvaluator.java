@@ -8,10 +8,10 @@ import java.util.Set;
 
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotationsRelation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvaluation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiEvaluation;
 
 public class BioTMLCorpusEvaluator {
@@ -40,9 +40,9 @@ public class BioTMLCorpusEvaluator {
 	}
 
 	public IBioTMLMultiEvaluation evaluateREForSameExternalIDs(IBioTMLCorpus goldStandard, IBioTMLCorpus toCompare){
-		Set<IBioTMLAnnotationsRelation> onlyToCompareRelations = new HashSet<>();
-		Set<IBioTMLAnnotationsRelation> onlyGoldStandardRelations = new HashSet<>();
-		Set<IBioTMLAnnotationsRelation> inBothCorpusRelations = new HashSet<>();
+		Set<IBioTMLEvent> onlyToCompareRelations = new HashSet<>();
+		Set<IBioTMLEvent> onlyGoldStandardRelations = new HashSet<>();
+		Set<IBioTMLEvent> inBothCorpusRelations = new HashSet<>();
 		fillREAnnotationSets(goldStandard, toCompare, onlyToCompareRelations, onlyGoldStandardRelations, inBothCorpusRelations);
 		
 		Map<String, Integer> onlyToCompareMap = countByRelationType(onlyToCompareRelations);
@@ -59,9 +59,9 @@ public class BioTMLCorpusEvaluator {
 	}
 
 	private void fillREAnnotationSets(IBioTMLCorpus goldStandard, IBioTMLCorpus toCompare,
-			Set<IBioTMLAnnotationsRelation> onlyToCompareRelations,
-			Set<IBioTMLAnnotationsRelation> onlyGoldStandardRelations,
-			Set<IBioTMLAnnotationsRelation> inBothCorpusRelations) {
+			Set<IBioTMLEvent> onlyToCompareRelations,
+			Set<IBioTMLEvent> onlyGoldStandardRelations,
+			Set<IBioTMLEvent> inBothCorpusRelations) {
 		for( IBioTMLDocument goldDoc : goldStandard.getDocuments()){
 			IBioTMLDocument toCompareDoc = null;
 			String externalID = goldDoc.getExternalID();
@@ -69,9 +69,9 @@ public class BioTMLCorpusEvaluator {
 				toCompareDoc = toCompare.getDocumentByExternalID(externalID);
 			} catch (BioTMLException e) {};
 			if(toCompareDoc != null){
-				Set<IBioTMLAnnotationsRelation> goldRels = goldStandard.getDocAnnotationRelations(goldDoc.getID());
-				Set<IBioTMLAnnotationsRelation> toCompareRels =  toCompare.getDocAnnotationRelations(toCompareDoc.getID());
-				for(IBioTMLAnnotationsRelation goldRel : goldRels){
+				Set<IBioTMLEvent> goldRels = goldStandard.getDocAnnotationEvents(goldDoc.getID());
+				Set<IBioTMLEvent> toCompareRels =  toCompare.getDocAnnotationEvents(toCompareDoc.getID());
+				for(IBioTMLEvent goldRel : goldRels){
 					boolean found = findGoldRelationInToCompareDocument(inBothCorpusRelations,toCompareRels, goldRel);
 					if(!found){
 						onlyGoldStandardRelations.add(goldRel);
@@ -119,14 +119,14 @@ public class BioTMLCorpusEvaluator {
 		return map;
 	}
 	
-	private Map<String, Integer> countByRelationType(Set<IBioTMLAnnotationsRelation> relations){
+	private Map<String, Integer> countByRelationType(Set<IBioTMLEvent> relations){
 		Map<String, Integer> map = new HashMap<>();
-		for(IBioTMLAnnotationsRelation relation : relations){
-			if(!map.containsKey(relation.getRelationType())){
-				map.put(relation.getRelationType(), 0);
+		for(IBioTMLEvent relation : relations){
+			if(!map.containsKey(relation.getEventType())){
+				map.put(relation.getEventType(), 0);
 			}
-			Integer count = map.get(relation.getRelationType());
-			map.put(relation.getRelationType(), count+1);
+			Integer count = map.get(relation.getEventType());
+			map.put(relation.getEventType(), count+1);
 		}
 		return map;
 	}
@@ -154,10 +154,10 @@ public class BioTMLCorpusEvaluator {
 		}
 	}
 
-	private boolean findGoldRelationInToCompareDocument(Set<IBioTMLAnnotationsRelation> inBothCorpusRelations,
-			Set<IBioTMLAnnotationsRelation> toCompareRelations, IBioTMLAnnotationsRelation goldRel){
-		for(IBioTMLAnnotationsRelation toCompareRelation : toCompareRelations){
-			if(goldRel.haveTheSameOffsetsAndAnnotationTypes(toCompareRelation)){
+	private boolean findGoldRelationInToCompareDocument(Set<IBioTMLEvent> inBothCorpusRelations,
+			Set<IBioTMLEvent> toCompareRelations, IBioTMLEvent goldRel){
+		for(IBioTMLEvent toCompareRelation : toCompareRelations){
+			if(goldRel.equals(toCompareRelation)){
 				inBothCorpusRelations.add(goldRel);
 				toCompareRelations.remove(toCompareRelation);
 				return true;

@@ -31,10 +31,10 @@ public enum BioTMLConstants {
 			return "RE";
 		}
 	},
-	clue{
+	trigger{
 		@Override
 		public String toString() {
-			return "clue";
+			return "trigger";
 		}
 	},
 	isAnnotation{

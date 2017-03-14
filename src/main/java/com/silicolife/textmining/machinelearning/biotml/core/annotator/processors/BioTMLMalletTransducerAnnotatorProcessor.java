@@ -54,8 +54,7 @@ public class BioTMLMalletTransducerAnnotatorProcessor extends BioTMLMalletAnnota
 	}
 	
 	public InstanceList generatePredictionMatrix() throws BioTMLException{
-		malletCorpus = new BioTMLCorpusToInstanceMallet(getCorpus(), 
-				getBioTMLModel().getModelConfiguration().getClassType(), getBioTMLModel().getModelConfiguration().getIEType());
+		malletCorpus = new BioTMLCorpusToInstanceMallet(getCorpus(), getBioTMLModel().getModelConfiguration());
 		Pipe transducingPipe = getTransducerModel().getInputPipe();
 		return malletCorpus.exportToMalletFeatures(transducingPipe, getThreads(), getBioTMLModel().getFeatureConfiguration());
 	}

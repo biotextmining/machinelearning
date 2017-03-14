@@ -12,6 +12,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLC
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusToInstanceMallet;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusToInstancesThreadCreator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.multithread.BioTMLCorpusToNERInstancesThreadCreator;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.multithread.BioTMLCorpusToREInstancesThreadCreator;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.multithread.InstanceListExtended;
@@ -33,6 +34,7 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 	private IBioTMLCorpus corpus;
 	private String annotType;
 	private String ieType;
+	private String reMehtodology;
 	private ExecutorService executor;
 	private IBioTMLCorpusToInstancesThreadCreator instancesCreator;
 
@@ -41,13 +43,13 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 	 * Initializes the conversion of BioTMCorpus into Mallet Instances regarding the annotation type.
 	 * 
 	 * @param corpus - {@link IBioTMLCorpus} to convert.
-	 * @param annotType - Annotation string type (e.g. protein, gene, etc.).
-	 * @param ieType - Information Extraction string type (e.g. NER or RE).
+	 * @param modelConfiguration - model configuration.
 	 */
-	public BioTMLCorpusToInstanceMallet(IBioTMLCorpus corpus, String annotType, String ieType){
+	public BioTMLCorpusToInstanceMallet(IBioTMLCorpus corpus, IBioTMLModelConfigurator modelConfiguration){
 		this.corpus = corpus;
-		this.annotType = annotType;
-		this.ieType = ieType;
+		this.annotType = modelConfiguration.getClassType();
+		this.ieType = modelConfiguration.getIEType();
+		this.reMehtodology = modelConfiguration.getREMethodology();
 	}
 
 	public IBioTMLCorpus getCorpusToConvert() {
@@ -61,6 +63,10 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 	public String getIEAnnotationType(){
 		return ieType;
 	}
+	
+	public String getREMehtodology() {
+		return reMehtodology;
+	}
 
 	public InstanceList exportToMalletFeatures(Pipe p, int threads,  IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException{
 		InstanceListExtended instances = new InstanceListExtended(p);
@@ -70,7 +76,7 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 			instancesCreator.insertInstancesIntoExecutor(executor, configuration, instances);
 		}
 		if(getIEAnnotationType().equals(BioTMLConstants.re.toString())){
-			instancesCreator = new BioTMLCorpusToREInstancesThreadCreator(getCorpusToConvert(), getConsideredAnnotationType());
+			instancesCreator = new BioTMLCorpusToREInstancesThreadCreator(getCorpusToConvert(), getREMehtodology());
 			instancesCreator.insertInstancesIntoExecutor(executor, configuration, instances);
 		}
 		finishThreadsFromExecutor();

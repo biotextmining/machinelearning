@@ -2,19 +2,19 @@ package com.silicolife.textmining.machinelearning.biotml.core.corpora;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
-import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotationsRelation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 
@@ -32,7 +32,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	private static final long serialVersionUID = 1L;
 	private List<IBioTMLDocument> documents;
 	private List<IBioTMLAnnotation> annotations;
-	private List<IBioTMLAnnotationsRelation> relations;
+	private List<IBioTMLEvent> events;
 	private String name;
 
 	/**
@@ -69,10 +69,10 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	 * @param name - Corpus name.
 	 */
 
-	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, List<IBioTMLAnnotation> annotations, List<IBioTMLAnnotationsRelation> relations, String name){
+	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, List<IBioTMLAnnotation> annotations, List<IBioTMLEvent> events, String name){
 		this.documents = documents;
 		this.annotations = annotations;
-		this.relations = relations;
+		this.events = events;
 		this.name = name;
 	}
 
@@ -84,8 +84,8 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return annotations;
 	}
 
-	public List<IBioTMLAnnotationsRelation> getRelations(){
-		return relations;
+	public List<IBioTMLEvent> getEvents(){
+		return events;
 	}
 
 	public IBioTMLDocument getDocument(int index){
@@ -142,93 +142,14 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return docAnnotations;
 	}
 
-	public Set<IBioTMLAnnotationsRelation> getDocAnnotationRelations(long docID){
-		Set<IBioTMLAnnotationsRelation> docAnnotationRelations = new HashSet<IBioTMLAnnotationsRelation>();
-		for( IBioTMLAnnotationsRelation relation : getRelations()){
+	public Set<IBioTMLEvent> getDocAnnotationEvents(long docID){
+		Set<IBioTMLEvent> docAnnotationRelations = new HashSet<IBioTMLEvent>();
+		for( IBioTMLEvent relation : getEvents()){
 			if(relation.getDocID() == docID){
 				docAnnotationRelations.add(relation);
 			}
 		}
 		return docAnnotationRelations;
-	}
-
-	public Set<IBioTMLAnnotationsRelation> getDocAnnotationRelationsWithBestScore(long docID){
-		List<IBioTMLAnnotationsRelation> docAnnotationRelations = new ArrayList<IBioTMLAnnotationsRelation>(getDocAnnotationRelations(docID));
-		Set<IBioTMLAnnotationsRelation> docAnnotationRelWithBestScores = new HashSet<IBioTMLAnnotationsRelation>();
-		while(!docAnnotationRelations.isEmpty()){
-			IBioTMLAnnotationsRelation relation = docAnnotationRelations.get(0);
-			docAnnotationRelations.remove(0);
-			SortedSet<Integer> intToRemove = new TreeSet<>();
-			relation = searchBestRelationWithEntitiesinSameOffsets(relation, docAnnotationRelations, intToRemove);
-			docAnnotationRelWithBestScores.add(relation);
-			Iterator<Integer> itRemove = intToRemove.iterator();
-			int diff = 0;
-			while(itRemove.hasNext()){
-				int index = itRemove.next();
-				docAnnotationRelations.remove(index - diff);
-				diff++;
-			}
-		}
-		return docAnnotationRelWithBestScores;
-	}
-
-	private IBioTMLAnnotationsRelation searchBestRelationWithEntitiesinSameOffsets(IBioTMLAnnotationsRelation relation, List<IBioTMLAnnotationsRelation> docAnnotationRelations, Set<Integer> intToRemove)
-	{
-		for(int i=0; i<docAnnotationRelations.size(); i++){
-			IBioTMLAnnotationsRelation otherRelation = docAnnotationRelations.get(i);
-			IBioTMLAnnotation relationClue = null;
-			IBioTMLAnnotation otherRelationClue = null;
-			try {
-				relationClue = relation.getFirstAnnotationByType(BioTMLConstants.clue.toString());
-				otherRelationClue = otherRelation.getFirstAnnotationByType(BioTMLConstants.clue.toString());
-			} catch (BioTMLException e) {}
-
-			if(relationClue != null && otherRelationClue !=null){
-				if(relationClue.equals(otherRelationClue)){
-					Set<IBioTMLAnnotation> leftEnt = new HashSet<>();
-					try {
-						leftEnt = relation.getAnnotsAtLeftOfAnnotation(relationClue);
-					} catch (BioTMLException e) {}
-					Set<IBioTMLAnnotation> otherLeftEnt = new HashSet<>();
-					try {
-						otherLeftEnt = otherRelation.getAnnotsAtLeftOfAnnotation(relationClue);
-					} catch (BioTMLException e) {}
-
-					boolean leftIsEqual = false;
-					boolean rightIsEqual = false;
-					if(leftEnt.isEmpty() && otherLeftEnt.isEmpty()){
-						leftIsEqual = true;
-					}else if( leftEnt.size() == otherLeftEnt.size()){
-						IBioTMLAnnotation firstLeftEnt = leftEnt.iterator().next();
-						IBioTMLAnnotation firstOtherLeftEnt = otherLeftEnt.iterator().next();
-						leftIsEqual = firstLeftEnt.getAnnotationOffsets().equals(firstOtherLeftEnt.getAnnotationOffsets());
-					}
-					Set<IBioTMLAnnotation> rightEnt = new HashSet<>();
-					try {
-						rightEnt = relation.getAnnotsAtRightOfAnnotation(relationClue);
-					} catch (BioTMLException e) {}
-					Set<IBioTMLAnnotation> otherRightEnt = new HashSet<>();
-					try {
-						otherRightEnt = otherRelation.getAnnotsAtRightOfAnnotation(relationClue);
-					} catch (BioTMLException e) {}
-
-					if(rightEnt.isEmpty() && otherRightEnt.isEmpty()){
-						rightIsEqual = true;
-					}else if(rightEnt.size() == otherRightEnt.size()){ 
-						IBioTMLAnnotation firstRightEnt = rightEnt.iterator().next();
-						IBioTMLAnnotation firstOtherRightEnt = otherRightEnt.iterator().next();
-						rightIsEqual = firstRightEnt.getAnnotationOffsets().equals(firstOtherRightEnt.getAnnotationOffsets());
-					}
-					if(leftIsEqual && rightIsEqual){
-						if(relation.getScore()<otherRelation.getScore()){
-							relation = otherRelation;
-						}
-						intToRemove.add(i);
-					}
-				}
-			}
-		}
-		return relation;
 	}
 
 	private List<IBioTMLAnnotation> retrieveAnnotationsWithBestScore(long docID){
@@ -257,11 +178,14 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return finalAnnotations;
 	}
 
-	public List<IBioTMLAnnotation> getAnnotationsFromRelations(List<IBioTMLAnnotationsRelation> relations){
+	public List<IBioTMLAnnotation> getAnnotationsFromEvents(List<IBioTMLEvent> relations){
 		List<IBioTMLAnnotation> annotsres = new ArrayList<IBioTMLAnnotation>();
 		Set<IBioTMLAnnotation> annots = new HashSet<IBioTMLAnnotation>();
-		for(IBioTMLAnnotationsRelation relation: relations){
-			annots.addAll(relation.getRelation());
+		for(IBioTMLEvent relation: relations){
+			if(relation.getTrigger() != null)
+				annots.add(relation.getTrigger());
+			if(relation.getEntity()!=null)
+				annots.add(relation.getEntity());
 		}
 		annotsres.addAll(annots);
 		return annotsres;
@@ -341,6 +265,24 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 
 	public String toString() {
 		return name;
+	}
+
+	@Override
+	public Set<IBioTMLEvent> getDocEventsWithBestScore(long docID) {
+		Set<IBioTMLEvent> result = new HashSet<>();
+		@SuppressWarnings("rawtypes")
+		Map<IBioTMLAssociation, IBioTMLEvent> map = new HashMap<>();
+		Set<IBioTMLEvent> resultevents = getDocAnnotationEvents(docID);
+		for(IBioTMLEvent event : resultevents){
+			if(!map.containsKey(event.getAssociation())){
+				map.put(event.getAssociation(), event);
+			}
+			IBioTMLEvent storedEvent = map.get(event.getAssociation());
+			if(event.getScore() > storedEvent.getScore())
+				map.put(event.getAssociation(), event);
+		}
+		result.addAll(map.values());
+		return result;
 	}
 
 

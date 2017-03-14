@@ -22,8 +22,8 @@ public class BioTMLException extends Exception{
 			"Failed to save the matrix file!",//id 8
 			"The feature type don't have a class registered in features manager!",//id 9
 			"Theres a problem in feature module management.",//id 10
-			"There is a problem with the ClearNLP parser!",//id 11
-			"There is a problem cleaning the models memory of ClearNLP!",//id 12
+			"There is a problem with the NLP4J parser!",//id 11
+			"There is a problem cleaning the models memory of NLP4J!",//id 12
 			"There is a problem with the OpenNLP!",//id 13
 			"TokenTextCharFeatures Module has a problem!",//id 14
 			"There was a problem loading the models from file.",//id 15

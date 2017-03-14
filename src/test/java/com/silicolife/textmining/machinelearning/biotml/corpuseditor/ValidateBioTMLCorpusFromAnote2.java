@@ -63,7 +63,7 @@ public class ValidateBioTMLCorpusFromAnote2 {
 		BioTMLCorpusReaderImpl reader = new BioTMLCorpusReaderImpl();
 		IBioTMLCorpus corpus = reader.readBioTMLCorpusFromFile(bioTMLCorpusFileName);
 		System.out.println(corpus.getAnnotations());
-		System.out.println(corpus.getRelations());
+		System.out.println(corpus.getEvents());
 //		Set<String> results = new HashSet<>();
 //		for(IBioTMLAnnotationsRelation relations :corpus.getRelations()){
 //			results.add(relations.getRelationType());

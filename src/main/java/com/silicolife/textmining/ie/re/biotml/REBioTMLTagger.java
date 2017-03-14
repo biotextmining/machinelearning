@@ -71,7 +71,7 @@ public class REBioTMLTagger implements IREProcess{
 			IBioTMLCorpus biotmlCorpus = getConverter().convertToBioTMLCorpus();
 			if(biotmlCorpus!= null){
 
-				if(!biotmlCorpus.getRelations().isEmpty()){
+				if(!biotmlCorpus.getEvents().isEmpty()){
 					biotmlCorpus = new BioTMLCorpusImpl(biotmlCorpus.getDocuments(), biotmlCorpus.getAnnotations(), biotmlCorpus.toString());
 				}
 
@@ -95,7 +95,7 @@ public class REBioTMLTagger implements IREProcess{
 					while(itModelFilename.hasNext() && !foundCluesModel && !stop){
 						String filename = itModelFilename.next();
 						IBioTMLModel model = modelreader.loadModelFromGZFile(filename);
-						if(model.getModelConfiguration().getClassType().equals(BioTMLConstants.clue.toString())){
+						if(model.getModelConfiguration().getClassType().equals(BioTMLConstants.trigger.toString())){
 							foundCluesModel = true;
 							clues = getNERClues(reconfiguration,biotmlCorpus, model);
 							model.cleanAlphabetMemory();
