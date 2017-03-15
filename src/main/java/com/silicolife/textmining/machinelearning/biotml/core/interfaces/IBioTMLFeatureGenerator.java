@@ -49,8 +49,10 @@ public interface IBioTMLFeatureGenerator {
 	 * @return Generated feature colum for all tokens ({@link IBioTMLFeatureColumns}).
 	 * @throws BioTMLException
 	 */
-	public IBioTMLFeatureColumns getFeatureColumns(List<String>tokens,IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException;
+	public IBioTMLFeatureColumns getFeatureColumns(List<String>tokens, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException;
 	
+	
+	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, IBioTMLAssociation association, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException;
 	/**
 	 * 
 	 * Method that cleans the allocated memory of this module.

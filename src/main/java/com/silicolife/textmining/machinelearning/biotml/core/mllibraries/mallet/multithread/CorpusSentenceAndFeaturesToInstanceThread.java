@@ -3,11 +3,12 @@ package com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet
 import java.util.ArrayList;
 import java.util.List;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentTokenIDs;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLTokensWithFeaturesAndLabels;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentIDs;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLObjectWithFeaturesAndLabels;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeaturesManager;
 import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLAssociationProcess;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
@@ -24,8 +25,8 @@ import cc.mallet.types.Instance;
 
 public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 
-	private BioTMLDocSentTokenIDs docIDandSentIdx;
-	private BioTMLTokensWithFeaturesAndLabels tokensWithFeaturesAndLabels;
+	private BioTMLDocSentIDs docIDandSentIdx;
+	private BioTMLObjectWithFeaturesAndLabels<?> tokensWithFeaturesAndLabels;
 	private InstanceListExtended instances;
 	private IBioTMLFeatureGeneratorConfigurator configuration;
 
@@ -37,18 +38,18 @@ public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 	 * @param tokensWithLabels - Sentence string.
 	 * @param instances - InstanceList with thread safety to be populated with all sentences.
 	 */
-	public CorpusSentenceAndFeaturesToInstanceThread(BioTMLDocSentTokenIDs docIDandSentIdx, BioTMLTokensWithFeaturesAndLabels tokensWithFeaturesAndLabels, InstanceListExtended instances,  IBioTMLFeatureGeneratorConfigurator configuration){
+	public CorpusSentenceAndFeaturesToInstanceThread(BioTMLDocSentIDs docIDandSentIdx, BioTMLObjectWithFeaturesAndLabels<?> tokensWithFeaturesAndLabels, InstanceListExtended instances,  IBioTMLFeatureGeneratorConfigurator configuration){
 		this.docIDandSentIdx = docIDandSentIdx;
 		this.tokensWithFeaturesAndLabels = tokensWithFeaturesAndLabels;
 		this.instances = instances;
 		this.configuration = configuration;
 	}
 
-	private BioTMLDocSentTokenIDs getDocIDandSentIdx(){
+	private BioTMLDocSentIDs getDocIDandSentIdx(){
 		return docIDandSentIdx;
 	}
 
-	private BioTMLTokensWithFeaturesAndLabels getTokensWithFeaturesAndLabels(){
+	private BioTMLObjectWithFeaturesAndLabels<?> getTokensWithFeaturesAndLabels(){
 		return tokensWithFeaturesAndLabels;
 	}
 
@@ -61,9 +62,9 @@ public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 	}
 
 	private void processColumns(List<IBioTMLFeatureColumns> columns, InstanceListExtended instances) throws BioTMLException {
-		for(int i =0; i<getTokensWithFeaturesAndLabels().getTokens().size(); i++){
+		for(int i =0; i<getTokensWithFeaturesAndLabels().getBioTMLObjects().size(); i++){
 			for(IBioTMLFeatureColumns column : columns){
-				getTokensWithFeaturesAndLabels().addFeaturesToTokenIndex(i, column.getTokenFeatures(i));
+				getTokensWithFeaturesAndLabels().addFeaturesToBioTMLObjectIndex(i, column.getTokenFeatures(i));
 			}
 		}
 		getInstances().addThruPipe(new Instance(getTokensWithFeaturesAndLabels(), null, getDocIDandSentIdx(), null));
@@ -83,16 +84,20 @@ public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 				try {
 					IBioTMLFeatureGenerator classProcesser = BioTMLFeaturesManager.getInstance().getClass(classUID);
 					visitedUID.addAll(classProcesser.getUIDs());
-					if(getDocIDandSentIdx().getAnnotTokenRelationStartIndex() != -1 && getDocIDandSentIdx().getAnnotTokenRelationEndIndex() != -1){
-						List<String> tokens = getTokensWithFeaturesAndLabels().getTokens();
-						BioTMLAssociationProcess tokenAnnotProcess = new BioTMLAssociationProcess(tokens, getDocIDandSentIdx().getAnnotTokenRelationStartIndex(), getDocIDandSentIdx().getAnnotTokenRelationEndIndex());
-						IBioTMLFeatureColumns features = classProcesser.getFeatureColumns(tokens, getConfiguration());
-						features.updateTokenFeaturesUsingAssociationProcess(tokenAnnotProcess);
-						allColumns.add(features);
-					}else{
-						allColumns.add(classProcesser.getFeatureColumns(getTokensWithFeaturesAndLabels().getTokens(),  getConfiguration()));
+					
+					if(getTokensWithFeaturesAndLabels().getBioTMLObjectClass().isInstance(String.class)){
+						List<String> tokens = (List<String>) getTokensWithFeaturesAndLabels().getBioTMLObjects();
+						if(getDocIDandSentIdx().getAnnotTokenRelationStartIndex() != -1 && getDocIDandSentIdx().getAnnotTokenRelationEndIndex() != -1){
+							BioTMLAssociationProcess tokenAnnotProcess = new BioTMLAssociationProcess(tokens, getDocIDandSentIdx().getAnnotTokenRelationStartIndex(), getDocIDandSentIdx().getAnnotTokenRelationEndIndex());
+							IBioTMLFeatureColumns features = classProcesser.getFeatureColumns(tokens, getConfiguration());
+							features.updateTokenFeaturesUsingAssociationProcess(tokenAnnotProcess);
+							allColumns.add(features);
+						}else{
+							allColumns.add(classProcesser.getFeatureColumns(tokens,  getConfiguration()));
+						}
+					}else if(getTokensWithFeaturesAndLabels().getBioTMLObjectClass().isInstance(IBioTMLAssociation.class)){
+						
 					}
-
 				} catch (BioTMLException exc) {
 					exc.printStackTrace();
 				}	

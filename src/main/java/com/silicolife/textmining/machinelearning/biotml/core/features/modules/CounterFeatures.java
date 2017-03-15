@@ -8,6 +8,7 @@ import java.util.TreeSet;
 
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLFeatureColumns;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
@@ -108,6 +109,13 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 	}
 
 	public void cleanMemory() {		
+	}
+
+	@Override
+	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, IBioTMLAssociation association,
+			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
