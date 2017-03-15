@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Iterator;
+import java.util.List;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentTokenIDs;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentIDs;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 
 import cc.mallet.pipe.Pipe;
 import cc.mallet.types.FeatureVectorSequence;
@@ -46,9 +48,20 @@ public class FeatureVectorSequence2FeatureVectorsFixed extends Pipe
 			// We are assuming sequences don't have zero length
 			assert (dataSubiterator.hasNext());
 			assert (targetSubiterator.hasNext());
-			BioTMLDocSentTokenIDs oldIDs = (BioTMLDocSentTokenIDs)superInstance.getName();
-			BioTMLDocSentTokenIDs ids = new BioTMLDocSentTokenIDs(oldIDs.getDocId(), oldIDs.getSentId(), count++, oldIDs.getAnnotTokenRelationStartIndex(), oldIDs.getAnnotTokenRelationEndIndex(), oldIDs.isOnlyAnnotations());
-			return new Instance (dataSubiterator.next(), targetSubiterator.next(), ids,	superInstance.getSource());
+			
+			BioTMLDocSentIDs oldIDs = (BioTMLDocSentIDs)superInstance.getName();
+			BioTMLDocSentIDs ids = new BioTMLDocSentIDs(oldIDs.getDocId(), oldIDs.getSentId());
+			ids.setAnnotTokenRelationStartIndex(oldIDs.getAnnotTokenRelationStartIndex());
+			ids.setAnnotTokenRelationEndIndex(oldIDs.getAnnotTokenRelationEndIndex());
+			ids.setOnlyAnnotations(oldIDs.isOnlyAnnotations());
+			@SuppressWarnings("rawtypes")
+			List<IBioTMLAssociation> associations = oldIDs.getAssociations();
+			if(!associations.isEmpty())
+				ids.setAssociation(associations.get(count));
+			ids.setAssociations(associations);
+			ids.setTokenId(count++);
+			return new Instance (dataSubiterator.next(), targetSubiterator.next(), ids, superInstance.getSource());
+
 		}
 		public boolean hasNext () {
 			if(dataSubiterator != null){

@@ -46,5 +46,12 @@ public class BioTMLAssociationImpl<O,T> implements IBioTMLAssociation<O,T>{
 			return true;
 		return false;
 	}
+
+	@Override
+	public String toString() {
+		return "[ "+entryOne.toString() +" - "+ entryTwo.toString()+" ]";
+	}
+	
+	
 	
 }

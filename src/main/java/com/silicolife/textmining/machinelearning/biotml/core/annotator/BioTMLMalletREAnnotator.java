@@ -7,12 +7,12 @@ import java.util.Set;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.processors.BioTMLMalletClassifierAnnotatorProcessor;
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.processors.BioTMLMalletTransducerAnnotatorProcessor;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentTokenIDs;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentIDs;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithms;
 
@@ -70,7 +70,7 @@ public class BioTMLMalletREAnnotator {
 			@SuppressWarnings("rawtypes")
 			Sequence predictedLabels = transducerProcessor.getPredictionForInstance(sentence);
 			Double predictionScore = transducerProcessor.getPredictionScoreForInstance(sentence);
-			BioTMLDocSentTokenIDs ids = (BioTMLDocSentTokenIDs)sentence.getName();
+			BioTMLDocSentIDs ids = (BioTMLDocSentIDs)sentence.getName();
 			IBioTMLDocument doc = corpus.getDocumentByID(ids.getDocId());
 			for(int tokenIndexOrAnnotationIndex=0; tokenIndexOrAnnotationIndex<predictedLabels.size(); tokenIndexOrAnnotationIndex++){
 				String prediction = predictedLabels.get(tokenIndexOrAnnotationIndex).toString();
@@ -94,7 +94,7 @@ public class BioTMLMalletREAnnotator {
 			Instance token = itToken.next();
 			String predictedLabel = classifierProcessor.getPredictionForInstance(token);
 			Double predictionScore = classifierProcessor.getPredictionScoreForInstance(token);
-			BioTMLDocSentTokenIDs ids = (BioTMLDocSentTokenIDs)token.getName();
+			BioTMLDocSentIDs ids = (BioTMLDocSentIDs)token.getName();
 			IBioTMLDocument doc = corpus.getDocumentByID(ids.getDocId());
 			if(!predictedLabel.equals(BioTMLConstants.o.toString()) && ids.getAnnotTokenRelationStartIndex() != -1 && ids.getAnnotTokenRelationEndIndex() != -1){
 				IBioTMLAnnotation trigger = classifierProcessor.getAnnotation(corpus, doc, ids.getSentId(),ids.getAnnotTokenRelationStartIndex(), ids.getAnnotTokenRelationEndIndex());

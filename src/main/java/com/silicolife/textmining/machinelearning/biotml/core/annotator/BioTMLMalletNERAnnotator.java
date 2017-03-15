@@ -7,7 +7,7 @@ import java.util.Set;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.processors.BioTMLMalletClassifierAnnotatorProcessor;
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.processors.BioTMLMalletTransducerAnnotatorProcessor;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentTokenIDs;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentIDs;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
@@ -78,7 +78,7 @@ public class BioTMLMalletNERAnnotator {
 			@SuppressWarnings("rawtypes")
 			Sequence predictedLabels = getTransducerProcessor().getPredictionForInstance(sentence);
 			Double predictionScore = getTransducerProcessor().getPredictionScoreForInstance(sentence);
-			BioTMLDocSentTokenIDs ids = (BioTMLDocSentTokenIDs)sentence.getName();
+			BioTMLDocSentIDs ids = (BioTMLDocSentIDs)sentence.getName();
 			IBioTMLDocument doc = corpus.getDocumentByID(ids.getDocId());
 			for(int tokenIndex=0; tokenIndex < predictedLabels.size(); tokenIndex++){
 				getTransducerProcessor().addPredictedAnnotation(annotations, doc, ids.getSentId(), tokenIndex, 
@@ -97,7 +97,7 @@ public class BioTMLMalletNERAnnotator {
 			Instance token = itToken.next();
 			String predictedLabel = getClassifierProcessor().getPredictionForInstance(token);
 			Double predictionScore = getClassifierProcessor().getPredictionScoreForInstance(token);
-			BioTMLDocSentTokenIDs ids = (BioTMLDocSentTokenIDs)token.getName();
+			BioTMLDocSentIDs ids = (BioTMLDocSentIDs)token.getName();
 			IBioTMLDocument doc = corpus.getDocumentByID(ids.getDocId());
 			getClassifierProcessor().addPredictedAnnotation(annotations, doc, ids.getSentId(), ids.getTokenId(), 
 					model.getModelConfiguration().getClassType(), predictedLabel, predictionScore);
