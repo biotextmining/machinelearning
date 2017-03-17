@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 
 public class BioTMLObjectWithFeaturesAndLabels<O> {
 	
@@ -13,7 +14,7 @@ public class BioTMLObjectWithFeaturesAndLabels<O> {
 	private List<BioTMLConstants> labels;
 	private List<BioTMLConstants> filterConstants;
 	private List<List<String>> features;
-	private List<String> tokens;
+	private List<IBioTMLToken> tokens;
 	
 	
 	public BioTMLObjectWithFeaturesAndLabels(Class<O> type){
@@ -45,7 +46,7 @@ public class BioTMLObjectWithFeaturesAndLabels<O> {
 		return features;
 	}
 	
-	public List<String> getTokens(){
+	public List<IBioTMLToken> getTokens(){
 		return tokens;
 	}
 
@@ -79,7 +80,7 @@ public class BioTMLObjectWithFeaturesAndLabels<O> {
 		getLabels().add(label);
 	}
 	
-	public void addToken(String token){
+	public void addToken(IBioTMLToken token){
 		getTokens().add(token);
 	}
 

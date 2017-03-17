@@ -62,10 +62,10 @@ public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 		return configuration;
 	}
 
-	private void processColumns(List<IBioTMLFeatureColumns> columns, InstanceListExtended instances) throws BioTMLException {
+	private void processColumns(List<IBioTMLFeatureColumns<?>> columns, InstanceListExtended instances) throws BioTMLException {
 		for(int i =0; i<getBioTMLObjectWithFeaturesAndLabels().getBioTMLObjects().size(); i++){
-			for(IBioTMLFeatureColumns column : columns){
-				getBioTMLObjectWithFeaturesAndLabels().addFeaturesToBioTMLObjectIndex(i, column.getTokenFeatures(i));
+			for(IBioTMLFeatureColumns<?> column : columns){
+				getBioTMLObjectWithFeaturesAndLabels().addFeaturesToBioTMLObjectIndex(i, column.getBioTMLObjectFeatures(i));
 			}
 		}
 		getInstances().addThruPipe(new Instance(getBioTMLObjectWithFeaturesAndLabels(), null, getDocIDandSentIdx(), null));
@@ -79,18 +79,18 @@ public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 	 */
 	public void run() {
 		List<String> visitedUID = new ArrayList<String>();
-		List<IBioTMLFeatureColumns> allColumns = new ArrayList<>();
+		List<IBioTMLFeatureColumns<?>> allColumns = new ArrayList<>();
 		for(String classUID : getConfiguration().getFeaturesUIDs()){
 			if(!visitedUID.contains(classUID)){
 				try {
-					List<String> tokens = getBioTMLObjectWithFeaturesAndLabels().getTokens();
+					List<IBioTMLToken> tokens = getBioTMLObjectWithFeaturesAndLabels().getTokens();
 					if(getBioTMLObjectWithFeaturesAndLabels().getBioTMLObjectClass().isInstance(IBioTMLToken.class)){
 						IBioTMLFeatureGenerator classProcesser = BioTMLFeaturesManager.getInstance().getNERClass(classUID);
 						visitedUID.addAll(classProcesser.getNERFeatureIds());
 						if(getDocIDandSentIdx().getAnnotTokenRelationStartIndex() != -1 && getDocIDandSentIdx().getAnnotTokenRelationEndIndex() != -1){
-							BioTMLAssociationProcess tokenAnnotProcess = new BioTMLAssociationProcess(tokens, getDocIDandSentIdx().getAnnotTokenRelationStartIndex(), getDocIDandSentIdx().getAnnotTokenRelationEndIndex());
-							IBioTMLFeatureColumns features = classProcesser.getFeatureColumns(tokens, getConfiguration());
-							features.updateTokenFeaturesUsingAssociationProcess(tokenAnnotProcess);
+							BioTMLAssociationProcess bioTMLObjectAnnotProcess = new BioTMLAssociationProcess(tokens, getDocIDandSentIdx().getAnnotTokenRelationStartIndex(), getDocIDandSentIdx().getAnnotTokenRelationEndIndex());
+							IBioTMLFeatureColumns<IBioTMLToken> features = classProcesser.getFeatureColumns(tokens, getConfiguration());
+							features.updateBioTMLObjectFeaturesUsingAssociationProcess(bioTMLObjectAnnotProcess);
 							allColumns.add(features);
 						}else{
 							allColumns.add(classProcesser.getFeatureColumns(getBioTMLObjectWithFeaturesAndLabels().getTokens(),  getConfiguration()));

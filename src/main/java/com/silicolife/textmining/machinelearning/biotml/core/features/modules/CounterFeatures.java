@@ -1,6 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,10 +9,13 @@ import java.util.TreeSet;
 
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLFeatureColumns;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLOffsetsPair;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 
 /**
  * 
@@ -66,31 +69,39 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 	
 	@Override
 	public Set<String> getREFeatureIds() {
-		// TODO Auto-generated method stub
-		return null;
+		Set<String> uids = new TreeSet<String>();
+		uids.add("WORDPAIRS");
+		uids.add("COUNTTOKENSBETWEEN");
+		uids.add("COUNTTOKENSOUSIDE");
+		uids.add("POSITIONSINSENTENCE");
+		return uids;
 	}
 
 	@Override
 	public Map<String, String> getREFeatureIdsInfos() {
-		// TODO Auto-generated method stub
-		return null;
+		Map<String, String> infoMap = new HashMap<>();
+		infoMap.put("WORD", "Gives association of all tokens from event annotations");
+		infoMap.put("COUNTTOKENSBETWEEN", "Counts the number of tokens between the two annotations on the event.");
+		infoMap.put("COUNTTOKENSOUTSIDE", "Counts the number of tokens outside the two annotations on the event.");
+		infoMap.put("POSITIONSINSENTENCE", "Gives the pair of annotations postion/(size position) in sentence.");
+		return infoMap;
 	}
 
 	@Override
 	public Set<String> getRecomendedREFeatureIds() {
-		// TODO Auto-generated method stub
-		return null;
+		Set<String> uids = new TreeSet<String>();
+		return uids;
 	}
 
-	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens,
+	public IBioTMLFeatureColumns<IBioTMLToken> getFeatureColumns(List<IBioTMLToken> tokens,
 			IBioTMLFeatureGeneratorConfigurator configuration)
 			throws BioTMLException {
 
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getNERFeatureIds(), configuration);
+		IBioTMLFeatureColumns<IBioTMLToken> features = new BioTMLFeatureColumns<>(tokens, getNERFeatureIds(), configuration);
 		
 
 		for (int i = 0; i < tokens.size(); i++){
-			String token = tokens.get(i);
+			String token = tokens.get(i).getToken();
 			char[] tokenText = token.toCharArray();
 			
             int numCaps = 0;
@@ -104,26 +115,26 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
                 }
             }
             
-            features.addTokenFeature("WORD="+token, "WORD");
+            features.addBioTMLObjectFeature("WORD="+token, "WORD");
             if(numCaps> 0){
-            	features.addTokenFeature("NUMCAPS=" + String.valueOf(numCaps), "NUMCAPS");
+            	features.addBioTMLObjectFeature("NUMCAPS=" + String.valueOf(numCaps), "NUMCAPS");
             } else {
-            	features.addTokenFeature(new String(), "NUMCAPS");
+            	features.addBioTMLObjectFeature(new String(), "NUMCAPS");
             }
             if(numDigits>0){
-            	features.addTokenFeature("NUMDIGITS=" + String.valueOf(numDigits), "NUMDIGITS");
+            	features.addBioTMLObjectFeature("NUMDIGITS=" + String.valueOf(numDigits), "NUMDIGITS");
             } else{
-            	features.addTokenFeature(new String(), "NUMDIGITS");
+            	features.addBioTMLObjectFeature(new String(), "NUMDIGITS");
             }
-            features.addTokenFeature("LENGTH=" + String.valueOf(tokenText.length), "LENGTH");
+            features.addBioTMLObjectFeature("LENGTH=" + String.valueOf(tokenText.length), "LENGTH");
             if(tokenText.length == 1){
-            	 features.addTokenFeature("LENGTHGROUP=1", "LENGTHGROUP");
+            	 features.addBioTMLObjectFeature("LENGTHGROUP=1", "LENGTHGROUP");
             } else if(tokenText.length == 2){
-            	 features.addTokenFeature("LENGTHGROUP=2", "LENGTHGROUP");
+            	 features.addBioTMLObjectFeature("LENGTHGROUP=2", "LENGTHGROUP");
             }else if(( tokenText.length >= 3 ) && ( tokenText.length <= 5 )){
-            	 features.addTokenFeature("LENGTHGROUP=3-5", "LENGTHGROUP");
+            	 features.addBioTMLObjectFeature("LENGTHGROUP=3-5", "LENGTHGROUP");
             }else if(tokenText.length>=6){
-            	 features.addTokenFeature("LENGTHGROUP=6+", "LENGTHGROUP");
+            	 features.addBioTMLObjectFeature("LENGTHGROUP=6+", "LENGTHGROUP");
             }
 		}
 		
@@ -133,20 +144,104 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 	public void cleanMemory() {		
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, List<IBioTMLAssociation> associations,
+	public IBioTMLFeatureColumns<IBioTMLAssociation> getEventFeatureColumns(List<IBioTMLToken> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		List<String> associationStrings = new ArrayList<>();
 		
+		IBioTMLFeatureColumns<IBioTMLAssociation> features = new BioTMLFeatureColumns<>(associations, getREFeatureIds(), configuration);
 		for(IBioTMLAssociation association : associations){
-			associationStrings.add(association.toString());
-		}
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(associationStrings, getREFeatureIds(), configuration);
-		for(IBioTMLAssociation association : associations){
-			//features
+			if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAnnotation){
+				IBioTMLAnnotation annotationOne = (IBioTMLAnnotation) association.getEntryOne();
+				IBioTMLAnnotation annotationTwo = (IBioTMLAnnotation) association.getEntryTwo();
+				
+				features.addBioTMLObjectFeature("POSITIONSINSENTENCE="+getTokensAssociated(annotationOne, annotationTwo, tokens), "POSITIONSINSENTENCE");
+				
+				int countTokensBetween = countTokensBetween(annotationOne, annotationTwo, tokens);
+				if(countTokensBetween>0)
+					features.addBioTMLObjectFeature("COUNTTOKENSBETWEEN="+countTokensBetween, "COUNTTOKENSBETWEEN");
+				else
+					features.addBioTMLObjectFeature(new String(), "COUNTTOKENSBETWEEN");
+				int countTokensOutside = countTokensOutside(annotationOne, annotationTwo, tokens);
+				if(countTokensOutside>0)
+					features.addBioTMLObjectFeature("COUNTTOKENSOUTSIDE="+countTokensBetween, "COUNTTOKENSOUTSIDE");
+				else
+					features.addBioTMLObjectFeature(new String(), "COUNTTOKENSOUTSIDE");
+				
+				features.addBioTMLObjectFeature("POSITIONSINSENTENCE="+getPositionPair(annotationOne, annotationTwo, tokens), "POSITIONSINSENTENCE");
+				
+			}else if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAssociation){
+				//TODO
+			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAnnotation){
+				//TODO
+			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAssociation){
+				//TODO
+			}
 		}
 		
 		return features;
+	}
+	
+	private int countTokensBetween(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens){
+		int count = 0;
+		for(IBioTMLToken token :tokens){
+			if(isBetween(annotationOne.getAnnotationOffsets(), annotationTwo.getAnnotationOffsets(), token.getTokenOffsetsPair()))
+				count++;
+		}
+		return count;
+	}
+	
+	private int countTokensOutside(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens){
+		int count = 0;
+		for(IBioTMLToken token :tokens){
+			if(!isBetween(annotationOne.getAnnotationOffsets(), annotationTwo.getAnnotationOffsets(), token.getTokenOffsetsPair()))
+				count++;
+		}
+		return count;
+	}
+	
+	private boolean isBetween(IBioTMLOffsetsPair annotationOne, IBioTMLOffsetsPair annotationTwo, IBioTMLOffsetsPair token){
+		if(annotationOne.compareTo(annotationTwo)<0){
+			return annotationOne.getEndOffset() < token.getStartOffset() && token.getEndOffset() < annotationTwo.getStartOffset();
+		}
+		return annotationTwo.getEndOffset() < token.getStartOffset() && token.getEndOffset() < annotationOne.getStartOffset();
+	}
+	
+	private String getPositionPair(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens){
+		if(annotationOne.compareTo(annotationTwo)>0)
+			return String.format("%.1f", getRelativeAnnotationPosition(annotationTwo, tokens))+ "-"+ String.format("%.1f", getRelativeAnnotationPosition(annotationOne, tokens));
+		return String.format("%.1f", getRelativeAnnotationPosition(annotationOne, tokens))+ "-"+ String.format("%.1f", getRelativeAnnotationPosition(annotationTwo, tokens));
+	}
+
+	private double getRelativeAnnotationPosition(IBioTMLAnnotation annotationOne, List<IBioTMLToken> tokens) {
+		int tokensinAnnotCount = 0;
+		int tokensbeforeCount = 0;
+		for(IBioTMLToken token : tokens){
+			if(annotationOne.getAnnotationOffsets().containsInside(token.getTokenOffsetsPair()))
+				tokensinAnnotCount++;
+			else if(annotationOne.getAnnotationOffsets().compareTo(token.getTokenOffsetsPair())>0){
+				tokensbeforeCount++;
+			}
+		}
+		return  (tokensbeforeCount + ((tokensinAnnotCount - (tokensinAnnotCount % 2))/2) + (tokensinAnnotCount % 2))/tokens.size();
+	}
+	
+	private String getTokensAssociated(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens){
+		String result = new String();
+		Collections.sort(tokens);
+		for(IBioTMLToken token : tokens){
+			if(annotationOne.getAnnotationOffsets().containsInside(token.getTokenOffsetsPair())){
+				if(!result.isEmpty())
+					result = result +"__&__";
+				result = result+ token.getToken();
+			}
+			if(annotationTwo.getAnnotationOffsets().containsInside(token.getTokenOffsetsPair())){
+				if(!result.isEmpty())
+					result = result +"__&__";
+				result = result+ token.getToken();
+			}
+		}
+		return result;
 	}
 
 }

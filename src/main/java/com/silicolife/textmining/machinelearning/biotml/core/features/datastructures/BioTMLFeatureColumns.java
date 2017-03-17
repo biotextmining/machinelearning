@@ -18,24 +18,24 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLF
  * @since 1.0.0
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
-public class BioTMLFeatureColumns implements IBioTMLFeatureColumns{
+public class BioTMLFeatureColumns<O> implements IBioTMLFeatureColumns<O>{
 
 
-	private List<String> tokens;
+	private List<O> bioTMLObjects;
 	private Map<String, List<String>> uIDsToFeatureColumnMap;
 	private Map<String, List<String>> uIDsToFeatureStoredToGenerateOtherFeaturesMap;
 	private Set<String> uIDsWithMultiFeat;
 
-	public BioTMLFeatureColumns(List<String> tokens, Set<String> moduleUIDs, IBioTMLFeatureGeneratorConfigurator configuration){
-		this.tokens = tokens;
+	public BioTMLFeatureColumns(List<O> BioTMLObject, Set<String> moduleUIDs, IBioTMLFeatureGeneratorConfigurator configuration){
+		this.bioTMLObjects = BioTMLObject;
 		this.uIDsToFeatureColumnMap = initUIDMap(moduleUIDs, configuration);
 		this.uIDsWithMultiFeat = new HashSet<String>();
 		this.uIDsToFeatureStoredToGenerateOtherFeaturesMap = new HashMap<String, List<String>>();
 	}
 
 
-	public List<String> getTokens(){
-		return tokens;
+	public List<O> getBioTMLObjects(){
+		return bioTMLObjects;
 	}
 
 	public Set<String> getUIDs() {
@@ -51,18 +51,18 @@ public class BioTMLFeatureColumns implements IBioTMLFeatureColumns{
 		return new ArrayList<String>();
 	}
 	
-	public List<String> getTokenFeatures(int tokenIndex){
+	public List<String> getBioTMLObjectFeatures(int BioTMLObjectIndex){
 		List<String> features = new ArrayList<>();
 		for(String uID : getUIDs()){
 			if(isMultiFeatureColumn(uID)){
-				String[] tokenfeatures = getFeatureColumByUID(uID).get(tokenIndex).split("\t");
+				String[] tokenfeatures = getFeatureColumByUID(uID).get(BioTMLObjectIndex).split("\t");
 				for(String feat : tokenfeatures){
 					if(!feat.isEmpty()){
 						features.add(feat);
 					}
 				}
 			}else{
-				String feature = getFeatureColumByUID(uID).get(tokenIndex);
+				String feature = getFeatureColumByUID(uID).get(BioTMLObjectIndex);
 				if(!feature.isEmpty()){
 					features.add(feature);
 				}
@@ -71,34 +71,34 @@ public class BioTMLFeatureColumns implements IBioTMLFeatureColumns{
 		return features;
 	}
 
-	public void addTokenFeature(String tokenFeature, String uID){
+	public void addBioTMLObjectFeature(String bioTMLObjectFeature, String uID){
 		if(getUIDs().contains(uID)){
-			List<String> tokenFeatures = getUIDsToFeatureColumnMap().get(uID);
-			tokenFeatures.add(tokenFeature);
-			getUIDsToFeatureColumnMap().put(uID,tokenFeatures);
+			List<String> bioTMLObjectFeatures = getUIDsToFeatureColumnMap().get(uID);
+			bioTMLObjectFeatures.add(bioTMLObjectFeature);
+			getUIDsToFeatureColumnMap().put(uID,bioTMLObjectFeatures);
 		}else{
 			if(!getUIDsToFeatureStoredToGenerateOtherFeaturesMap().containsKey(uID)){
 				getUIDsToFeatureStoredToGenerateOtherFeaturesMap().put(uID, new ArrayList<String>());
 			}
-			List<String> tokenFeatures = getUIDsToFeatureStoredToGenerateOtherFeaturesMap().get(uID);
-			tokenFeatures.add(tokenFeature);
-			getUIDsToFeatureStoredToGenerateOtherFeaturesMap().put(uID,tokenFeatures);
+			List<String> bioTMLObjectFeatures = getUIDsToFeatureStoredToGenerateOtherFeaturesMap().get(uID);
+			bioTMLObjectFeatures.add(bioTMLObjectFeature);
+			getUIDsToFeatureStoredToGenerateOtherFeaturesMap().put(uID,bioTMLObjectFeatures);
 		}
 	}
 
-	public void updateTokenFeatures(List<String> tokenFeatures, String uID){
+	public void updateBioTMLObjectFeatures(List<String> bioTMLObjectFeatures, String uID){
 		if(getUIDs().contains(uID)){
-			getUIDsToFeatureColumnMap().put(uID,tokenFeatures);
+			getUIDsToFeatureColumnMap().put(uID,bioTMLObjectFeatures);
 		}else{
-			getUIDsToFeatureStoredToGenerateOtherFeaturesMap().put(uID, tokenFeatures);
+			getUIDsToFeatureStoredToGenerateOtherFeaturesMap().put(uID, bioTMLObjectFeatures);
 		}
 	}
 
-	public void updateTokenFeaturesUsingAssociationProcess(BioTMLAssociationProcess tokenAnnotProcess) {
+	public void updateBioTMLObjectFeaturesUsingAssociationProcess(BioTMLAssociationProcess bioTMLObjectAnnotProcess) {
 		for(String uID:getUIDs()){
 			List<String> featureColum = getFeatureColumByUID(uID);
-			featureColum = tokenAnnotProcess.associateAnnotationFeatureToFeatureColumn(featureColum);
-			updateTokenFeatures(featureColum, uID);
+			featureColum = bioTMLObjectAnnotProcess.associateAnnotationFeatureToFeatureColumn(featureColum);
+			updateBioTMLObjectFeatures(featureColum, uID);
 		}
 	}
 

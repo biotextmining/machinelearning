@@ -68,15 +68,15 @@ public interface IBioTMLFeatureGenerator {
 	 * 
 	 * Method that executes the feature generator regarding the configurator for a list of tokens that belongs to a sentence or document.
 	 * 
-	 * @param tokens - List of token strings.
+	 * @param tokens - List of {@link  IBioTMLToken}.
 	 * @param configuration - Feature generation configurator ({@link IBioTMLFeatureGeneratorConfigurator}).
 	 * @return Generated feature colum for all tokens ({@link IBioTMLFeatureColumns}).
 	 * @throws BioTMLException
 	 */
-	public IBioTMLFeatureColumns getFeatureColumns(List<String>tokens, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException;
+	public IBioTMLFeatureColumns<IBioTMLToken> getFeatureColumns(List<IBioTMLToken> tokens, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException;
 	
 	
-	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, List<IBioTMLAssociation> associations, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException;
+	public IBioTMLFeatureColumns<IBioTMLAssociation> getEventFeatureColumns(List<IBioTMLToken> tokens, List<IBioTMLAssociation> associations, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException;
 	/**
 	 * 
 	 * Method that cleans the allocated memory of this module.

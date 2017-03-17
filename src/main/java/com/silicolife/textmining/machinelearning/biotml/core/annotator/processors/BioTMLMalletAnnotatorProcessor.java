@@ -12,12 +12,12 @@ import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAssoc
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLEventImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
-import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLREModelTypes;
 
 import cc.mallet.types.InstanceList;
 
@@ -153,7 +153,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 * @return Set of all relations ({@link IBioTMLEvent}) predicted.
 	 * @throws {@link BioTMLException}.
 	 */
-	public Set<IBioTMLEvent> addPredictedRelation(IBioTMLCorpus corpus,
+	public Set<IBioTMLEvent> addPredictedEvent(IBioTMLCorpus corpus,
 			Set<IBioTMLEvent> events, 
 			IBioTMLDocument doc,
 			int sentIndex,
@@ -321,6 +321,11 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 */
 	private Set<IBioTMLEvent> addEvent(Set<IBioTMLEvent> events, IBioTMLAnnotation entity, IBioTMLAnnotation trigger, String eventType, double score) throws BioTMLException{
 		events.add(new BioTMLEventImpl(new BioTMLAssociationImpl<>(trigger, entity), eventType, score));
+		return events;
+	}
+	
+	public Set<IBioTMLEvent> addEvent(Set<IBioTMLEvent> events, IBioTMLAssociation association, String eventClass, double score){
+		events.add(new BioTMLEventImpl(association, eventClass, score));
 		return events;
 	}
 }

@@ -14,6 +14,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLA
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j.BioTMLNLP4J;
 
 /**
@@ -69,8 +70,11 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 	
 	@Override
 	public Set<String> getREFeatureIds() {
-		// TODO Auto-generated method stub
-		return null;
+		Set<String> uids = new TreeSet<String>();
+//		uids.add("NLP4JLEMMA");
+//		uids.add("NLP4JPOS");
+//		
+		return uids;
 	}
 
 	@Override
@@ -85,25 +89,25 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		return null;
 	}
 
-	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
+	public IBioTMLFeatureColumns<IBioTMLToken> getFeatureColumns(List<IBioTMLToken> tokens, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
 
 		if(tokens.isEmpty()){
 			throw new BioTMLException(27);
 		}
 
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getNERFeatureIds(), configuration);
+		IBioTMLFeatureColumns<IBioTMLToken> features = new BioTMLFeatureColumns<>(tokens, getNERFeatureIds(), configuration);
 
 
 		if(configuration.hasFeatureUID("NLP4JLEMMA")){
 			String[] lemmas = BioTMLNLP4J.getInstance().processLemma(tokens.toArray(new String[0]));
 			for(String lemma : lemmas)
-				features.addTokenFeature("NLP4JLEMMA=" + lemma, "NLP4JLEMMA");
+				features.addBioTMLObjectFeature("NLP4JLEMMA=" + lemma, "NLP4JLEMMA");
 		}
 
 		if(configuration.hasFeatureUID("NLP4JPOS")){
 			String[] poss = BioTMLNLP4J.getInstance().processPos(tokens.toArray(new String[0]));
 			for(String pos : poss)
-				features.addTokenFeature("NLP4JPOS=" + pos, "NLP4JPOS");
+				features.addBioTMLObjectFeature("NLP4JPOS=" + pos, "NLP4JPOS");
 		}
 
 
@@ -118,7 +122,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 			else
 				lemmas = Arrays.asList(BioTMLNLP4J.getInstance().processLemma(tokens.toArray(new String[0])));
 			OffsetConjunctions conjuctions = new OffsetConjunctions(lemmas,  new int[][]{{-1, 0}, {-2, -1}, {0, 1}, {-1, 1}, {-3, -1}});
-			features.updateTokenFeatures(conjuctions.generateFeatures(), "CONJUCTNLP4JLEMMA");
+			features.updateBioTMLObjectFeatures(conjuctions.generateFeatures(), "CONJUCTNLP4JLEMMA");
 			features.setUIDhasMultiFeatureColumn("CONJUCTNLP4JLEMMA");
 		}
 
@@ -129,7 +133,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 			else
 				pos = Arrays.asList(BioTMLNLP4J.getInstance().processPos(tokens.toArray(new String[0])));
 			OffsetConjunctions conjuctions = new OffsetConjunctions(pos,  new int[][]{{-1, 0}, {-2, -1}, {0, 1}, {-1, 1}, {-3, -1}});
-			features.updateTokenFeatures(conjuctions.generateFeatures(), "CONJUCTNLP4JPOS");
+			features.updateBioTMLObjectFeatures(conjuctions.generateFeatures(), "CONJUCTNLP4JPOS");
 			features.setUIDhasMultiFeatureColumn("CONJUCTNLP4JPOS");
 		}
 
@@ -140,7 +144,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 			else
 				lemmas = Arrays.asList(BioTMLNLP4J.getInstance().processLemma(tokens.toArray(new String[0])));
 			WindowFeatures windows = new WindowFeatures("WINDOW_LEMMA=", lemmas, -3, 3);
-			features.updateTokenFeatures(windows.generateFeatures(), "WINDOWNLP4JLEMMA");
+			features.updateBioTMLObjectFeatures(windows.generateFeatures(), "WINDOWNLP4JLEMMA");
 			features.setUIDhasMultiFeatureColumn("WINDOWNLP4JLEMMA");
 		}
 
@@ -151,7 +155,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 			else
 				pos = Arrays.asList(BioTMLNLP4J.getInstance().processPos(tokens.toArray(new String[0])));
 			WindowFeatures windows = new WindowFeatures("WINDOW_POS=", pos, -3, 3);
-			features.updateTokenFeatures(windows.generateFeatures(), "WINDOWNLP4JPOS");
+			features.updateBioTMLObjectFeatures(windows.generateFeatures(), "WINDOWNLP4JPOS");
 			features.setUIDhasMultiFeatureColumn("WINDOWNLP4JPOS");
 		}
 
@@ -162,15 +166,12 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		BioTMLNLP4J.getInstance().clearModelsInMemory();
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, List<IBioTMLAssociation> associations,
+	public IBioTMLFeatureColumns<IBioTMLAssociation> getEventFeatureColumns(List<IBioTMLToken> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		List<String> associationStrings = new ArrayList<>();
-		
-		for(IBioTMLAssociation association : associations){
-			associationStrings.add(association.toString());
-		}
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(associationStrings, getREFeatureIds(), configuration);
+
+		IBioTMLFeatureColumns<IBioTMLAssociation> features = new BioTMLFeatureColumns<>(associations, getREFeatureIds(), configuration);
 		for(IBioTMLAssociation association : associations){
 			//features
 		}

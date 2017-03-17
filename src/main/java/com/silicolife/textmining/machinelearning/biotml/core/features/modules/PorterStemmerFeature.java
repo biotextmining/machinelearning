@@ -1,6 +1,5 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLA
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.porterstemmer.BioTMLStemmer;
 
 /**
@@ -51,23 +51,20 @@ public class PorterStemmerFeature implements IBioTMLFeatureGenerator{
 	
 	@Override
 	public Set<String> getREFeatureIds() {
-		// TODO Auto-generated method stub
-		return null;
+		return new TreeSet<String>();
 	}
 
 	@Override
 	public Map<String, String> getREFeatureIdsInfos() {
-		// TODO Auto-generated method stub
-		return null;
+		return new HashMap<>();
 	}
 
 	@Override
 	public Set<String> getRecomendedREFeatureIds() {
-		// TODO Auto-generated method stub
-		return null;
+		return new TreeSet<String>();
 	}
 
-	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens,
+	public IBioTMLFeatureColumns<IBioTMLToken> getFeatureColumns(List<IBioTMLToken> tokens,
 			IBioTMLFeatureGeneratorConfigurator configuration)
 			throws BioTMLException {
 		
@@ -75,17 +72,17 @@ public class PorterStemmerFeature implements IBioTMLFeatureGenerator{
 			throw new BioTMLException(27);
 		}
 	
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getNERFeatureIds(), configuration);
+		IBioTMLFeatureColumns<IBioTMLToken> features = new BioTMLFeatureColumns<>(tokens, getNERFeatureIds(), configuration);
 
 		for (int i = 0; i < tokens.size(); i++){
-			String tokenString = tokens.get(i);
+			String tokenString = tokens.get(i).getToken();
 			BioTMLStemmer stemmer = new BioTMLStemmer(tokenString);
     		String stem = stemmer.getStem();
     		if(!stem.isEmpty()){
-    			features.addTokenFeature("PORTERSTEM="  + stem, "PORTERSTEM");
+    			features.addBioTMLObjectFeature("PORTERSTEM="  + stem, "PORTERSTEM");
     		}
     		else{
-    			features.addTokenFeature("PORTERSTEM="  + tokenString, "PORTERSTEM");
+    			features.addBioTMLObjectFeature("PORTERSTEM="  + tokenString, "PORTERSTEM");
     		}
 		}
 
@@ -95,18 +92,14 @@ public class PorterStemmerFeature implements IBioTMLFeatureGenerator{
 	public void cleanMemory(){
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, List<IBioTMLAssociation> associations,
+	public IBioTMLFeatureColumns<IBioTMLAssociation> getEventFeatureColumns(List<IBioTMLToken> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		List<String> associationStrings = new ArrayList<>();
-		
-		for(IBioTMLAssociation association : associations){
-			associationStrings.add(association.toString());
-		}
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(associationStrings, getREFeatureIds(), configuration);
-		for(IBioTMLAssociation association : associations){
-			//features
-		}
+		IBioTMLFeatureColumns<IBioTMLAssociation> features = new BioTMLFeatureColumns<>(associations, getREFeatureIds(), configuration);
+//		for(IBioTMLAssociation association : associations){
+//			//features
+//		}
 		
 		return features;
 	}

@@ -1,7 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +13,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLA
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 import com.silicolife.textmining.machinelearning.biotml.core.resources.datalists.BioTMLDataLists;
 
 public class DictionariesFeature implements IBioTMLFeatureGenerator{
@@ -41,33 +41,30 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 	
 	@Override
 	public Set<String> getREFeatureIds() {
-		// TODO Auto-generated method stub
-		return null;
+		return new TreeSet<String>();
 	}
 
 	@Override
 	public Map<String, String> getREFeatureIdsInfos() {
-		// TODO Auto-generated method stub
-		return null;
+		return new HashMap<>();
 	}
 
 	@Override
 	public Set<String> getRecomendedREFeatureIds() {
-		// TODO Auto-generated method stub
-		return null;
+		return new TreeSet<String>();
 	}
 
-	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens,
+	public IBioTMLFeatureColumns<IBioTMLToken> getFeatureColumns(List<IBioTMLToken> tokens,
 			IBioTMLFeatureGeneratorConfigurator configuration)
 			throws BioTMLException {
 		
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getNERFeatureIds(), configuration);
+		IBioTMLFeatureColumns<IBioTMLToken> features = new BioTMLFeatureColumns<>(tokens, getNERFeatureIds(), configuration);
 		
 		for (int i = 0; i < tokens.size(); i++){
-			String token = tokens.get(i);
+			IBioTMLToken token = tokens.get(i);
 			for(String uID : getNERFeatureIds()){
 				if(configuration.hasFeatureUID(uID)){
-					features.addTokenFeature(isInDataList(token, uID), uID);
+					features.addBioTMLObjectFeature(isInDataList(token.getToken(), uID), uID);
 				}
 			}		
 		}
@@ -101,18 +98,15 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 		return new String();
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, List<IBioTMLAssociation> associations,
+	public IBioTMLFeatureColumns<IBioTMLAssociation> getEventFeatureColumns(List<IBioTMLToken> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		List<String> associationStrings = new ArrayList<>();
 		
-		for(IBioTMLAssociation association : associations){
-			associationStrings.add(association.toString());
-		}
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(associationStrings, getREFeatureIds(), configuration);
-		for(IBioTMLAssociation association : associations){
-			//features
-		}
+		IBioTMLFeatureColumns<IBioTMLAssociation> features = new BioTMLFeatureColumns<>(associations, getREFeatureIds(), configuration);
+//		for(IBioTMLAssociation association : associations){
+//			//features
+//		}
 		
 		return features;
 	}

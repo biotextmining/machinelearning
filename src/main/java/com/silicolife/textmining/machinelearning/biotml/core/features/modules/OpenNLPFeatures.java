@@ -1,6 +1,5 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLA
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.opennlp.BioTMLOpenNLP;
 
 /**
@@ -66,27 +66,27 @@ public class OpenNLPFeatures implements IBioTMLFeatureGenerator{
 	
 	@Override
 	public Set<String> getREFeatureIds() {
-		// TODO Auto-generated method stub
-		return null;
+		return new TreeSet<String>();
 	}
 
 	@Override
 	public Map<String, String> getREFeatureIdsInfos() {
-		// TODO Auto-generated method stub
-		return null;
+		return new HashMap<>();
 	}
 
 	@Override
 	public Set<String> getRecomendedREFeatureIds() {
-		// TODO Auto-generated method stub
-		return null;
+		return new TreeSet<String>();
 	}
 
-	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
+	public IBioTMLFeatureColumns<IBioTMLToken> getFeatureColumns(List<IBioTMLToken> tokens, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
 
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getNERFeatureIds(), configuration);
+		IBioTMLFeatureColumns<IBioTMLToken> features = new BioTMLFeatureColumns<>(tokens, getNERFeatureIds(), configuration);
+		String[] sentence = new String[tokens.size()];
+		for(int i=0; i<tokens.size(); i++){
+			sentence[i] = tokens.get(i).getToken();
+		}
 
-		String[] sentence = tokens.toArray(new String[0]);
 		String[] posTags = {new String()};
 		String[] chunckTags = {new String()};
 		String[] chunckParsingTags = {new String()};
@@ -115,39 +115,39 @@ public class OpenNLPFeatures implements IBioTMLFeatureGenerator{
 			if(configuration.hasFeatureUID("OPENNLPPOS") ||
 					configuration.hasFeatureUID("WINDOWOPENNLPPOS") ||
 					configuration.hasFeatureUID("CONJUCTOPENNLPPOS")){
-				features.addTokenFeature("OPENNLPPOS="+posTags[i], "OPENNLPPOS");
+				features.addBioTMLObjectFeature("OPENNLPPOS="+posTags[i], "OPENNLPPOS");
 			}
 			if(configuration.hasFeatureUID("OPENNLPCHUNK") ||
 					configuration.hasFeatureUID("WINDOWOPENNLPCHUNK") ||
 					configuration.hasFeatureUID("CONJUCTOPENNLPCHUNK")){
-				features.addTokenFeature("OPENNLPCHUNK="+chunckTags[i], "OPENNLPCHUNK");
+				features.addBioTMLObjectFeature("OPENNLPCHUNK="+chunckTags[i], "OPENNLPCHUNK");
 			}
 			if(configuration.hasFeatureUID("OPENNLPCHUNKPARSING")){
-				features.addTokenFeature(chunckParsingTags[i], "OPENNLPCHUNKPARSING");
+				features.addBioTMLObjectFeature(chunckParsingTags[i], "OPENNLPCHUNKPARSING");
 			}
 		}
 		
 		if(configuration.hasFeatureUID("CONJUCTOPENNLPCHUNK")){
 			OffsetConjunctions conjuctions = new OffsetConjunctions(features.getFeatureColumByUID("OPENNLPCHUNK"),  new int[][]{{-1, 0}, {-2, -1}, {0, 1}, {-1, 1}, {-3, -1}});
-			features.updateTokenFeatures(conjuctions.generateFeatures(), "CONJUCTOPENNLPCHUNK");
+			features.updateBioTMLObjectFeatures(conjuctions.generateFeatures(), "CONJUCTOPENNLPCHUNK");
 			features.setUIDhasMultiFeatureColumn("CONJUCTOPENNLPCHUNK");
 		}
 		
 		if(configuration.hasFeatureUID("CONJUCTOPENNLPPOS")){
 			OffsetConjunctions conjuctions = new OffsetConjunctions(features.getFeatureColumByUID("OPENNLPPOS"),  new int[][]{{-1, 0}, {-2, -1}, {0, 1}, {-1, 1}, {-3, -1}});
-			features.updateTokenFeatures(conjuctions.generateFeatures(), "CONJUCTOPENNLPPOS");
+			features.updateBioTMLObjectFeatures(conjuctions.generateFeatures(), "CONJUCTOPENNLPPOS");
 			features.setUIDhasMultiFeatureColumn("CONJUCTOPENNLPPOS");
 		}
 		
 		if(configuration.hasFeatureUID("WINDOWOPENNLPCHUNK")){
 			WindowFeatures windows = new WindowFeatures("WINDOW_CHUNK=", features.getFeatureColumByUID("OPENNLPCHUNK"), -3, 3);
-			features.updateTokenFeatures(windows.generateFeatures(), "WINDOWOPENNLPCHUNK");
+			features.updateBioTMLObjectFeatures(windows.generateFeatures(), "WINDOWOPENNLPCHUNK");
 			features.setUIDhasMultiFeatureColumn("WINDOWOPENNLPCHUNK");
 		}
 		
 		if(configuration.hasFeatureUID("WINDOWOPENNLPPOS")){
 			WindowFeatures windows = new WindowFeatures("WINDOW_POS=", features.getFeatureColumByUID("OPENNLPPOS"), -3, 3);
-			features.updateTokenFeatures(windows.generateFeatures(), "WINDOWOPENNLPPOS");
+			features.updateBioTMLObjectFeatures(windows.generateFeatures(), "WINDOWOPENNLPPOS");
 			features.setUIDhasMultiFeatureColumn("WINDOWOPENNLPPOS");
 		}
 
@@ -158,18 +158,15 @@ public class OpenNLPFeatures implements IBioTMLFeatureGenerator{
 		BioTMLOpenNLP.getInstance().clearModelsInMemory();
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, List<IBioTMLAssociation> associations,
+	public IBioTMLFeatureColumns<IBioTMLAssociation> getEventFeatureColumns(List<IBioTMLToken> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		List<String> associationStrings = new ArrayList<>();
 		
-		for(IBioTMLAssociation association : associations){
-			associationStrings.add(association.toString());
-		}
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(associationStrings, getREFeatureIds(), configuration);
-		for(IBioTMLAssociation association : associations){
-			//features
-		}
+		IBioTMLFeatureColumns<IBioTMLAssociation> features = new BioTMLFeatureColumns<>(associations, getREFeatureIds(), configuration);
+//		for(IBioTMLAssociation association : associations){
+//			//features
+//		}
 		
 		return features;
 	}

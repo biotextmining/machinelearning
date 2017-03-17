@@ -106,7 +106,7 @@ public class BioTMLMalletAnnotatorImpl implements IBioTMLAnnotator{
 
 	private Set<IBioTMLEvent> executeREAnnotation(IBioTMLModel model, int threads) throws BioTMLException {
 		reAnnotator = new BioTMLMalletREAnnotator();
-		return reAnnotator.generateRelations(getBasedBioTMCorpus(), model, threads);
+		return reAnnotator.generateEvents(getBasedBioTMCorpus(), model, threads);
 	}
 
 	private Set<IBioTMLAnnotation> executeNERAnnotation(IBioTMLModel model, int threads) throws BioTMLException {

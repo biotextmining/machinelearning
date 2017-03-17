@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLTokenImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeaturesManager;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 
 import cc.mallet.pipe.Pipe;
 import cc.mallet.types.Instance;
@@ -42,7 +44,7 @@ public class FeaturesClasses2MalletFeatures extends Pipe{
 		return this.configuration;
 	}
 	
-	private void processColumns(IBioTMLFeatureColumns columns, TokenSequence instanceData){
+	private void processColumns(IBioTMLFeatureColumns<IBioTMLToken> columns, TokenSequence instanceData){
 		for(String featureUID : columns.getUIDs()){
 			List<String> results = columns.getFeatureColumByUID(featureUID);
 			setFeatures(results, columns.isMultiFeatureColumn(featureUID), featureUID, instanceData);
@@ -81,12 +83,12 @@ public class FeaturesClasses2MalletFeatures extends Pipe{
     public Instance pipe(Instance carrier) {
     	TokenSequence instanceData = (TokenSequence) carrier.getData();
     	
-    	List<String> tokensStrings = new ArrayList<String>();
+    	List<IBioTMLToken> tokensStrings = new ArrayList<>();
     	
     	for(int i=0; i<instanceData.size(); i++ ){
     		Token token = instanceData.get(i);
     		String tokenString = token.getText();
-    		tokensStrings.add(tokenString);
+    		tokensStrings.add(new BioTMLTokenImpl(tokenString, 0, 0));
     	}
     	
     	List<String> visitedUID = new ArrayList<String>();
@@ -95,7 +97,7 @@ public class FeaturesClasses2MalletFeatures extends Pipe{
     			try {
     				IBioTMLFeatureGenerator classProcesser = BioTMLFeaturesManager.getInstance().getNERClass(classUID);
     				visitedUID.addAll(classProcesser.getNERFeatureIds());
-    				IBioTMLFeatureColumns columns = classProcesser.getFeatureColumns(tokensStrings,  getConfiguration());
+    				IBioTMLFeatureColumns<IBioTMLToken> columns = classProcesser.getFeatureColumns(tokensStrings,  getConfiguration());
     				processColumns(columns, instanceData);
     			} catch (BioTMLException exc) {
     				exc.printStackTrace();

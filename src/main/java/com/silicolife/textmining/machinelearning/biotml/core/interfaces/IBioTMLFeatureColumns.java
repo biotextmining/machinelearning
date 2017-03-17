@@ -13,9 +13,9 @@ import com.silicolife.textmining.machinelearning.biotml.core.features.datastruct
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public interface IBioTMLFeatureColumns {
+public interface IBioTMLFeatureColumns<O> {
 	
-	public List<String> getTokens();
+	public List<O> getBioTMLObjects();
 	
 	/**
 	 * 
@@ -37,21 +37,21 @@ public interface IBioTMLFeatureColumns {
 	
 	/**
 	 * 
-	 * Method to add a token feature into last row of referent uID column
+	 * Method to add a BioTMLObject feature into last row of referent uID column
 	 * 
 	 * @param tokenFeature Generated token feature 
 	 * @param uID Column UID.
 	 */
-	public void addTokenFeature(String tokenFeature, String uID);
+	public void addBioTMLObjectFeature(String bioTMLObjectFeature, String uID);
 	
 	/**
 	 * 
-	 * Method to retrieve all features form a token index. 
+	 * Method to retrieve all features form a BioTMLObject index. 
 	 * 
 	 * @param tokenIndex Token index of the column tokens initialization
 	 * @return
 	 */
-	public List<String> getTokenFeatures(int tokenIndex);
+	public List<String> getBioTMLObjectFeatures(int bioTMLObjectIndex);
 	
 	/**
 	 * 
@@ -60,7 +60,7 @@ public interface IBioTMLFeatureColumns {
 	 * @param tokenFeatures List of all token features.
 	 * @param uID Column UID to update.
 	 */
-	public void updateTokenFeatures(List<String> tokenFeatures, String uID);
+	public void updateBioTMLObjectFeatures(List<String> bioTMLObjectFeatures, String uID);
 	
 	/**
 	 * 
@@ -68,7 +68,7 @@ public interface IBioTMLFeatureColumns {
 	 * 
 	 * @param tokenAnnotProcess {@link BioTMLAssociationProcess} to update the columns.
 	 */
-	public void updateTokenFeaturesUsingAssociationProcess(BioTMLAssociationProcess tokenAnnotProcess);
+	public void updateBioTMLObjectFeaturesUsingAssociationProcess(BioTMLAssociationProcess bioTMLObjectAnnotProcess);
 	
 	/**
 	 * 

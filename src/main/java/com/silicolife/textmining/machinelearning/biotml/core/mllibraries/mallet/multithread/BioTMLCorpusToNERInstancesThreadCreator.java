@@ -65,14 +65,14 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 				if(!getCorpus().getAnnotations().isEmpty()){
 					BioTMLConstants tokenLabel = getTokenLabel(docID, token);
 					tokensWithLabels.addBioTMLObjectForModel(token, tokenLabel);
-					tokensWithLabels.addToken(token.getToken());
+					tokensWithLabels.addToken(token);
 				}else{
 					tokensWithLabels.addBioTMLObjectForPrediction(token);
-					tokensWithLabels.addToken(token.getToken());
+					tokensWithLabels.addToken(token);
 				}
 			}else{
 				tokensWithLabels.addBioTMLObjectForPrediction(token);
-				tokensWithLabels.addToken(token.getToken());
+				tokensWithLabels.addToken(token);
 			}
 			if(stop)
 				break;

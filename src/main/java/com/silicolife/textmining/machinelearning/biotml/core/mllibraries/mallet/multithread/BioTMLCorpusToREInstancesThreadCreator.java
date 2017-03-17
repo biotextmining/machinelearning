@@ -108,7 +108,7 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		}
 		
 		for(IBioTMLToken token : sentence.getTokens()){
-			associationsWithLabels.addToken(token.getToken());
+			associationsWithLabels.addToken(token);
 		}
 		return associationsWithLabels;
 	}
@@ -126,7 +126,7 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		return associations;
 	}
 
-	private BioTMLConstants getAssociationLabel(IBioTMLAssociation association, Set<IBioTMLEvent> events) {
+	private BioTMLConstants getAssociationLabel(IBioTMLAssociation<?,?> association, Set<IBioTMLEvent> events) {
 		for(IBioTMLEvent event : events){
 			if(event.getEventType().equals(getEventType()) && event.getAssociation().equals(association))
 				return BioTMLConstants.b;
@@ -210,14 +210,14 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 				if(!getCorpus().getEvents().isEmpty()){
 					BioTMLConstants tokenLabel = getTokenLabelEvent(docID, token, annotation);
 					tokensWithLabels.addBioTMLObjectForModel(token, tokenLabel);
-					tokensWithLabels.addToken(token.getToken());
+					tokensWithLabels.addToken(token);
 				}else{
 					tokensWithLabels.addBioTMLObjectForPrediction(token);
-					tokensWithLabels.addToken(token.getToken());
+					tokensWithLabels.addToken(token);
 				}
 			}else{
 				tokensWithLabels.addBioTMLObjectForPrediction(token);
-				tokensWithLabels.addToken(token.getToken());
+				tokensWithLabels.addToken(token);
 			}
 
 			if(stop)
@@ -239,14 +239,14 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 				if(!getCorpus().getEvents().isEmpty()){
 					BioTMLConstants tokenLabel = getTokenLabelEvent(docID, token, annotation);
 					tokensWithLabels.addBioTMLObjectForModelAnnotationFiltering(token, tokenLabel, isTokeninAnnots);
-					tokensWithLabels.addToken(token.getToken());
+					tokensWithLabels.addToken(token);
 				}else{
 					tokensWithLabels.addBioTMLObjectForPredictionAnnotationFiltering(token, isTokeninAnnots);
-					tokensWithLabels.addToken(token.getToken());
+					tokensWithLabels.addToken(token);
 				}
 			}else{
 				tokensWithLabels.addBioTMLObjectForPredictionAnnotationFiltering(token, isTokeninAnnots);
-				tokensWithLabels.addToken(token.getToken());
+				tokensWithLabels.addToken(token);
 			}
 			if(stop)
 				break;

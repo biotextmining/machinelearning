@@ -1,6 +1,5 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLA
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 
 /**
  * 
@@ -57,20 +57,17 @@ public class MorphologyFeatures implements IBioTMLFeatureGenerator{
 	
 	@Override
 	public Set<String> getREFeatureIds() {
-		// TODO Auto-generated method stub
-		return null;
+		return new TreeSet<String>();
 	}
 
 	@Override
 	public Map<String, String> getREFeatureIdsInfos() {
-		// TODO Auto-generated method stub
-		return null;
+		return new HashMap<>();
 	}
 
 	@Override
 	public Set<String> getRecomendedREFeatureIds() {
-		// TODO Auto-generated method stub
-		return null;
+		return new TreeSet<String>();
 	}
 	
     /**
@@ -93,14 +90,14 @@ public class MorphologyFeatures implements IBioTMLFeatureGenerator{
         return ' ';
     }
 
-	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens,
+	public IBioTMLFeatureColumns<IBioTMLToken> getFeatureColumns(List<IBioTMLToken> tokens,
 			IBioTMLFeatureGeneratorConfigurator configuration)
 			throws BioTMLException {
 		
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getNERFeatureIds(), configuration);
+		IBioTMLFeatureColumns<IBioTMLToken> features = new BioTMLFeatureColumns<>(tokens, getNERFeatureIds(), configuration);
 		
 		for (int i = 0; i < tokens.size(); i++){
-			String token = tokens.get(i);
+			String token = tokens.get(i).getToken();
 			char[] tokenText = token.toCharArray();
 			
 			String typeI = "";
@@ -165,19 +162,19 @@ public class MorphologyFeatures implements IBioTMLFeatureGenerator{
             }
             
             if(!typeI.isEmpty()){
-            	features.addTokenFeature("MORPHOLOGYTYPEI=" + typeI, "MORPHOLOGYTYPEI");
+            	features.addBioTMLObjectFeature("MORPHOLOGYTYPEI=" + typeI, "MORPHOLOGYTYPEI");
             } else{
-            	features.addTokenFeature(new String(), "MORPHOLOGYTYPEI");
+            	features.addBioTMLObjectFeature(new String(), "MORPHOLOGYTYPEI");
             }
             if(!typeII.isEmpty()){
-            	features.addTokenFeature("MORPHOLOGYTYPEII=" + typeII, "MORPHOLOGYTYPEII");
+            	features.addBioTMLObjectFeature("MORPHOLOGYTYPEII=" + typeII, "MORPHOLOGYTYPEII");
             } else{
-            	features.addTokenFeature(new String(), "MORPHOLOGYTYPEII");
+            	features.addBioTMLObjectFeature(new String(), "MORPHOLOGYTYPEII");
             }
             if(!typeIII.isEmpty()){
-            	features.addTokenFeature("MORPHOLOGYTYPEIII=" + typeIII, "MORPHOLOGYTYPEIII");
+            	features.addBioTMLObjectFeature("MORPHOLOGYTYPEIII=" + typeIII, "MORPHOLOGYTYPEIII");
             } else{
-            	features.addTokenFeature(new String(), "MORPHOLOGYTYPEIII");
+            	features.addBioTMLObjectFeature(new String(), "MORPHOLOGYTYPEIII");
             }   
 		}
 
@@ -188,18 +185,15 @@ public class MorphologyFeatures implements IBioTMLFeatureGenerator{
 	public void cleanMemory() {
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, List<IBioTMLAssociation> associations,
+	public IBioTMLFeatureColumns<IBioTMLAssociation> getEventFeatureColumns(List<IBioTMLToken> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		List<String> associationStrings = new ArrayList<>();
-		
-		for(IBioTMLAssociation association : associations){
-			associationStrings.add(association.toString());
-		}
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(associationStrings, getREFeatureIds(), configuration);
-		for(IBioTMLAssociation association : associations){
-			//features
-		}
+
+		IBioTMLFeatureColumns<IBioTMLAssociation> features = new BioTMLFeatureColumns<>(associations, getREFeatureIds(), configuration);
+//		for(IBioTMLAssociation association : associations){
+//			//features
+//		}
 		
 		return features;
 	}

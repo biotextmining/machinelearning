@@ -2,6 +2,8 @@ package com.silicolife.textmining.machinelearning.biotml.core.features.datastruc
 
 import java.util.List;
 
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
+
 /**
  * 
  * Association processor class to associate tokens with the given index. 
@@ -13,17 +15,17 @@ import java.util.List;
 
 public class BioTMLAssociationProcess {
 	
-	private List<String> tokens;
+	private List<IBioTMLToken> tokens;
 	private int startAnnotation;
 	private int endAnnotation;
 
-	public BioTMLAssociationProcess(List<String> tokens, int startAnnotation, int endAnnotation){
+	public BioTMLAssociationProcess(List<IBioTMLToken> tokens, int startAnnotation, int endAnnotation){
 		this.tokens = tokens;
 		this.startAnnotation = startAnnotation;
 		this.endAnnotation = endAnnotation;
 	}
 	
-	public List<String> getTokens(){
+	public List<IBioTMLToken> getTokens(){
 		return tokens;
 	}
 	
