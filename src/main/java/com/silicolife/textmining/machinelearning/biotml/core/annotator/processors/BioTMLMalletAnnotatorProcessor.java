@@ -142,7 +142,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 * 
 	 * Method to add a predicted relation.
 	 * 
-	 * @param relations - Set of all relations ({@link IBioTMLEvent}) predicted to add the relation.
+	 * @param events - Set of all relations ({@link IBioTMLEvent}) predicted to add the relation.
 	 * @param doc - Document in which the relation is present.
 	 * @param sentIndex - Sentence index.
 	 * @param tokenOrAnnotationIndex - Token index.
@@ -154,7 +154,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 * @throws {@link BioTMLException}.
 	 */
 	public Set<IBioTMLEvent> addPredictedRelation(IBioTMLCorpus corpus,
-			Set<IBioTMLEvent> relations, 
+			Set<IBioTMLEvent> events, 
 			IBioTMLDocument doc,
 			int sentIndex,
 			int tokenOrAnnotationIndex,
@@ -173,31 +173,32 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 			try {
 				annotationToAssociate = corpus.getAnnotationFromDocAndOffsets(doc.getID(), token.getStartOffset(), token.getEndOffset());
 			} catch (BioTMLException e) {
-				if(!reMethodology.equals(BioTMLREModelTypes.entitycluegenerateentity.toString())
-						&& !reMethodology.equals(BioTMLREModelTypes.entityentiygenerateentity.toString())
-						&& !reMethodology.equals(BioTMLREModelTypes.entityclueonlyannotationsgenerateentity.toString())
-						&& !reMethodology.equals(BioTMLREModelTypes.entityentiyonlyannotationsgenerateentity.toString())){
-					return relations;
-				}else if(annotationToAssociate == null){
-					annotationToAssociate = new BioTMLAnnotationImpl(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
-				}
-				if(prediction.equals(BioTMLConstants.i.toString())){
-					relations = joinTokenToLastAnnotationAndCorrectRelations(relations, doc, trigger, tokenClass, predictionScore, token, annotationToAssociate);
-				}
+				return events;
+//				if(!reMethodology.equals(BioTMLREModelTypes.entitycluegenerateentity.toString())
+//						&& !reMethodology.equals(BioTMLREModelTypes.entityentiygenerateentity.toString())
+//						&& !reMethodology.equals(BioTMLREModelTypes.entityclueonlyannotationsgenerateentity.toString())
+//						&& !reMethodology.equals(BioTMLREModelTypes.entityentiyonlyannotationsgenerateentity.toString())){
+//					return events;
+//				}else if(annotationToAssociate == null){
+//					annotationToAssociate = new BioTMLAnnotationImpl(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
+//				}
+//				if(prediction.equals(BioTMLConstants.i.toString())){
+//					events = joinTokenToLastAnnotationAndCorrectEvents(events, doc, trigger, tokenClass, predictionScore, token, annotationToAssociate);
+//				}
 			}
 			if(prediction.equals(BioTMLConstants.b.toString())){
-				relations = addRelation(relations, annotationToAssociate, trigger, tokenClass, predictionScore);
+				events = addEvent(events, annotationToAssociate, trigger, tokenClass, predictionScore);
 			}
 		}else{
 			Set<IBioTMLAnnotation> annotationsToAssociate = corpus.getAnnotationsFromSentenceInDocumentIdAndTokenIndex(doc.getID(), sentence, tokenOrAnnotationIndex);
 			if(prediction.equals(BioTMLConstants.b.toString())){
 				for(IBioTMLAnnotation annotationToAssociate : annotationsToAssociate){
-					relations = addRelation(relations, annotationToAssociate, trigger, tokenClass, predictionScore);
+					events = addEvent(events, annotationToAssociate, trigger, tokenClass, predictionScore);
 				}
 			}
 		}
 
-		return relations;
+		return events;
 	}
 
 	/**
@@ -206,7 +207,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 * All relations that contained the found annotation are updated with the new annotation. 
 	 * If the anontation is not found, a new annotation and a new relation are created.
 	 * 
-	 * @param relations
+	 * @param events
 	 * @param doc
 	 * @param firstAnnotation
 	 * @param tokenClass
@@ -216,10 +217,10 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 * @return
 	 * @throws BioTMLException
 	 */
-	private Set<IBioTMLEvent> joinTokenToLastAnnotationAndCorrectRelations(Set<IBioTMLEvent> relations,
+	private Set<IBioTMLEvent> joinTokenToLastAnnotationAndCorrectEvents(Set<IBioTMLEvent> events,
 			IBioTMLDocument doc, IBioTMLAnnotation firstAnnotation, String tokenClass, double predictionScore,
 			IBioTMLToken token, IBioTMLAnnotation annotation) throws BioTMLException {
-		Map<IBioTMLAnnotation, Set<IBioTMLEvent>> annotationsToRelations = generateMapOfAnnotationsFromRelations(relations);
+		Map<IBioTMLAnnotation, Set<IBioTMLEvent>> annotationsToRelations = generateMapOfAnnotationsFromEvents(events);
 		IBioTMLAnnotation prevAnnotation = null;
 		Set<IBioTMLAnnotation> annots = annotationsToRelations.keySet();
 		Iterator<IBioTMLAnnotation> itAnn = annots.iterator();
@@ -231,12 +232,12 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 			}
 		}
 		if(foundPrevTokenInRelation && prevAnnotation != null){
-			correctRelationsWithPreviousAnnotation(relations, doc, tokenClass, predictionScore, token, annotationsToRelations, prevAnnotation);
+			correctRelationsWithPreviousAnnotation(events, doc, tokenClass, predictionScore, token, annotationsToRelations, prevAnnotation);
 		}else{
 			annotation = new BioTMLAnnotationImpl(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
-			relations = addRelation(relations, annotation, firstAnnotation, tokenClass, predictionScore);
+			events = addEvent(events, annotation, firstAnnotation, tokenClass, predictionScore);
 		}
-		return relations;
+		return events;
 	}
 
 	/**
@@ -246,7 +247,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 * @param relations
 	 * @return
 	 */
-	private Map<IBioTMLAnnotation, Set<IBioTMLEvent>> generateMapOfAnnotationsFromRelations(Set<IBioTMLEvent> relations) {
+	private Map<IBioTMLAnnotation, Set<IBioTMLEvent>> generateMapOfAnnotationsFromEvents(Set<IBioTMLEvent> relations) {
 		Map<IBioTMLAnnotation, Set<IBioTMLEvent>> annotationsToRelations = new HashMap<>();
 		for(IBioTMLEvent relation : relations){
 			if(relation.getTrigger() != null){
@@ -274,7 +275,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 * This method removes relations that contains the prevAnnotation annotation and generates new ones with an annotation that contains the tokens of
 	 * prevAnnotation and the given token to this method.
 	 * 
-	 * @param relations - Set of all relations ({@link IBioTMLEvent}) predicted to add the relation.
+	 * @param events - Set of all events ({@link IBioTMLEvent}) predicted to add the event.
 	 * @param doc
 	 * @param tokenClass
 	 * @param predictionScore
@@ -283,25 +284,25 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 * @param prevAnnotation
 	 * @throws BioTMLException
 	 */
-	private void correctRelationsWithPreviousAnnotation(Set<IBioTMLEvent> relations, IBioTMLDocument doc,
+	private void correctRelationsWithPreviousAnnotation(Set<IBioTMLEvent> events, IBioTMLDocument doc,
 			String tokenClass, double predictionScore, IBioTMLToken token,
 			Map<IBioTMLAnnotation, Set<IBioTMLEvent>> annotationsToRelations,
 			IBioTMLAnnotation prevAnnotation) throws BioTMLException {
 
 		IBioTMLAnnotation annotation;
-		Set<IBioTMLEvent> relationsToFix = annotationsToRelations.get(prevAnnotation);
+		Set<IBioTMLEvent> eventsToFix = annotationsToRelations.get(prevAnnotation);
 		annotation = new BioTMLAnnotationImpl(doc.getID(), tokenClass, prevAnnotation.getStartOffset(), token.getEndOffset(), predictionScore);
-		relations.removeAll(relationsToFix);
+		events.removeAll(eventsToFix);
 
-		for(IBioTMLEvent relation : relationsToFix){
-			IBioTMLAnnotation trigger = relation.getTrigger();
-			IBioTMLAnnotation entity = relation.getTrigger();
-			if(relation.getTrigger().equals(prevAnnotation))
+		for(IBioTMLEvent event : eventsToFix){
+			IBioTMLAnnotation trigger = event.getTrigger();
+			IBioTMLAnnotation entity = event.getEntity();
+			if(event.getTrigger().equals(prevAnnotation))
 				trigger = annotation;
 			else
 				entity = annotation;
 			
-			relations.add(new BioTMLEventImpl(new BioTMLAssociationImpl<>(trigger, entity), relation.getEventType(), relation.getScore()));
+			events.add(new BioTMLEventImpl(new BioTMLAssociationImpl<>(trigger, entity), event.getEventType(), event.getScore()));
 		}
 	}
 
@@ -318,7 +319,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 * @return Set of all relations ({@link IBioTMLEvent}) predicted.
 	 * @throws BioTMLException
 	 */
-	private Set<IBioTMLEvent> addRelation(Set<IBioTMLEvent> events, IBioTMLAnnotation entity, IBioTMLAnnotation trigger, String eventType, double score) throws BioTMLException{
+	private Set<IBioTMLEvent> addEvent(Set<IBioTMLEvent> events, IBioTMLAnnotation entity, IBioTMLAnnotation trigger, String eventType, double score) throws BioTMLException{
 		events.add(new BioTMLEventImpl(new BioTMLAssociationImpl<>(trigger, entity), eventType, score));
 		return events;
 	}

@@ -1,5 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,20 +33,38 @@ public class PorterStemmerFeature implements IBioTMLFeatureGenerator{
 	public  PorterStemmerFeature(){
 	}
 
-	public Set<String> getUIDs() {
+	public Set<String> getNERFeatureIds() {
 		Set<String> uids = new TreeSet<String>();
 		uids.add("PORTERSTEM");
 		return uids;
 	}
 	
-	public Set<String> getRecomendedUIDs(){
-		return getUIDs();
+	public Set<String> getRecomendedNERFeatureIds(){
+		return getNERFeatureIds();
 	}
 	
-	public Map<String, String> getUIDInfos() {
+	public Map<String, String> getNERFeatureIdsInfos() {
 		Map<String, String> infoMap = new HashMap<>();
 		infoMap.put("PORTERSTEM", "The Porter Stemmer system is used to create a feature that stores the stem of each token.");
 		return infoMap;
+	}
+	
+	@Override
+	public Set<String> getREFeatureIds() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getREFeatureIdsInfos() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<String> getRecomendedREFeatureIds() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens,
@@ -56,7 +75,7 @@ public class PorterStemmerFeature implements IBioTMLFeatureGenerator{
 			throw new BioTMLException(27);
 		}
 	
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getUIDs(), configuration);
+		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getNERFeatureIds(), configuration);
 
 		for (int i = 0; i < tokens.size(); i++){
 			String tokenString = tokens.get(i);
@@ -77,10 +96,19 @@ public class PorterStemmerFeature implements IBioTMLFeatureGenerator{
 	}
 
 	@Override
-	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, IBioTMLAssociation association,
+	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> associationStrings = new ArrayList<>();
+		
+		for(IBioTMLAssociation association : associations){
+			associationStrings.add(association.toString());
+		}
+		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(associationStrings, getREFeatureIds(), configuration);
+		for(IBioTMLAssociation association : associations){
+			//features
+		}
+		
+		return features;
 	}
 
 }

@@ -63,7 +63,7 @@ public class CreateBioTMLModelFromNERSchemaTest {
 	 */
 	private IBioTMLFeatureGeneratorConfigurator getSelectedFeatures() throws BioTMLException{
 		BioTMLFeaturesManager featuresManager = BioTMLFeaturesManager.getInstance();
-		Set<String> features = featuresManager.getRecomendedDefaultFeatures();
+		Set<String> features = featuresManager.getNERRecomendedFeatures();
 		return new BioTMLFeatureGeneratorConfiguratorImpl(features);
 	}
 	

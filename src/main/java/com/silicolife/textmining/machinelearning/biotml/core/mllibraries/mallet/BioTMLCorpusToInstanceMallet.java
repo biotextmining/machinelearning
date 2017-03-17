@@ -76,7 +76,7 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 			instancesCreator.insertInstancesIntoExecutor(executor, configuration, instances);
 		}
 		if(getIEAnnotationType().equals(BioTMLConstants.re.toString())){
-			instancesCreator = new BioTMLCorpusToREInstancesThreadCreator(getCorpusToConvert(), getREMehtodology());
+			instancesCreator = new BioTMLCorpusToREInstancesThreadCreator(getCorpusToConvert(), getREMehtodology(), getConsideredAnnotationType());
 			instancesCreator.insertInstancesIntoExecutor(executor, configuration, instances);
 		}
 		finishThreadsFromExecutor();

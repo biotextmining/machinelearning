@@ -33,7 +33,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 	public  NLP4JFeatures(){
 	}
 
-	public Set<String> getUIDs() {
+	public Set<String> getNERFeatureIds() {
 		Set<String> uids = new TreeSet<String>();
 		uids.add("NLP4JLEMMA");
 		uids.add("NLP4JPOS");
@@ -46,7 +46,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		return uids;
 	}
 
-	public Set<String> getRecomendedUIDs(){
+	public Set<String> getRecomendedNERFeatureIds(){
 		Set<String> uids = new TreeSet<String>();
 		uids.add("NLP4JLEMMA");
 		uids.add("NLP4JPOS");
@@ -55,7 +55,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 	}
 
 	@Override
-	public Map<String, String> getUIDInfos() {
+	public Map<String, String> getNERFeatureIdsInfos() {
 		Map<String, String> infoMap = new HashMap<>();
 		infoMap.put("NLP4JLEMMA", "The NLP4J lemmatization system is used to create a feature that stores the lemma of each token.");
 		infoMap.put("NLP4JPOS", "The NLP4J part-of-speech system is used to create a feature that stores the POS of each token.");
@@ -66,6 +66,24 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		infoMap.put("WINDOWNLP4JPOS", "An adaptation of windows from mallet is used to create a 'Sliding window' for NLP4J part-of-speech features.");
 		return infoMap;
 	}
+	
+	@Override
+	public Set<String> getREFeatureIds() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getREFeatureIdsInfos() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<String> getRecomendedREFeatureIds() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
 
@@ -73,7 +91,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 			throw new BioTMLException(27);
 		}
 
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getUIDs(), configuration);
+		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getNERFeatureIds(), configuration);
 
 
 		if(configuration.hasFeatureUID("NLP4JLEMMA")){
@@ -145,10 +163,19 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 	}
 
 	@Override
-	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, IBioTMLAssociation association,
+	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> associationStrings = new ArrayList<>();
+		
+		for(IBioTMLAssociation association : associations){
+			associationStrings.add(association.toString());
+		}
+		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(associationStrings, getREFeatureIds(), configuration);
+		for(IBioTMLAssociation association : associations){
+			//features
+		}
+		
+		return features;
 	}
 
 }

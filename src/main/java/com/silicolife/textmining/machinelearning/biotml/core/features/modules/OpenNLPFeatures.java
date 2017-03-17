@@ -1,5 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class OpenNLPFeatures implements IBioTMLFeatureGenerator{
 	public  OpenNLPFeatures(){
 	}
 
-	public Set<String> getUIDs() {
+	public Set<String> getNERFeatureIds() {
 		Set<String> uids = new TreeSet<String>();
 		uids.add("OPENNLPPOS");
 		uids.add("OPENNLPCHUNK");
@@ -44,14 +45,14 @@ public class OpenNLPFeatures implements IBioTMLFeatureGenerator{
 		return uids;
 	}
 	
-	public Set<String> getRecomendedUIDs() {
+	public Set<String> getRecomendedNERFeatureIds() {
 		Set<String> uids = new TreeSet<String>();
 		uids.add("OPENNLPPOS");
 		uids.add("OPENNLPCHUNK");
 		return uids;
 	}
 	
-	public Map<String, String> getUIDInfos() {
+	public Map<String, String> getNERFeatureIdsInfos() {
 		Map<String, String> infoMap = new HashMap<>();
 		infoMap.put("OPENNLPPOS", "The OpenNLP part-of-speech system is used to create a feature that stores the POS of each token.");
 		infoMap.put("OPENNLPCHUNK", "The OpenNLP chunking system is used to create a feature that stores the chunk of each token.");
@@ -62,10 +63,28 @@ public class OpenNLPFeatures implements IBioTMLFeatureGenerator{
 		infoMap.put("WINDOWOPENNLPPOS", "An adaptation of windows from mallet is used to create 'Sliding window' for OpenNLP part-of-speech features.");
 		return infoMap;
 	}
+	
+	@Override
+	public Set<String> getREFeatureIds() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getREFeatureIdsInfos() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<String> getRecomendedREFeatureIds() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
 
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getUIDs(), configuration);
+		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getNERFeatureIds(), configuration);
 
 		String[] sentence = tokens.toArray(new String[0]);
 		String[] posTags = {new String()};
@@ -140,10 +159,19 @@ public class OpenNLPFeatures implements IBioTMLFeatureGenerator{
 	}
 
 	@Override
-	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, IBioTMLAssociation association,
+	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> associationStrings = new ArrayList<>();
+		
+		for(IBioTMLAssociation association : associations){
+			associationStrings.add(association.toString());
+		}
+		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(associationStrings, getREFeatureIds(), configuration);
+		for(IBioTMLAssociation association : associations){
+			//features
+		}
+		
+		return features;
 	}
 
 }

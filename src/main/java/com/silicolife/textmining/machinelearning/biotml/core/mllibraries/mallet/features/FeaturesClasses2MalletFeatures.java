@@ -93,8 +93,8 @@ public class FeaturesClasses2MalletFeatures extends Pipe{
     	for(String classUID : getConfiguration().getFeaturesUIDs()){
     		if(!visitedUID.contains(classUID)){
     			try {
-    				IBioTMLFeatureGenerator classProcesser = BioTMLFeaturesManager.getInstance().getClass(classUID);
-    				visitedUID.addAll(classProcesser.getUIDs());
+    				IBioTMLFeatureGenerator classProcesser = BioTMLFeaturesManager.getInstance().getNERClass(classUID);
+    				visitedUID.addAll(classProcesser.getNERFeatureIds());
     				IBioTMLFeatureColumns columns = classProcesser.getFeatureColumns(tokensStrings,  getConfiguration());
     				processColumns(columns, instanceData);
     			} catch (BioTMLException exc) {

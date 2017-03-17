@@ -1,5 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class MorphologyFeatures implements IBioTMLFeatureGenerator{
 	public  MorphologyFeatures(){
 	}
 
-	public Set<String> getUIDs() {
+	public Set<String> getNERFeatureIds() {
 		Set<String> uids = new TreeSet<String>();
 		uids.add("MORPHOLOGYTYPEI");
 		uids.add("MORPHOLOGYTYPEII");
@@ -42,16 +43,34 @@ public class MorphologyFeatures implements IBioTMLFeatureGenerator{
 		return uids;
 	}
 	
-	public Set<String> getRecomendedUIDs(){
-		return getUIDs();
+	public Set<String> getRecomendedNERFeatureIds(){
+		return getNERFeatureIds();
 	}
 	
-	public Map<String, String> getUIDInfos() {
+	public Map<String, String> getNERFeatureIdsInfos() {
 		Map<String, String> infoMap = new HashMap<>();
 		infoMap.put("MORPHOLOGYTYPEI", "Uses word shape to replace the digits in the token into '*'.");
 		infoMap.put("MORPHOLOGYTYPEII", "Uses word shape to replace the digits in the token into '*', letters to 'a' and non letters to '#'.");
 		infoMap.put("MORPHOLOGYTYPEIII", "Uses word shape to replace the digits in the token into '*', uppercase letters to 'A', lowercase letters to 'a' and non letters to '#'.");
 		return infoMap;
+	}
+	
+	@Override
+	public Set<String> getREFeatureIds() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getREFeatureIdsInfos() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<String> getRecomendedREFeatureIds() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
     /**
@@ -78,7 +97,7 @@ public class MorphologyFeatures implements IBioTMLFeatureGenerator{
 			IBioTMLFeatureGeneratorConfigurator configuration)
 			throws BioTMLException {
 		
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getUIDs(), configuration);
+		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getNERFeatureIds(), configuration);
 		
 		for (int i = 0; i < tokens.size(); i++){
 			String token = tokens.get(i);
@@ -170,10 +189,19 @@ public class MorphologyFeatures implements IBioTMLFeatureGenerator{
 	}
 
 	@Override
-	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, IBioTMLAssociation association,
+	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> associationStrings = new ArrayList<>();
+		
+		for(IBioTMLAssociation association : associations){
+			associationStrings.add(association.toString());
+		}
+		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(associationStrings, getREFeatureIds(), configuration);
+		for(IBioTMLAssociation association : associations){
+			//features
+		}
+		
+		return features;
 	}
 
 }

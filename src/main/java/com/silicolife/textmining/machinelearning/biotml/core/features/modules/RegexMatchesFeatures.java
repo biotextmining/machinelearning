@@ -1,5 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class RegexMatchesFeatures implements IBioTMLFeatureGenerator{
 	}
 	
 	
-	public Map<String, String> getUIDInfos() {
+	public Map<String, String> getNERFeatureIdsInfos() {
 		Map<String, String> infoMap = new HashMap<>();
 		infoMap.put("INITCAPS", "Boolean feature of regular expression used to verify if the token initializes with a upper case.");
 		infoMap.put("ENDCAPS", "Boolean feature of regular expression used to verify if the token ends with a upper case.");
@@ -114,8 +115,8 @@ public class RegexMatchesFeatures implements IBioTMLFeatureGenerator{
 		return uids;
 	}
 	
-	public Set<String> getRecomendedUIDs(){
-		return getUIDs();
+	public Set<String> getRecomendedNERFeatureIds(){
+		return getNERFeatureIds();
 	}
 
 	private Map<String, Pattern> initListPatternsByUIDFeatures(){
@@ -153,8 +154,26 @@ public class RegexMatchesFeatures implements IBioTMLFeatureGenerator{
 		return listPatternsByUIDFeatures;
 	}
 
-	public Set<String> getUIDs(){
+	public Set<String> getNERFeatureIds(){
 		return uIDs;
+	}
+	
+	@Override
+	public Set<String> getREFeatureIds() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getREFeatureIdsInfos() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<String> getRecomendedREFeatureIds() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private Map<String, Pattern> getListPatternsByUIDFeatures(){
@@ -189,11 +208,11 @@ public class RegexMatchesFeatures implements IBioTMLFeatureGenerator{
 			throw new BioTMLException(27);
 		}
 		
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getUIDs(), configuration);
+		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getNERFeatureIds(), configuration);
 
 		for (int i = 0; i < tokens.size(); i++){
 			String token = tokens.get(i);
-			for(String uID : getUIDs()){
+			for(String uID : getNERFeatureIds()){
 				if(configuration.hasFeatureUID(uID)){
 					String result = regexMatches(token, uID, getListPatternsByUIDFeatures().get(uID));
 					features.addTokenFeature(result, uID);
@@ -209,10 +228,19 @@ public class RegexMatchesFeatures implements IBioTMLFeatureGenerator{
 
 
 	@Override
-	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, IBioTMLAssociation association,
+	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> associationStrings = new ArrayList<>();
+		
+		for(IBioTMLAssociation association : associations){
+			associationStrings.add(association.toString());
+		}
+		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(associationStrings, getREFeatureIds(), configuration);
+		for(IBioTMLAssociation association : associations){
+			//features
+		}
+		
+		return features;
 	}
 
 }

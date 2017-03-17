@@ -1,5 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,19 +43,37 @@ public class TokenTextCharNGramsFeatures implements IBioTMLFeatureGenerator{
 		return uids;
 	}
 	
-	public Set<String> getUIDs() {
+	public Set<String> getNERFeatureIds() {
 		return uIDs;
 	}
 	
-	public Set<String> getRecomendedUIDs(){
+	public Set<String> getRecomendedNERFeatureIds(){
 		return new TreeSet<String>();
 	}
 	
 	
-	public Map<String, String> getUIDInfos() {
+	public Map<String, String> getNERFeatureIdsInfos() {
 		Map<String, String> infoMap = new HashMap<>();
 		infoMap.put("CHARNGRAM", "A token N gram is used as feature. (N=2,3 and 4).");
 		return infoMap;
+	}
+	
+	@Override
+	public Set<String> getREFeatureIds() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getREFeatureIdsInfos() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<String> getRecomendedREFeatureIds() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	private String tokenTextCharNGrams(String token, String featureName, Integer gramLength){
@@ -80,7 +99,7 @@ public class TokenTextCharNGramsFeatures implements IBioTMLFeatureGenerator{
 			throw new BioTMLException(27);
 		}
 
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getUIDs(), configuration);
+		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getNERFeatureIds(), configuration);
 		
 		for (int i = 0; i < tokens.size(); i++){
 			String token = tokens.get(i);
@@ -99,10 +118,19 @@ public class TokenTextCharNGramsFeatures implements IBioTMLFeatureGenerator{
 	}
 
 	@Override
-	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, IBioTMLAssociation association,
+	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> associationStrings = new ArrayList<>();
+		
+		for(IBioTMLAssociation association : associations){
+			associationStrings.add(association.toString());
+		}
+		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(associationStrings, getREFeatureIds(), configuration);
+		for(IBioTMLAssociation association : associations){
+			//features
+		}
+		
+		return features;
 	}
 
 }

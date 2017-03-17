@@ -39,7 +39,7 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 		for(IBioTMLDocument document : getCorpus().getDocuments()){
 			int sentID = 0;
 			for(IBioTMLSentence sentence : document.getSentences()){
-				BioTMLObjectWithFeaturesAndLabels<String> tokensWithLabels = sentenceToExportForNER(document.getID(), sentence);
+				BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> tokensWithLabels = sentenceToExportForNER(document.getID(), sentence);
 				if(!tokensWithLabels.getBioTMLObjects().isEmpty()){
 					BioTMLDocSentIDs ids = new BioTMLDocSentIDs(document.getID(), sentID);
 					executor.execute(new CorpusSentenceAndFeaturesToInstanceThread(ids, tokensWithLabels, instances, configuration));
@@ -58,18 +58,21 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 		this.stop = true;
 	}
 	
-	private BioTMLObjectWithFeaturesAndLabels<String> sentenceToExportForNER(long docID, IBioTMLSentence sentence) throws BioTMLException{
-		BioTMLObjectWithFeaturesAndLabels<String> tokensWithLabels = new BioTMLObjectWithFeaturesAndLabels<>(String.class);
+	private BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> sentenceToExportForNER(long docID, IBioTMLSentence sentence) throws BioTMLException{
+		BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> tokensWithLabels = new BioTMLObjectWithFeaturesAndLabels<>(IBioTMLToken.class);
 		for(IBioTMLToken token : sentence.getTokens()){
 			if(getCorpus().getAnnotations()!= null){
 				if(!getCorpus().getAnnotations().isEmpty()){
 					BioTMLConstants tokenLabel = getTokenLabel(docID, token);
-					tokensWithLabels.addBioTMLObjectForModel(token.getToken(), tokenLabel);
+					tokensWithLabels.addBioTMLObjectForModel(token, tokenLabel);
+					tokensWithLabels.addToken(token.getToken());
 				}else{
-					tokensWithLabels.addBioTMLObjectForPrediction(token.getToken());
+					tokensWithLabels.addBioTMLObjectForPrediction(token);
+					tokensWithLabels.addToken(token.getToken());
 				}
 			}else{
-				tokensWithLabels.addBioTMLObjectForPrediction(token.getToken());
+				tokensWithLabels.addBioTMLObjectForPrediction(token);
+				tokensWithLabels.addToken(token.getToken());
 			}
 			if(stop)
 				break;

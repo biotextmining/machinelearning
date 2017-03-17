@@ -13,6 +13,7 @@ public class BioTMLObjectWithFeaturesAndLabels<O> {
 	private List<BioTMLConstants> labels;
 	private List<BioTMLConstants> filterConstants;
 	private List<List<String>> features;
+	private List<String> tokens;
 	
 	
 	public BioTMLObjectWithFeaturesAndLabels(Class<O> type){
@@ -21,6 +22,7 @@ public class BioTMLObjectWithFeaturesAndLabels<O> {
 		this.labels = new ArrayList<>();
 		this.features = new ArrayList<>();
 		this.filterConstants = new ArrayList<>();
+		this.tokens = new ArrayList<>();
 	}
 	
 	public Class<O> getBioTMLObjectClass(){
@@ -41,6 +43,10 @@ public class BioTMLObjectWithFeaturesAndLabels<O> {
 
 	public List<List<String>> getFeatures() {
 		return features;
+	}
+	
+	public List<String> getTokens(){
+		return tokens;
 	}
 
 	public void addFeaturesToBioTMLObjectIndex(int objIndex, List<String> features) throws BioTMLException{
@@ -71,6 +77,10 @@ public class BioTMLObjectWithFeaturesAndLabels<O> {
 	public void addBioTMLObjectForModelAnnotationFiltering(O obj, BioTMLConstants label, BioTMLConstants filterConstant){
 		this.addBioTMLObjectForPredictionAnnotationFiltering(obj, filterConstant);
 		getLabels().add(label);
+	}
+	
+	public void addToken(String token){
+		getTokens().add(token);
 	}
 
 }

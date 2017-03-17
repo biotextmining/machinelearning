@@ -1,5 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,8 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 	public  CounterFeatures(){
 	}
 
-	public Set<String> getUIDs() {
+	@Override
+	public Set<String> getNERFeatureIds() {
 		Set<String> uids = new TreeSet<String>();
 		uids.add("WORD");
 		uids.add("NUMCAPS");
@@ -41,7 +43,8 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 		return uids;
 	}
 	
-	public Set<String> getRecomendedUIDs(){
+	@Override
+	public Set<String> getRecomendedNERFeatureIds(){
 		Set<String> uids = new TreeSet<String>();
 		uids.add("WORD");
 		uids.add("NUMCAPS");
@@ -50,7 +53,8 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 		return uids;
 	}
 	
-	public Map<String, String> getUIDInfos() {
+	@Override
+	public Map<String, String> getNERFeatureIdsInfos() {
 		Map<String, String> infoMap = new HashMap<>();
 		infoMap.put("WORD", "Uses the token as a feature.");
 		infoMap.put("NUMCAPS", "Counts the number of uppercase letters present in the token.");
@@ -59,12 +63,30 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 		infoMap.put("LENGTHGROUP", "Groups the token by token length. (Size 1, 2, 3-5 or 6+.");
 		return infoMap;
 	}
+	
+	@Override
+	public Set<String> getREFeatureIds() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getREFeatureIdsInfos() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<String> getRecomendedREFeatureIds() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	public IBioTMLFeatureColumns getFeatureColumns(List<String> tokens,
 			IBioTMLFeatureGeneratorConfigurator configuration)
 			throws BioTMLException {
 
-		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getUIDs(), configuration);
+		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(tokens, getNERFeatureIds(), configuration);
 		
 
 		for (int i = 0; i < tokens.size(); i++){
@@ -112,10 +134,19 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 	}
 
 	@Override
-	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, IBioTMLAssociation association,
+	public IBioTMLFeatureColumns getEventFeatureColumns(List<String> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> associationStrings = new ArrayList<>();
+		
+		for(IBioTMLAssociation association : associations){
+			associationStrings.add(association.toString());
+		}
+		IBioTMLFeatureColumns features = new BioTMLFeatureColumns(associationStrings, getREFeatureIds(), configuration);
+		for(IBioTMLAssociation association : associations){
+			//features
+		}
+		
+		return features;
 	}
 
 }
