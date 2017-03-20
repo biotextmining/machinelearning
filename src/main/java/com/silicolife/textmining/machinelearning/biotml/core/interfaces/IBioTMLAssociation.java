@@ -1,6 +1,8 @@
 package com.silicolife.textmining.machinelearning.biotml.core.interfaces;
 
-public interface IBioTMLAssociation<O,T> {
+import java.io.Serializable;
+
+public interface IBioTMLAssociation<O,T> extends Serializable{
 	
 	public O getEntryOne();
 	

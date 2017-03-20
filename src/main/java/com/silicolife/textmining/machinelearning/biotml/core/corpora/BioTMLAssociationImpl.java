@@ -4,6 +4,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLA
 
 public class BioTMLAssociationImpl<O,T> implements IBioTMLAssociation<O,T>{
 	
+	private static final long serialVersionUID = 1L;
 	private O entryOne;
 	private T entryTwo;
 
