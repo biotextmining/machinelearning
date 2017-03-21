@@ -146,6 +146,7 @@ public class BioTMLConversionUtils {
 					sb.append(" ");
 			}
 			sb.append(token.getToken());
+			endOffset = token.getEndOffset();
 		}
 
 		return sb.toString();

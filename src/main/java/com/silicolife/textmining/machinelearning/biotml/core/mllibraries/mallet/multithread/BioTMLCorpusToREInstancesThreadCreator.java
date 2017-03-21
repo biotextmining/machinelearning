@@ -73,6 +73,7 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		}
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private void generateInstanceForREEvents(ExecutorService executor,
 			IBioTMLFeatureGeneratorConfigurator configuration, InstanceListExtended instances, long docID, int sentID,
 			IBioTMLSentence sentence, Set<IBioTMLAnnotation> annotations) {
@@ -90,6 +91,7 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		
 	}
 
+	@SuppressWarnings("rawtypes")
 	private BioTMLObjectWithFeaturesAndLabels<IBioTMLAssociation> fillAssociationsWithLabels(long docID,
 			IBioTMLSentence sentence, Set<IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation>> associations) {
 		Set<IBioTMLEvent> events = getCorpus().getDocAnnotationEvents(docID);
@@ -258,7 +260,7 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		Set<IBioTMLEvent> docEvents = getCorpus().getDocAnnotationEvents(docID);
 		if( !docEvents.isEmpty()){
 			for(IBioTMLEvent event : docEvents){
-				if(event.findAnnotationInEvent(annotation)){
+				if(event.getEventType().equals(getEventType()) && event.findAnnotationInEvent(annotation)){
 					try {
 						IBioTMLAnnotation tokenBelongsToAnAnnotation = event.getAnnotationInEventByOffsets(token.getStartOffset(), token.getEndOffset());
 						if(!tokenBelongsToAnAnnotation.getAnnotType().equals(BioTMLConstants.trigger.toString())

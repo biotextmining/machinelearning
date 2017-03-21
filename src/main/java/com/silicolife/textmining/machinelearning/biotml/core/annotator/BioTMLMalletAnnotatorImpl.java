@@ -67,7 +67,7 @@ public class BioTMLMalletAnnotatorImpl implements IBioTMLAnnotator{
 	}
 
 	private void generateNewAnnotationsOrEvents(IBioTMLModel model, int threads, List<IBioTMLAnnotation> annotations,
-			List<IBioTMLEvent> relations) throws BioTMLException {
+			List<IBioTMLEvent> events) throws BioTMLException {
 		
 		if(model.getModelConfiguration().getIEType().equals(BioTMLConstants.ner.toString()))
 		{
@@ -76,8 +76,8 @@ public class BioTMLMalletAnnotatorImpl implements IBioTMLAnnotator{
 		}
 		else if(model.getModelConfiguration().getIEType().equals(BioTMLConstants.re.toString()))
 		{
-			Set<IBioTMLEvent> newRelations = executeREAnnotation(model, threads);
-			relations.addAll(newRelations);
+			Set<IBioTMLEvent> newEvents = executeREAnnotation(model, threads);
+			events.addAll(newEvents);
 		}
 		
 	}

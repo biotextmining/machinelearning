@@ -70,7 +70,7 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 	@Override
 	public Set<String> getREFeatureIds() {
 		Set<String> uids = new TreeSet<String>();
-		uids.add("WORDPAIRS");
+		uids.add("WORD");
 		uids.add("COUNTTOKENSBETWEEN");
 		uids.add("COUNTTOKENSOUSIDE");
 		uids.add("POSITIONSINSENTENCE");
@@ -155,7 +155,7 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 				IBioTMLAnnotation annotationOne = (IBioTMLAnnotation) association.getEntryOne();
 				IBioTMLAnnotation annotationTwo = (IBioTMLAnnotation) association.getEntryTwo();
 				
-				features.addBioTMLObjectFeature("POSITIONSINSENTENCE="+getTokensAssociated(annotationOne, annotationTwo, tokens), "POSITIONSINSENTENCE");
+				features.addBioTMLObjectFeature("WORD="+getTokensAssociated(annotationOne, annotationTwo, tokens), "WORD");
 				
 				int countTokensBetween = countTokensBetween(annotationOne, annotationTwo, tokens);
 				if(countTokensBetween>0)

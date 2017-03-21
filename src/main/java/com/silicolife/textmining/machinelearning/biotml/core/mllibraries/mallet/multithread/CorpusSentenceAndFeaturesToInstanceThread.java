@@ -84,7 +84,7 @@ public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 			if(!visitedUID.contains(classUID)){
 				try {
 					List<IBioTMLToken> tokens = getBioTMLObjectWithFeaturesAndLabels().getTokens();
-					if(getBioTMLObjectWithFeaturesAndLabels().getBioTMLObjectClass().isInstance(IBioTMLToken.class)){
+					if(getBioTMLObjectWithFeaturesAndLabels().getBioTMLObjectClass().isAssignableFrom(IBioTMLToken.class)){
 						IBioTMLFeatureGenerator classProcesser = BioTMLFeaturesManager.getInstance().getNERClass(classUID);
 						visitedUID.addAll(classProcesser.getNERFeatureIds());
 						if(getDocIDandSentIdx().getAnnotTokenRelationStartIndex() != -1 && getDocIDandSentIdx().getAnnotTokenRelationEndIndex() != -1){
@@ -95,7 +95,7 @@ public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 						}else{
 							allColumns.add(classProcesser.getFeatureColumns(getBioTMLObjectWithFeaturesAndLabels().getTokens(),  getConfiguration()));
 						}
-					}else if(getBioTMLObjectWithFeaturesAndLabels().getBioTMLObjectClass().isInstance(IBioTMLAssociation.class)){
+					}else if(getBioTMLObjectWithFeaturesAndLabels().getBioTMLObjectClass().isAssignableFrom(IBioTMLAssociation.class)){
 						IBioTMLFeatureGenerator classProcesser = BioTMLFeaturesManager.getInstance().getREClass(classUID);
 						visitedUID.addAll(classProcesser.getREFeatureIds());
 						List<IBioTMLAssociation> associations = (List<IBioTMLAssociation>) getBioTMLObjectWithFeaturesAndLabels().getBioTMLObjects();

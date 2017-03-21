@@ -319,11 +319,13 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 * @return Set of all relations ({@link IBioTMLEvent}) predicted.
 	 * @throws BioTMLException
 	 */
-	private Set<IBioTMLEvent> addEvent(Set<IBioTMLEvent> events, IBioTMLAnnotation entity, IBioTMLAnnotation trigger, String eventType, double score) throws BioTMLException{
-		events.add(new BioTMLEventImpl(new BioTMLAssociationImpl<>(trigger, entity), eventType, score));
-		return events;
+	@SuppressWarnings("rawtypes")
+	private Set<IBioTMLEvent> addEvent(Set<IBioTMLEvent> events, IBioTMLAnnotation entity, IBioTMLAnnotation trigger, String eventClass, double score) throws BioTMLException{
+		IBioTMLAssociation association = new BioTMLAssociationImpl<>(trigger, entity);
+		return addEvent(events, association, eventClass, score);
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Set<IBioTMLEvent> addEvent(Set<IBioTMLEvent> events, IBioTMLAssociation association, String eventClass, double score){
 		events.add(new BioTMLEventImpl(association, eventClass, score));
 		return events;
