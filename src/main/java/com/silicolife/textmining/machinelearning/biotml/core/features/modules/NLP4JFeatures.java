@@ -2,18 +2,22 @@ package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLOffsetsPairImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLFeatureColumns;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLOffsetsPair;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j.BioTMLNLP4J;
 
@@ -71,20 +75,26 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 	@Override
 	public Set<String> getREFeatureIds() {
 		Set<String> uids = new TreeSet<String>();
-//		uids.add("NLP4JLEMMA");
-//		uids.add("NLP4JPOS");
-//		
+		uids.add("NLP4JLEMMA");
+		uids.add("NLP4JPOS");
+		uids.add("BETWEENCONTAINSNOT");
+		uids.add("BETWEENVERB");
 		return uids;
 	}
 
 	@Override
 	public Map<String, String> getREFeatureIdsInfos() {
 		Map<String, String> infoMap = new HashMap<>();
+		infoMap.put("NLP4JLEMMA", "The NLP4J lemmatization system is used to create a feature that associates lemmas for event annotations.");
+		infoMap.put("NLP4JPOS", "The NLP4J part-of-speech system is used to create a feature that associates POS for event annotations.");
+		infoMap.put("BETWEENCONTAINSNOT", "Verifies if there is a 'not' lemma between event annotations.");
+		infoMap.put("BETWEENVERB", "Gives the lemma verbs between annotation events.");
 		return infoMap;
 	}
 
 	@Override
 	public Set<String> getRecomendedREFeatureIds() {
+		
 		return new TreeSet<String>();
 	}
 
@@ -171,11 +181,93 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
 
 		IBioTMLFeatureColumns<IBioTMLAssociation> features = new BioTMLFeatureColumns<>(associations, getREFeatureIds(), configuration);
+		
+		Collections.sort(tokens);
+		String[] lemmas = BioTMLNLP4J.getInstance().processLemma(tokens.toArray(new String[0]));
+		String[] poss = BioTMLNLP4J.getInstance().processPos(tokens.toArray(new String[0]));
+		
 		for(IBioTMLAssociation association : associations){
-			//features
+			if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAnnotation){
+				IBioTMLAnnotation annotationOne = (IBioTMLAnnotation) association.getEntryOne();
+				IBioTMLAnnotation annotationTwo = (IBioTMLAnnotation) association.getEntryTwo();
+				
+				if(configuration.hasFeatureUID("NLP4JLEMMA"))
+					features.addBioTMLObjectFeature("NLP4JLEMMA="+addAssociatedFeature(annotationOne, annotationTwo, tokens, lemmas), "NLP4JLEMMA");
+				
+				if(configuration.hasFeatureUID("NLP4JPOS"))
+					features.addBioTMLObjectFeature("NLP4JPOS="+addAssociatedFeature(annotationOne, annotationTwo, tokens, poss), "NLP4JPOS");
+				
+				if(configuration.hasFeatureUID("BETWEENCONTAINSNOT")){
+					Boolean containsNot = containsNotFeature(annotationOne, annotationTwo, tokens, lemmas);
+					features.addBioTMLObjectFeature("BETWEENCONTAINSNOT="+String.valueOf(containsNot), "BETWEENCONTAINSNOT");
+				}
+				
+				if(configuration.hasFeatureUID("BETWEENVERB")){
+					features.addBioTMLObjectFeature("BETWEENVERB="+String.valueOf(verbBetween(annotationOne, annotationTwo, tokens, poss, lemmas)), "BETWEENVERB");
+				}
+				
+			}else if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAssociation){
+				//TODO
+			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAnnotation){
+				//TODO
+			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAssociation){
+				//TODO
+			}
 		}
 		
 		return features;
+	}
+	
+	private String addAssociatedFeature(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, String[] features) {
+		String result = new String();
+		for(int i=0; i<tokens.size(); i++){
+			if(annotationOne.getAnnotationOffsets().containsInside(tokens.get(i).getTokenOffsetsPair())){
+				if(!result.isEmpty())
+					result = result +"__&__";
+				result = result+ features[i];
+			}
+			if(annotationTwo.getAnnotationOffsets().containsInside(tokens.get(i).getTokenOffsetsPair())){
+				if(!result.isEmpty())
+					result = result +"__&__";
+				result = result+ features[i];
+			}
+		}
+		return result;
+	}
+	
+	private Boolean containsNotFeature(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, String[] lemmas){
+		IBioTMLOffsetsPair offsetspair = null;
+		if(annotationOne.compareTo(annotationTwo)<0){
+			offsetspair = new BioTMLOffsetsPairImpl(annotationOne.getStartOffset(), annotationTwo.getEndOffset());
+		}else{
+			offsetspair = new BioTMLOffsetsPairImpl(annotationTwo.getStartOffset(), annotationOne.getEndOffset());
+		}
+		for(int i=0; i<tokens.size(); i++){
+			if(offsetspair.containsInside(tokens.get(i).getTokenOffsetsPair()) && lemmas[i].equals("not")){
+				return true;
+			}
+		}
+		return false;
+
+	}
+	
+	private String verbBetween(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, String[] pos, String[] lemmas){
+		String verbString = new String();
+		IBioTMLOffsetsPair offsetspair = null;
+		if(annotationOne.compareTo(annotationTwo)<0){
+			offsetspair = new BioTMLOffsetsPairImpl(annotationOne.getStartOffset(), annotationTwo.getEndOffset());
+		}else{
+			offsetspair = new BioTMLOffsetsPairImpl(annotationTwo.getStartOffset(), annotationOne.getEndOffset());
+		}
+		for(int i=0; i<tokens.size(); i++){
+			if(offsetspair.containsInside(tokens.get(i).getTokenOffsetsPair()) && pos[i].startsWith("VB")){
+				if(!verbString.isEmpty())
+					verbString = verbString + " ";
+				verbString = verbString + lemmas[i];
+			}
+		}
+		return verbString;
+
 	}
 
 }

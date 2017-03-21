@@ -155,20 +155,27 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 				IBioTMLAnnotation annotationOne = (IBioTMLAnnotation) association.getEntryOne();
 				IBioTMLAnnotation annotationTwo = (IBioTMLAnnotation) association.getEntryTwo();
 				
-				features.addBioTMLObjectFeature("WORD="+getTokensAssociated(annotationOne, annotationTwo, tokens), "WORD");
+				if(configuration.hasFeatureUID("WORD"))
+					features.addBioTMLObjectFeature("WORD="+getTokensAssociated(annotationOne, annotationTwo, tokens), "WORD");
 				
-				int countTokensBetween = countTokensBetween(annotationOne, annotationTwo, tokens);
-				if(countTokensBetween>0)
-					features.addBioTMLObjectFeature("COUNTTOKENSBETWEEN="+countTokensBetween, "COUNTTOKENSBETWEEN");
-				else
-					features.addBioTMLObjectFeature(new String(), "COUNTTOKENSBETWEEN");
-				int countTokensOutside = countTokensOutside(annotationOne, annotationTwo, tokens);
-				if(countTokensOutside>0)
-					features.addBioTMLObjectFeature("COUNTTOKENSOUTSIDE="+countTokensBetween, "COUNTTOKENSOUTSIDE");
-				else
-					features.addBioTMLObjectFeature(new String(), "COUNTTOKENSOUTSIDE");
-				
-				features.addBioTMLObjectFeature("POSITIONSINSENTENCE="+getPositionPair(annotationOne, annotationTwo, tokens), "POSITIONSINSENTENCE");
+				if(configuration.hasFeatureUID("COUNTTOKENSBETWEEN")){
+					int countTokensBetween = countTokensBetween(annotationOne, annotationTwo, tokens);
+					if(countTokensBetween>0)
+						features.addBioTMLObjectFeature("COUNTTOKENSBETWEEN="+countTokensBetween, "COUNTTOKENSBETWEEN");
+					else
+						features.addBioTMLObjectFeature(new String(), "COUNTTOKENSBETWEEN");
+				}
+
+				if(configuration.hasFeatureUID("COUNTTOKENSOUTSIDE")){
+					int countTokensOutside = countTokensOutside(annotationOne, annotationTwo, tokens);
+					if(countTokensOutside>0)
+						features.addBioTMLObjectFeature("COUNTTOKENSOUTSIDE="+countTokensOutside, "COUNTTOKENSOUTSIDE");
+					else
+						features.addBioTMLObjectFeature(new String(), "COUNTTOKENSOUTSIDE");
+				}
+
+				if(configuration.hasFeatureUID("POSITIONSINSENTENCE"))
+					features.addBioTMLObjectFeature("POSITIONSINSENTENCE="+getPositionPair(annotationOne, annotationTwo, tokens), "POSITIONSINSENTENCE");
 				
 			}else if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAssociation){
 				//TODO

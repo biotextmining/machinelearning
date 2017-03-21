@@ -148,7 +148,15 @@ public class BioTMLNLP4J {
 	 */
 	public String[] processLemma(String[] sentence){
 		String[] lemmas = new String[sentence.length];
-		NLPDecoder decoder = getDecoder(new MorphologicalAnalyzer<>(Language.ENGLISH));
+		if(getPosModel()==null)
+			initPOSModel();
+		
+		List<NLPComponent<NLPNode>> components = new ArrayList<>();
+		components.add(getPosModel());
+		components.add(new MorphologicalAnalyzer<>(Language.ENGLISH));
+		
+		NLPDecoder decoder = getDecoder(components);
+		
 		NLPNode[] nodes = decoder.toNodeArray(convertArrayStringToListToken(sentence));
 		nodes = decoder.decode(nodes);
 		for(int i=1; i<nodes.length; i++)
@@ -188,6 +196,12 @@ public class BioTMLNLP4J {
 		NLPDecoder decoder = new NLPDecoder();
 		List<NLPComponent<NLPNode>> components = new ArrayList<>();
 		components.add(component);
+		decoder.setComponents(components);
+		return decoder;
+	}
+	
+	private NLPDecoder getDecoder(List<NLPComponent<NLPNode>> components){
+		NLPDecoder decoder = new NLPDecoder();
 		decoder.setComponents(components);
 		return decoder;
 	}

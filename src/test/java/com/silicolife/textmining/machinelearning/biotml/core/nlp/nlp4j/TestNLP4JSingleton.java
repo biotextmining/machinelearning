@@ -8,8 +8,6 @@ import org.junit.Test;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 
-import edu.emory.mathcs.nlp.component.template.node.NLPNode;
-
 public class TestNLP4JSingleton {
 
 	public String document(){
@@ -23,19 +21,26 @@ public class TestNLP4JSingleton {
 		"As childhood cancer survivors progress through adulthood, risk of subsequent neoplasms increases. Patients surviving Hodgkin lymphoma are at greatest risk. There is no evidence of risk reduction with increasing duration of follow-up.";
 	}
 	
+	public String document2(){
+		return "The xpto is not essential gene. The xpto isn't essential gene. The xpto is non-essential gene.";
+	}
+	
 	@Test
 	public void test() throws BioTMLException {
 		
-		List<IBioTMLSentence> sentences = BioTMLNLP4J.getInstance().getSentences(document());
-		List<String> tokens = sentences.get(0).getTokenStrings();
+		List<IBioTMLSentence> sentences = BioTMLNLP4J.getInstance().getSentences(document2());
+		List<String> tokens = sentences.get(2).getTokenStrings();
+		
+		System.out.println(tokens);
 		
 		String[] lemmas = BioTMLNLP4J.getInstance().processLemma(tokens.toArray(new String[0]));
 		System.out.println(Arrays.asList(lemmas));
+		
 		String[] pos = BioTMLNLP4J.getInstance().processPos(tokens.toArray(new String[0]));
 		System.out.println(Arrays.asList(pos));
-		NLPNode[] nodes = BioTMLNLP4J.getInstance().processDependency(tokens.toArray(new String[0]));
-		System.out.println(nodes);
-		BioTMLNLP4J.getInstance().clearModelsInMemory();
+//		NLPNode[] nodes = BioTMLNLP4J.getInstance().processDependency(tokens.toArray(new String[0]));
+//		System.out.println(nodes);
+//		BioTMLNLP4J.getInstance().clearModelsInMemory();
 	}
 
 }
