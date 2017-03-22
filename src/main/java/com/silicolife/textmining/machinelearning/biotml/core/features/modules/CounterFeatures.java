@@ -72,7 +72,7 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 		Set<String> uids = new TreeSet<String>();
 		uids.add("WORD");
 		uids.add("COUNTTOKENSBETWEEN");
-		uids.add("COUNTTOKENSOUSIDE");
+		uids.add("COUNTTOKENSOUTSIDE");
 		uids.add("POSITIONSINSENTENCE");
 		return uids;
 	}

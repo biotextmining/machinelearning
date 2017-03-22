@@ -33,10 +33,10 @@ public class TestNLP4JSingleton {
 		
 		System.out.println(tokens);
 		
-		String[] lemmas = BioTMLNLP4J.getInstance().processLemma(tokens.toArray(new String[0]));
+		List<String> lemmas = BioTMLNLP4J.getInstance().processLemma(tokens);
 		System.out.println(Arrays.asList(lemmas));
 		
-		String[] pos = BioTMLNLP4J.getInstance().processPos(tokens.toArray(new String[0]));
+		List<String> pos = BioTMLNLP4J.getInstance().processPos(tokens);
 		System.out.println(Arrays.asList(pos));
 //		NLPNode[] nodes = BioTMLNLP4J.getInstance().processDependency(tokens.toArray(new String[0]));
 //		System.out.println(nodes);

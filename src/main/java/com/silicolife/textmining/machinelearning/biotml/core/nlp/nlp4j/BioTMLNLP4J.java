@@ -120,8 +120,8 @@ public class BioTMLNLP4J {
 	 * @param sentence - Array of token strings.
 	 * @return Array of part-of-speech tags.
 	 */
-	public String[] processPos(String[] sentence){
-		String[] pos = new String[sentence.length];
+	public List<String> processPos(List<String> sentence){
+		List<String> pos = new ArrayList<>();
 		if(getPosModel()==null)
 			initPOSModel();
 		
@@ -130,7 +130,7 @@ public class BioTMLNLP4J {
 		nodes = decoder.decode(nodes);
 		
 		for(int i=1; i<nodes.length; i++)
-			pos[i-1] = nodes[i].getPartOfSpeechTag();
+			pos.add(nodes[i].getPartOfSpeechTag());
 		
 		return pos;
 	}
@@ -146,8 +146,8 @@ public class BioTMLNLP4J {
 	 * @param sentence - Array of token strings.
 	 * @return Array of lemmas.
 	 */
-	public String[] processLemma(String[] sentence){
-		String[] lemmas = new String[sentence.length];
+	public List<String> processLemma(List<String> sentence){
+		List<String> lemmas = new ArrayList<>();
 		if(getPosModel()==null)
 			initPOSModel();
 		
@@ -160,12 +160,12 @@ public class BioTMLNLP4J {
 		NLPNode[] nodes = decoder.toNodeArray(convertArrayStringToListToken(sentence));
 		nodes = decoder.decode(nodes);
 		for(int i=1; i<nodes.length; i++)
-			lemmas[i-1] = nodes[i].getLemma();
+			lemmas.add(nodes[i].getLemma());
 		
 		return lemmas;
 	}
 	
-	public NLPNode[] processDependency(String[] sentence){
+	public NLPNode[] processDependency(List<String> sentence){
 		if(getDependecyModel() == null)
 			initDependecyModel();
 		
@@ -184,7 +184,7 @@ public class BioTMLNLP4J {
 		dependencyModel = null;
 	}
 	
-	private List<Token> convertArrayStringToListToken(String[] sentence){
+	private List<Token> convertArrayStringToListToken(List<String> sentence){
 		List<Token> tokens = new ArrayList<>();
 		for(String token : sentence)
 			tokens.add(new Token(token));

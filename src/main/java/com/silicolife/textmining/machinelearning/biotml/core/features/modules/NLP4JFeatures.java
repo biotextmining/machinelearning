@@ -1,7 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -105,16 +104,19 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		}
 
 		IBioTMLFeatureColumns<IBioTMLToken> features = new BioTMLFeatureColumns<>(tokens, getNERFeatureIds(), configuration);
-
-
+		
+		List<String> tokenStrings = new ArrayList<>();
+		for(IBioTMLToken token:tokens)
+			tokenStrings.add(token.getToken());
+		
 		if(configuration.hasFeatureUID("NLP4JLEMMA")){
-			String[] lemmas = BioTMLNLP4J.getInstance().processLemma(tokens.toArray(new String[0]));
+			List<String> lemmas = BioTMLNLP4J.getInstance().processLemma(tokenStrings);
 			for(String lemma : lemmas)
 				features.addBioTMLObjectFeature("NLP4JLEMMA=" + lemma, "NLP4JLEMMA");
 		}
 
 		if(configuration.hasFeatureUID("NLP4JPOS")){
-			String[] poss = BioTMLNLP4J.getInstance().processPos(tokens.toArray(new String[0]));
+			List<String> poss = BioTMLNLP4J.getInstance().processPos(tokenStrings);
 			for(String pos : poss)
 				features.addBioTMLObjectFeature("NLP4JPOS=" + pos, "NLP4JPOS");
 		}
@@ -129,7 +131,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 			if(configuration.hasFeatureUID("NLP4JLEMMA"))
 				lemmas = features.getFeatureColumByUID("NLP4JLEMMA");
 			else
-				lemmas = Arrays.asList(BioTMLNLP4J.getInstance().processLemma(tokens.toArray(new String[0])));
+				lemmas = BioTMLNLP4J.getInstance().processLemma(tokenStrings);
 			OffsetConjunctions conjuctions = new OffsetConjunctions(lemmas,  new int[][]{{-1, 0}, {-2, -1}, {0, 1}, {-1, 1}, {-3, -1}});
 			features.updateBioTMLObjectFeatures(conjuctions.generateFeatures(), "CONJUCTNLP4JLEMMA");
 			features.setUIDhasMultiFeatureColumn("CONJUCTNLP4JLEMMA");
@@ -140,7 +142,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 			if(configuration.hasFeatureUID("NLP4JPOS"))
 				pos = features.getFeatureColumByUID("NLP4JPOS");
 			else
-				pos = Arrays.asList(BioTMLNLP4J.getInstance().processPos(tokens.toArray(new String[0])));
+				pos = BioTMLNLP4J.getInstance().processPos(tokenStrings);
 			OffsetConjunctions conjuctions = new OffsetConjunctions(pos,  new int[][]{{-1, 0}, {-2, -1}, {0, 1}, {-1, 1}, {-3, -1}});
 			features.updateBioTMLObjectFeatures(conjuctions.generateFeatures(), "CONJUCTNLP4JPOS");
 			features.setUIDhasMultiFeatureColumn("CONJUCTNLP4JPOS");
@@ -151,7 +153,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 			if(configuration.hasFeatureUID("NLP4JLEMMA"))
 				lemmas = features.getFeatureColumByUID("NLP4JLEMMA");
 			else
-				lemmas = Arrays.asList(BioTMLNLP4J.getInstance().processLemma(tokens.toArray(new String[0])));
+				lemmas = BioTMLNLP4J.getInstance().processLemma(tokenStrings);
 			WindowFeatures windows = new WindowFeatures("WINDOW_LEMMA=", lemmas, -3, 3);
 			features.updateBioTMLObjectFeatures(windows.generateFeatures(), "WINDOWNLP4JLEMMA");
 			features.setUIDhasMultiFeatureColumn("WINDOWNLP4JLEMMA");
@@ -162,7 +164,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 			if(configuration.hasFeatureUID("NLP4JPOS"))
 				pos = features.getFeatureColumByUID("NLP4JPOS");
 			else
-				pos = Arrays.asList(BioTMLNLP4J.getInstance().processPos(tokens.toArray(new String[0])));
+				pos = BioTMLNLP4J.getInstance().processPos(tokenStrings);
 			WindowFeatures windows = new WindowFeatures("WINDOW_POS=", pos, -3, 3);
 			features.updateBioTMLObjectFeatures(windows.generateFeatures(), "WINDOWNLP4JPOS");
 			features.setUIDhasMultiFeatureColumn("WINDOWNLP4JPOS");
@@ -183,8 +185,12 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		IBioTMLFeatureColumns<IBioTMLAssociation> features = new BioTMLFeatureColumns<>(associations, getREFeatureIds(), configuration);
 		
 		Collections.sort(tokens);
-		String[] lemmas = BioTMLNLP4J.getInstance().processLemma(tokens.toArray(new String[0]));
-		String[] poss = BioTMLNLP4J.getInstance().processPos(tokens.toArray(new String[0]));
+		List<String> tokenStrings = new ArrayList<>();
+		for(IBioTMLToken token:tokens)
+			tokenStrings.add(token.getToken());
+		
+		List<String> lemmas = BioTMLNLP4J.getInstance().processLemma(tokenStrings);
+		List<String> poss = BioTMLNLP4J.getInstance().processPos(tokenStrings);
 		
 		for(IBioTMLAssociation association : associations){
 			if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAnnotation){
@@ -218,24 +224,24 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		return features;
 	}
 	
-	private String addAssociatedFeature(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, String[] features) {
+	private String addAssociatedFeature(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, List<String> features) {
 		String result = new String();
 		for(int i=0; i<tokens.size(); i++){
 			if(annotationOne.getAnnotationOffsets().containsInside(tokens.get(i).getTokenOffsetsPair())){
 				if(!result.isEmpty())
 					result = result +"__&__";
-				result = result+ features[i];
+				result = result+ features.get(i);
 			}
 			if(annotationTwo.getAnnotationOffsets().containsInside(tokens.get(i).getTokenOffsetsPair())){
 				if(!result.isEmpty())
 					result = result +"__&__";
-				result = result+ features[i];
+				result = result+ features.get(i);
 			}
 		}
 		return result;
 	}
 	
-	private Boolean containsNotFeature(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, String[] lemmas){
+	private Boolean containsNotFeature(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, List<String> lemmas){
 		IBioTMLOffsetsPair offsetspair = null;
 		if(annotationOne.compareTo(annotationTwo)<0){
 			offsetspair = new BioTMLOffsetsPairImpl(annotationOne.getStartOffset(), annotationTwo.getEndOffset());
@@ -243,7 +249,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 			offsetspair = new BioTMLOffsetsPairImpl(annotationTwo.getStartOffset(), annotationOne.getEndOffset());
 		}
 		for(int i=0; i<tokens.size(); i++){
-			if(offsetspair.containsInside(tokens.get(i).getTokenOffsetsPair()) && lemmas[i].equals("not")){
+			if(offsetspair.containsInside(tokens.get(i).getTokenOffsetsPair()) && lemmas.get(i).equals("not")){
 				return true;
 			}
 		}
@@ -251,7 +257,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 
 	}
 	
-	private String verbBetween(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, String[] pos, String[] lemmas){
+	private String verbBetween(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, List<String> pos, List<String> lemmas){
 		String verbString = new String();
 		IBioTMLOffsetsPair offsetspair = null;
 		if(annotationOne.compareTo(annotationTwo)<0){
@@ -260,10 +266,10 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 			offsetspair = new BioTMLOffsetsPairImpl(annotationTwo.getStartOffset(), annotationOne.getEndOffset());
 		}
 		for(int i=0; i<tokens.size(); i++){
-			if(offsetspair.containsInside(tokens.get(i).getTokenOffsetsPair()) && pos[i].startsWith("VB")){
+			if(offsetspair.containsInside(tokens.get(i).getTokenOffsetsPair()) && pos.get(i).startsWith("VB")){
 				if(!verbString.isEmpty())
 					verbString = verbString + " ";
-				verbString = verbString + lemmas[i];
+				verbString = verbString + lemmas.get(i);
 			}
 		}
 		return verbString;
