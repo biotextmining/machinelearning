@@ -187,10 +187,10 @@ public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
 				new String[]{foldIDString}, new String[]{"B", "I"}, new String[]{"B", "I"}) {
 		};
 		evaluator.evaluate(evaluationModelTraining);
-		return new BioTMLEvaluationImpl(evaluator.getOverallPrecision(), evaluator.getOverallRecall(), evaluator.getOverallF1());
+		return new BioTMLEvaluationImpl(evaluator.getOverallPrecision(), evaluator.getOverallRecall(), evaluator.getOverallF1(), foldIDString);
 	}
 
-	private IBioTMLEvaluation evaluateByDocumentCrossValidation() throws BioTMLException{
+	private IBioTMLMultiEvaluation evaluateByDocumentCrossValidation() throws BioTMLException{
 		Set<IBioTMLEvaluation> multiEvaluations = new HashSet<IBioTMLEvaluation>();
 		int foldID = 1;
 		Iterator<IBioTMLCorpus[]> itCross = new BioTMLCrossValidationCorpusIterator(getCorpus(), getModelEvaluationConfiguration().getCVFoldsByDocuments());
@@ -201,11 +201,10 @@ public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
 			multiEvaluations.add(evaluateFold(trainingData, testingData, "CV By Doc Fold:" + String.valueOf(foldID)));
 			foldID++;
 		}
-		IBioTMLMultiEvaluation modelScores = new BioTMLMultiEvaluationImpl(multiEvaluations);
-		return new BioTMLEvaluationImpl(modelScores.getMeanPrecision(), modelScores.getMeanRecall(), modelScores.getMeanFscore());
+		return new BioTMLMultiEvaluationImpl(multiEvaluations);
 	}
 
-	private IBioTMLEvaluation evaluateBySentenceCrossValidation() throws BioTMLException{
+	private IBioTMLMultiEvaluation evaluateBySentenceCrossValidation() throws BioTMLException{
 		Set<IBioTMLEvaluation> multiEvaluations = new HashSet<IBioTMLEvaluation>();
 		int foldID = 1;
 		InstanceList datasetToEvaluate = loadCorpus(getCorpus(), getModelConfiguration().getNumThreads());
@@ -217,12 +216,11 @@ public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
 			multiEvaluations.add(evaluateFold(trainingData, testingData, "CV By Sent Fold:" + String.valueOf(foldID)));
 			foldID++;
 		}
-		IBioTMLMultiEvaluation modelScores = new BioTMLMultiEvaluationImpl(multiEvaluations);
-		return new BioTMLEvaluationImpl(modelScores.getMeanPrecision(), modelScores.getMeanRecall(), modelScores.getMeanFscore());
+		return new BioTMLMultiEvaluationImpl(multiEvaluations);
 	}
 
 	public IBioTMLModelEvaluationResults evaluate() throws BioTMLException{
-		Map<String, IBioTMLEvaluation> evaluationResults = new HashMap<String, IBioTMLEvaluation>();
+		Map<String, IBioTMLMultiEvaluation> evaluationResults = new HashMap<>();
 		if(getModelEvaluationConfiguration().isUseCrossValidationByDocuments()){
 			evaluationResults.put("CVbyDOC", evaluateByDocumentCrossValidation());
 		}

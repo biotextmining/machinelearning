@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvaluation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationResults;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiEvaluation;
 
 /**
  * 
@@ -15,7 +16,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 
 public class BioTMLModelEvaluationResultsImpl implements IBioTMLModelEvaluationResults{
 	
-	private Map<String, IBioTMLEvaluation> evaluationResults;
+	private Map<String, IBioTMLMultiEvaluation> evaluationResults;
 
 	/**
 	 * 
@@ -24,11 +25,11 @@ public class BioTMLModelEvaluationResultsImpl implements IBioTMLModelEvaluationR
 	 * @param evaluationResults - Map of evaluation type with {@link IBioTMLEvaluation} scores.
 	 */
 	
-	public BioTMLModelEvaluationResultsImpl(Map<String, IBioTMLEvaluation> evaluationResults){
+	public BioTMLModelEvaluationResultsImpl(Map<String, IBioTMLMultiEvaluation> evaluationResults){
 		this.evaluationResults = evaluationResults;
 	}
 
-	public Map<String, IBioTMLEvaluation> getResults() {
+	public Map<String, IBioTMLMultiEvaluation> getResults() {
 		return evaluationResults;
 	}
 
@@ -36,10 +37,15 @@ public class BioTMLModelEvaluationResultsImpl implements IBioTMLModelEvaluationR
 		String print = "\tModel Evaluation Results:\n\n";
 		for(String res: getResults().keySet()){
 			print = print +"\t" +res + "\n";
-			IBioTMLEvaluation result = getResults().get(res);
-			print = print + "\tPrecision: " + String.format("%.2f", result.getPrecision()*100) + "%\n\t" + "Recall: " + String.format("%.2f", result.getRecall()*100) + "%\n\tF1-Score: " + String.format("%.2f", result.getFscore()*100) + "%\n\n";
+			IBioTMLMultiEvaluation result = getResults().get(res);
+			print = print + "\tPrecision: " + String.format("%.2f", result.getMeanPrecision()*100) + "%\n\t" + "Recall: " + String.format("%.2f", result.getMeanRecall()*100) + "%\n\tF1-Score: " + String.format("%.2f", result.getMeanFscore()*100) + "%\n\n";
 		}
 		return print;
+	}
+
+	@Override
+	public String toString() {
+		return printResults();
 	}
 
 }

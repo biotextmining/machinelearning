@@ -18,7 +18,7 @@ public interface IBioTMLModelEvaluationResults {
 	 * 
 	 * @return Map of evaluation type with {@link IBioTMLEvaluation} scores.
 	 */
-	public Map<String, IBioTMLEvaluation> getResults();
+	public Map<String, IBioTMLMultiEvaluation> getResults();
 	
 	/**
 	 * 

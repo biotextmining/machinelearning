@@ -26,6 +26,7 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 	private InstanceList testingData;
 	private Set<IBioTMLEvaluation> multiEvaluations;
 	private IBioTMLModelConfigurator modelConfiguration;
+	private String foldDescription;
 
 	/**
 	 * 
@@ -36,11 +37,13 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 	 * @param multiEvaluations - Set of fold evaluations to be populated in multi-threading process.
 	 * @param iBioTMLModelConfigurator - Mallet algorithm type.
 	 */
-	public MalletClassifierFoldProcessedInThread(InstanceList trainingData, InstanceList testingData, Set<IBioTMLEvaluation> multiEvaluations, IBioTMLModelConfigurator iBioTMLModelConfigurator){
+	public MalletClassifierFoldProcessedInThread(InstanceList trainingData, InstanceList testingData, 
+			Set<IBioTMLEvaluation> multiEvaluations, IBioTMLModelConfigurator iBioTMLModelConfigurator, String foldDescription){
 		this.trainingData = trainingData;
 		this.testingData = testingData;
 		this.multiEvaluations = multiEvaluations;
 		this.modelConfiguration = iBioTMLModelConfigurator;
+		this.foldDescription = foldDescription;
 	}
 
 	/**
@@ -83,6 +86,16 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 		return modelConfiguration;
 	}
 	
+	/**
+	 * 
+	 * Method to get the fold description to be added into evaluation;
+	 * 
+	 * @return fold description string.
+	 */
+	public String getFoldDescription(){
+		return foldDescription;
+	}
+	
 	@SuppressWarnings("rawtypes")
 	private ClassifierTrainer train(InstanceList dataToTrain){
 		ClassifierTrainer modelTraining=null;
@@ -116,7 +129,7 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 				recall += trial.getRecall(i);
 				f1 += trial.getF1(i);
 			}
-			addToMultiEvaluations(new BioTMLEvaluationImpl((float)precision/(float)size, (float)recall/(float)size, (float)f1/(float)size));
+			addToMultiEvaluations(new BioTMLEvaluationImpl((float)precision/(float)size, (float)recall/(float)size, (float)f1/(float)size, getFoldDescription()));
 		}
 	}
 

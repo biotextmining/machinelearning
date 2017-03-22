@@ -59,6 +59,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 		this.algorithm = BioTMLAlgorithms.malletcrf.toString();
 		this.svmparams = svmdefparams();
 		this.nlpSystemUsed = "nlp4j";
+		this.reMethodology = BioTMLREModelTypes.events.toString();
 	}
 	
 	public String getClassType(){
