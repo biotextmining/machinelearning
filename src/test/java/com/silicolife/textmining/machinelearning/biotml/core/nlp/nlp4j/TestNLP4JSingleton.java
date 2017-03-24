@@ -8,6 +8,9 @@ import org.junit.Test;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 
+import edu.emory.mathcs.nlp.component.template.feature.Field;
+import edu.emory.mathcs.nlp.component.template.node.NLPNode;
+
 public class TestNLP4JSingleton {
 
 	public String document(){
@@ -34,12 +37,20 @@ public class TestNLP4JSingleton {
 		System.out.println(tokens);
 		
 		List<String> lemmas = BioTMLNLP4J.getInstance().processLemma(tokens);
-		System.out.println(Arrays.asList(lemmas));
+		System.out.println(lemmas);
 		
 		List<String> pos = BioTMLNLP4J.getInstance().processPos(tokens);
-		System.out.println(Arrays.asList(pos));
-//		NLPNode[] nodes = BioTMLNLP4J.getInstance().processDependency(tokens.toArray(new String[0]));
-//		System.out.println(nodes);
+		System.out.println(pos);
+		NLPNode[] nodes = BioTMLNLP4J.getInstance().processDependency(tokens);
+		for(NLPNode node : nodes)
+			System.out.println(node.getDependencyLabel());
+		System.out.println();
+		NLPNode lowest = nodes[4].getLowestCommonAncestor(nodes[4]);
+		System.out.println(lowest.getDependencyLabel());
+
+		String path = nodes[1].getPath(nodes[4], Field.distance);
+		System.out.println(path);
+
 //		BioTMLNLP4J.getInstance().clearModelsInMemory();
 	}
 

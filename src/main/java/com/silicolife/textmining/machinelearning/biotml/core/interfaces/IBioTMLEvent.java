@@ -1,6 +1,7 @@
 package com.silicolife.textmining.machinelearning.biotml.core.interfaces;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 
@@ -65,5 +66,7 @@ public interface IBioTMLEvent extends Serializable {
 	 * @throws BioTMLException if is not found.
 	 */
 	public IBioTMLAnnotation getAnnotationInEventByOffsets(long startOffset, long endOffset) throws BioTMLException;
+	
+	public Set<IBioTMLAnnotation> getAllAnnotationsFromEvent();
 
 }

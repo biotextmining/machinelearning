@@ -1,5 +1,8 @@
 package com.silicolife.textmining.machinelearning.biotml.core.corpora;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
@@ -61,6 +64,23 @@ public class BioTMLEventImpl implements IBioTMLEvent {
 	@Override
 	public long getDocID(){
 		return getTrigger().getDocID();
+	}
+	
+	@Override
+	public Set<IBioTMLAnnotation> getAllAnnotationsFromEvent() {
+		Set<IBioTMLAnnotation> annotations = new HashSet<>();
+		
+		if(getAssociation().getEntryOne() instanceof IBioTMLAnnotation)
+			annotations.add((IBioTMLAnnotation) getAssociation().getEntryOne());
+		else if(getAssociation().getEntryOne() instanceof IBioTMLEvent)
+			annotations.addAll(((IBioTMLEvent)getAssociation().getEntryOne()).getAllAnnotationsFromEvent());
+		
+		if(getAssociation().getEntryTwo() instanceof IBioTMLAnnotation)
+			annotations.add((IBioTMLAnnotation) getAssociation().getEntryTwo());
+		else if(getAssociation().getEntryTwo() instanceof IBioTMLEvent)
+			annotations.addAll(((IBioTMLEvent)getAssociation().getEntryTwo()).getAllAnnotationsFromEvent());
+		
+		return annotations;
 	}
 
 	@Override

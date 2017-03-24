@@ -71,7 +71,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 
 	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, List<IBioTMLAnnotation> annotations, List<IBioTMLEvent> events, String name){
 		this.documents = documents;
-		this.annotations = annotations;
+		this.annotations = addMissingAnnotationsFromEvents(annotations, events);
 		this.events = events;
 		this.name = name;
 	}
@@ -283,6 +283,16 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		}
 		result.addAll(map.values());
 		return result;
+	}
+	
+	private List<IBioTMLAnnotation> addMissingAnnotationsFromEvents(List<IBioTMLAnnotation> annotations, List<IBioTMLEvent> events){
+		for(IBioTMLEvent event : events){
+			Set<IBioTMLAnnotation> annotationsInEvent = event.getAllAnnotationsFromEvent();
+			for(IBioTMLAnnotation annotationInEvent : annotationsInEvent)
+				if(!annotations.contains(annotationInEvent))
+					annotations.add(annotationInEvent);
+		}
+		return annotations;
 	}
 
 

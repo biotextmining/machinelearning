@@ -21,10 +21,14 @@ public class BioTMLDataLists {
 	private final static String datachemicalList = "biotmldatalists/chemical.list";
 	private final static String datafrequentList = "biotmldatalists/frequent.list";
 	private final static String datacluesList = "biotmldatalists/clues.list";
+	private final static String dataPositiveWordsList = "biotmldatalists/positivewords.list";
+	private final static String dataNegativeWordsList = "biotmldatalists/negativewords.list";
 	
 	private String[] chemicalList;
 	private String[] frequentList;
 	private String[] cluesList;
+	private String[] positiveWordsList;
+	private String[] negativeWordsList;
 	
 	private static BioTMLDataLists _instance;
 	
@@ -79,6 +83,24 @@ public class BioTMLDataLists {
 		}
 	}
 	
+	private synchronized void initPositiveWordsList() throws IOException, ClassNotFoundException{
+		if(getFrequentList()==null){
+			InputStream list = BioTMLOpenNLP.class.getClassLoader().getResourceAsStream(dataPositiveWordsList);
+			ObjectInputStream ois = new ObjectInputStream(list);
+			positiveWordsList =(String[]) ois.readObject();
+			ois.close();
+		}
+	}
+	
+	private synchronized void initNegativeWordsList() throws IOException, ClassNotFoundException{
+		if(getFrequentList()==null){
+			InputStream list = BioTMLOpenNLP.class.getClassLoader().getResourceAsStream(dataNegativeWordsList);
+			ObjectInputStream ois = new ObjectInputStream(list);
+			negativeWordsList =(String[]) ois.readObject();
+			ois.close();
+		}
+	}
+	
 	private String[] getChemicalList(){
 		return chemicalList;
 	}
@@ -89,6 +111,14 @@ public class BioTMLDataLists {
 	
 	private String[] getCluesList(){
 		return cluesList;
+	}
+	
+	private String[] getPositiveWordsList(){
+		return positiveWordsList;
+	}
+	
+	private String[] getNegativeWordsList(){
+		return negativeWordsList;
 	}
 	
 	public boolean findStringInChemicalList(String text) throws ClassNotFoundException, IOException{
@@ -110,6 +140,20 @@ public class BioTMLDataLists {
 			initCluesList();
 		}
 		return executeStringBinarySearch(getCluesList(), text);
+	}
+	
+	public boolean findStringInPositiveWordsList(String text) throws ClassNotFoundException, IOException{
+		if(getPositiveWordsList() == null){
+			initPositiveWordsList();
+		}
+		return executeStringBinarySearch(getPositiveWordsList(), text);
+	}
+	
+	public boolean findStringInNegativeWordsList(String text) throws ClassNotFoundException, IOException{
+		if(getNegativeWordsList() == null){
+			initNegativeWordsList();
+		}
+		return executeStringBinarySearch(getNegativeWordsList(), text);
 	}
 	
 //	private String exectueStringOrSubstringBinarySearch(String[] sortedListofString, String stringToFind){

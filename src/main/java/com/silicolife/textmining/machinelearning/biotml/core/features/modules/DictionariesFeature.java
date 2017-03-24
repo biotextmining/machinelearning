@@ -7,12 +7,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLOffsetsPairImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLFeatureColumns;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLOffsetsPair;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 import com.silicolife.textmining.machinelearning.biotml.core.resources.datalists.BioTMLDataLists;
 
@@ -25,11 +28,11 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 		uids.add("INCLUESLIST");
 		return uids;
 	}
-	
+
 	public Set<String> getRecomendedNERFeatureIds(){
 		return new TreeSet<String>();
 	}
-	
+
 	public Map<String, String> getNERFeatureIdsInfos() {
 		Map<String, String> infoMap = new HashMap<>();
 		infoMap.put("INCHEMICALLIST", "Verifies if the token is present in the BioTML chemical list.");
@@ -37,16 +40,26 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 		infoMap.put("INCLUESLIST", "Verifies if the token is present in clues list.");
 		return infoMap;
 	}
-	
-	
+
+
 	@Override
 	public Set<String> getREFeatureIds() {
-		return new TreeSet<String>();
+		Set<String> uids = new TreeSet<String>();
+		uids.add("GETPOSITIVEWORDSBETWEENANNOTS");
+		uids.add("GETNEGATIVEWORDSBETWEENANNOTS");
+		uids.add("GETPOSITIVEWORDSOUTSIDEANNOTS");
+		uids.add("GETNEGATIVEWORDSOUTSIDEANNOTS");
+		return uids;
 	}
 
 	@Override
 	public Map<String, String> getREFeatureIdsInfos() {
-		return new HashMap<>();
+		Map<String, String> infoMap = new HashMap<>();
+		infoMap.put("GETPOSITIVEWORDSBETWEENANNOTS", "Gives the positive words that are in sentence between annotation events.");
+		infoMap.put("GETNEGATIVEWORDSBETWEENANNOTS", "Gives the negative words that are in sentence between annotation events.");
+		infoMap.put("GETPOSITIVEWORDSOUTSIDEANNOTS", "Gives the positive words that are in sentence outside annotation events.");
+		infoMap.put("GETNEGATIVEWORDSOUTSIDEANNOTS", "Gives the negative words that are in sentence outside annotation events.");
+		return infoMap;
 	}
 
 	@Override
@@ -56,10 +69,10 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 
 	public IBioTMLFeatureColumns<IBioTMLToken> getFeatureColumns(List<IBioTMLToken> tokens,
 			IBioTMLFeatureGeneratorConfigurator configuration)
-			throws BioTMLException {
-		
+					throws BioTMLException {
+
 		IBioTMLFeatureColumns<IBioTMLToken> features = new BioTMLFeatureColumns<>(tokens, getNERFeatureIds(), configuration);
-		
+
 		for (int i = 0; i < tokens.size(); i++){
 			IBioTMLToken token = tokens.get(i);
 			for(String uID : getNERFeatureIds()){
@@ -74,24 +87,24 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 
 	public void cleanMemory(){
 	}
-	
+
 	private String isInDataList(String token, String uid) throws BioTMLException {
 		try{
-		if(uid.equals("INCHEMICALLIST")){
-			if(BioTMLDataLists.getInstance().findStringInChemicalList(token)){
-				return uid;
+			if(uid.equals("INCHEMICALLIST")){
+				if(BioTMLDataLists.getInstance().findStringInChemicalList(token)){
+					return uid;
+				}
 			}
-		}
-		if(uid.equals("INFREQUENTLIST")){
-			if(BioTMLDataLists.getInstance().findStringInFrequentList(token)){
-				return uid;
+			if(uid.equals("INFREQUENTLIST")){
+				if(BioTMLDataLists.getInstance().findStringInFrequentList(token)){
+					return uid;
+				}
 			}
-		}
-		if(uid.equals("INCLUESLIST")){
-			if(BioTMLDataLists.getInstance().findStringInClueList(token)){
-				return uid;
+			if(uid.equals("INCLUESLIST")){
+				if(BioTMLDataLists.getInstance().findStringInClueList(token)){
+					return uid;
+				}
 			}
-		}
 		}catch(IOException|ClassNotFoundException exc){
 			throw new BioTMLException(exc);
 		}
@@ -102,13 +115,75 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 	@Override
 	public IBioTMLFeatureColumns<IBioTMLAssociation> getEventFeatureColumns(List<IBioTMLToken> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
-		
+
 		IBioTMLFeatureColumns<IBioTMLAssociation> features = new BioTMLFeatureColumns<>(associations, getREFeatureIds(), configuration);
-//		for(IBioTMLAssociation association : associations){
-//			//features
-//		}
-		
+		features.setUIDhasMultiFeatureColumn("GETPOSITIVEWORDSBETWEENANNOTS");
+		features.setUIDhasMultiFeatureColumn("GETNEGATIVEWORDSBETWEENANNOTS");
+		features.setUIDhasMultiFeatureColumn("GETPOSITIVEWORDSOUTSIDEANNOTS");
+		features.setUIDhasMultiFeatureColumn("GETNEGATIVEWORDSOUTSIDEANNOTS");
+		for(IBioTMLAssociation association : associations){
+			if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAnnotation){
+				IBioTMLAnnotation annotationOne = (IBioTMLAnnotation) association.getEntryOne();
+				IBioTMLAnnotation annotationTwo = (IBioTMLAnnotation) association.getEntryTwo();
+
+				if(configuration.hasFeatureUID("GETPOSITIVEWORDSBETWEENANNOTS"))
+					features.addBioTMLObjectFeature(getTabbedTokensInDictForAnnots(annotationOne, annotationTwo, tokens, "GETPOSITIVEWORDSBETWEENANNOTS"), "GETPOSITIVEWORDSBETWEENANNOTS");
+
+				if(configuration.hasFeatureUID("GETNEGATIVEWORDSBETWEENANNOTS"))
+					features.addBioTMLObjectFeature(getTabbedTokensInDictForAnnots(annotationOne, annotationTwo, tokens, "GETNEGATIVEWORDSBETWEENANNOTS"), "GETNEGATIVEWORDSBETWEENANNOTS");
+
+				if(configuration.hasFeatureUID("GETPOSITIVEWORDSOUTSIDEANNOTS"))
+					features.addBioTMLObjectFeature(getTabbedTokensInDictForAnnots(annotationOne, annotationTwo, tokens, "GETPOSITIVEWORDSOUTSIDEANNOTS"), "GETPOSITIVEWORDSOUTSIDEANNOTS");
+
+				if(configuration.hasFeatureUID("GETNEGATIVEWORDSOUTSIDEANNOTS"))
+					features.addBioTMLObjectFeature(getTabbedTokensInDictForAnnots(annotationOne, annotationTwo, tokens, "GETNEGATIVEWORDSOUTSIDEANNOTS"), "GETNEGATIVEWORDSOUTSIDEANNOTS");
+
+			}else if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAssociation){
+				//TODO
+			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAnnotation){
+				//TODO
+			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAssociation){
+				//TODO
+			}
+		}
+
 		return features;
 	}
-	
+
+	private String getTabbedTokensInDictForAnnots(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, String featureUID) throws BioTMLException{
+		String result = new String();
+		try{
+			IBioTMLOffsetsPair annotationsOffsets = null;
+			if(annotationOne.compareTo(annotationTwo)<0)
+				annotationsOffsets = new BioTMLOffsetsPairImpl(annotationOne.getStartOffset(), annotationTwo.getEndOffset());
+			else
+				annotationsOffsets = new BioTMLOffsetsPairImpl(annotationTwo.getStartOffset(), annotationOne.getEndOffset());
+			for(IBioTMLToken token : tokens){
+				if(!result.isEmpty())
+					result = result + "\t";
+				if(annotationsOffsets.offsetsOverlap(token.getTokenOffsetsPair()) 
+						&& featureUID.equals("GETPOSITIVEWORDSBETWEENANNOTS")
+						&& BioTMLDataLists.getInstance().findStringInPositiveWordsList(token.getToken())){
+					result = result +"GETPOSITIVEWORDSBETWEENANNOTS="+ token.getToken();
+				}else if(annotationsOffsets.offsetsOverlap(token.getTokenOffsetsPair()) 
+						&& featureUID.equals("GETNEGATIVEWORDSBETWEENANNOTS")
+						&& BioTMLDataLists.getInstance().findStringInNegativeWordsList(token.getToken())){
+					result = result + "GETNEGATIVEWORDSBETWEENANNOTS="+token.getToken();
+				}else if(!annotationsOffsets.offsetsOverlap(token.getTokenOffsetsPair()) 
+						&& featureUID.equals("GETPOSITIVEWORDSOUTSIDEANNOTS")
+						&& BioTMLDataLists.getInstance().findStringInPositiveWordsList(token.getToken())){
+					result = result + "GETPOSITIVEWORDSOUTSIDEANNOTS="+token.getToken();
+				}
+				else if(!annotationsOffsets.offsetsOverlap(token.getTokenOffsetsPair()) 
+						&& featureUID.equals("GETNEGATIVEWORDSOUTSIDEANNOTS")
+						&& BioTMLDataLists.getInstance().findStringInNegativeWordsList(token.getToken())){
+					result = result + "GETNEGATIVEWORDSOUTSIDEANNOTS="+token.getToken();
+				}
+			}
+		}catch (Exception e) {
+			throw new BioTMLException(e);
+		}
+		return result;
+	}
+
 }

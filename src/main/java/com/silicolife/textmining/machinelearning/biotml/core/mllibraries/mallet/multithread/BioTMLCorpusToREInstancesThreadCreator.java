@@ -120,11 +120,10 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		List<IBioTMLAnnotation> annotationsList = Arrays.asList(annotations.toArray(new IBioTMLAnnotation[0]));
 		Collections.sort(annotationsList);
 		Set<IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation>> associations = new LinkedHashSet<>();
-		for(int i=0; i<annotationsList.size(); i++){
-			for(int j=i+1; j<annotationsList.size(); j++){
+		for(int i=0; i<annotationsList.size(); i++)
+			for(int j=i+1; j<annotationsList.size(); j++)
 				associations.add(new BioTMLAssociationImpl<IBioTMLAnnotation, IBioTMLAnnotation>(annotationsList.get(i), annotationsList.get(j)));
-			}
-		}
+		
 		return associations;
 	}
 

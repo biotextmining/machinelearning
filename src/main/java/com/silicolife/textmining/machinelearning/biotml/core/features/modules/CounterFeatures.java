@@ -74,6 +74,7 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 		uids.add("COUNTTOKENSBETWEEN");
 		uids.add("COUNTTOKENSOUTSIDE");
 		uids.add("POSITIONSINSENTENCE");
+		uids.add("ANNOTCLASSIFICATION");
 		return uids;
 	}
 
@@ -84,6 +85,7 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 		infoMap.put("COUNTTOKENSBETWEEN", "Counts the number of tokens between the two annotations on the event.");
 		infoMap.put("COUNTTOKENSOUTSIDE", "Counts the number of tokens outside the two annotations on the event.");
 		infoMap.put("POSITIONSINSENTENCE", "Gives the pair of annotations postion/(size position) in sentence.");
+		infoMap.put("ANNOTCLASSIFICATION", "Puts the pair of annotation classification.");
 		return infoMap;
 	}
 
@@ -177,6 +179,9 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 				if(configuration.hasFeatureUID("POSITIONSINSENTENCE"))
 					features.addBioTMLObjectFeature("POSITIONSINSENTENCE="+getPositionPair(annotationOne, annotationTwo, tokens), "POSITIONSINSENTENCE");
 				
+				if(configuration.hasFeatureUID("ANNOTCLASSIFICATION"))
+					features.addBioTMLObjectFeature("ANNOTCLASSIFICATION="+annotationOne.getAnnotType() + "__&&__" + annotationTwo.getAnnotType(), "ANNOTCLASSIFICATION");
+				
 			}else if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAssociation){
 				//TODO
 			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAnnotation){
@@ -237,12 +242,12 @@ public class CounterFeatures implements IBioTMLFeatureGenerator{
 		String result = new String();
 		Collections.sort(tokens);
 		for(IBioTMLToken token : tokens){
-			if(annotationOne.getAnnotationOffsets().containsInside(token.getTokenOffsetsPair())){
+			if(annotationOne.getAnnotationOffsets().offsetsOverlap(token.getTokenOffsetsPair())){
 				if(!result.isEmpty())
 					result = result +"__&__";
 				result = result+ token.getToken();
 			}
-			if(annotationTwo.getAnnotationOffsets().containsInside(token.getTokenOffsetsPair())){
+			if(annotationTwo.getAnnotationOffsets().offsetsOverlap(token.getTokenOffsetsPair())){
 				if(!result.isEmpty())
 					result = result +"__&__";
 				result = result+ token.getToken();

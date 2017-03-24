@@ -2,6 +2,7 @@ package com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet
 
 import java.util.Set;
 
+import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvaluation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
@@ -121,15 +122,21 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 		if(evaluationModelTraining !=null){
 			Trial trial = new Trial(evaluationModelTraining.getClassifier(), getTestingData());
 			int size = getTestingData().getTargetAlphabet().size();
-			double precision = 0.0;
-			double recall = 0.0;
-			double f1 = 0.0;
+			int index = 0;
 			for(int i=0; i<size; i++){
-				precision += trial.getPrecision(i);
-				recall += trial.getRecall(i);
-				f1 += trial.getF1(i);
+				Object label = getTestingData().getTargetAlphabet().lookupObject(i);
+				if(label.toString().equals(BioTMLConstants.b.toString())){
+					index = i;
+				}
 			}
-			addToMultiEvaluations(new BioTMLEvaluationImpl((float)precision/(float)size, (float)recall/(float)size, (float)f1/(float)size, getFoldDescription()));
+			float precision = (float) trial.getPrecision(index);
+			float recall = (float) trial.getRecall(index);
+			float f1 = (float) trial.getF1(index);
+
+			if(recall == 0.0)
+				addToMultiEvaluations(new BioTMLEvaluationImpl(0, 0, 0, getFoldDescription()));
+			else
+				addToMultiEvaluations(new BioTMLEvaluationImpl(precision, recall, f1, getFoldDescription()));
 		}
 	}
 

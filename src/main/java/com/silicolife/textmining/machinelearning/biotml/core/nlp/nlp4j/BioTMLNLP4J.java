@@ -166,10 +166,16 @@ public class BioTMLNLP4J {
 	}
 	
 	public NLPNode[] processDependency(List<String> sentence){
+		if(getPosModel()==null)
+			initPOSModel();
 		if(getDependecyModel() == null)
 			initDependecyModel();
 		
-		NLPDecoder decoder = getDecoder(getDependecyModel());
+		List<NLPComponent<NLPNode>> components = new ArrayList<>();
+		components.add(getPosModel());
+		components.add(getDependecyModel());
+		
+		NLPDecoder decoder = getDecoder(components);
 		NLPNode[] nodes = decoder.toNodeArray(convertArrayStringToListToken(sentence));
 		return decoder.decode(nodes);
 	}
