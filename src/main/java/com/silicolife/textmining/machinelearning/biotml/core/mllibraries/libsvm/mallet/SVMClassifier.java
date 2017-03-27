@@ -1,18 +1,18 @@
 package com.silicolife.textmining.machinelearning.biotml.core.mllibraries.libsvm.mallet;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.libsvm.SVMInstance;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.libsvm.SVMPredictor;
 
-import libsvm.svm_model;
-import libsvm.svm_node;
-import libsvm.svm_parameter;
 import cc.mallet.classify.Classification;
 import cc.mallet.classify.Classifier;
 import cc.mallet.pipe.Pipe;
@@ -20,6 +20,9 @@ import cc.mallet.types.FeatureVector;
 import cc.mallet.types.Instance;
 import cc.mallet.types.LabelAlphabet;
 import cc.mallet.types.LabelVector;
+import libsvm.svm_model;
+import libsvm.svm_node;
+import libsvm.svm_parameter;
 
 /**
  * 
@@ -122,6 +125,39 @@ public class SVMClassifier extends Classifier implements Serializable {
     	for(int i = 0; i< indices.length; i++){
     		svm_node node = new svm_node();
     		node.index = indices[i];
+    		node.value = 1.0;
+    		nodes[i] = node;
+    	}
+    	Arrays.sort(nodes, new Comparator<svm_node>() {
+    		public int compare(final svm_node o1, final svm_node o2) {
+    			if(o1.index == o2.index)
+    				return 0;
+    			return o1.index < o2.index ? -1 : 1;
+    		}
+    	} );
+    	return nodes;
+    }
+    
+    /**
+     * 
+     * Method to convert the Mallet instance (feature vector) into LibSVM instance data.
+     * 
+     * @param instance - Mallet instance (as feature vector)
+     * @return Array of {@link svm_node} LibSVM instance data.
+     */
+    public static svm_node[] featureVectorWithFeatureSelectionToSVMNodes(Instance instance, BitSet featureSelected){	
+    	FeatureVector fv = (FeatureVector) instance.getData();
+    	int[] indices = fv.getIndices();
+    	List<Integer> allowedIndices = new ArrayList<>();
+    	for(int i = 0; i< indices.length; i++)
+    		if(featureSelected.get(indices[i]))
+    			allowedIndices.add(indices[i]);
+    		
+    	
+    	svm_node[] nodes = new svm_node[allowedIndices.size()];
+    	for(int i = 0; i< allowedIndices.size(); i++){
+    		svm_node node = new svm_node();
+    		node.index = allowedIndices.get(i);
     		node.value = 1.0;
     		nodes[i] = node;
     	}

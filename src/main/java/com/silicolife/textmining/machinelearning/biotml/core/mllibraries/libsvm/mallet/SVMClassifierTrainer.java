@@ -1,6 +1,7 @@
 package com.silicolife.textmining.machinelearning.biotml.core.mllibraries.libsvm.mallet;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,12 +9,12 @@ import java.util.Map;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.libsvm.SVMInstance;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.libsvm.SVMTrainer;
 
-import libsvm.svm_model;
-import libsvm.svm_parameter;
 import cc.mallet.classify.ClassifierTrainer;
 import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
 import cc.mallet.types.Label;
+import libsvm.svm_model;
+import libsvm.svm_parameter;
 
 /**
  * 
@@ -114,9 +115,14 @@ public class SVMClassifierTrainer extends ClassifierTrainer<SVMClassifier> {
 
     private List<SVMInstance> getSVMInstances(InstanceList instanceList) {
         List<SVMInstance> list = new ArrayList<SVMInstance>();
-        for (Instance instance : instanceList) {
-            list.add(new SVMInstance(getLabel((Label) instance.getTarget()), SVMClassifier.featureVectorToSVMNodes(instance)));
-        }
+        if(instanceList.getFeatureSelection() != null){
+        	BitSet featuresSelected = instanceList.getFeatureSelection().getBitSet();
+        	for(Instance instance : instanceList)
+            	list.add(new SVMInstance(getLabel((Label) instance.getTarget()), SVMClassifier.featureVectorWithFeatureSelectionToSVMNodes(instance, featuresSelected)));
+        }else
+        	for(Instance instance : instanceList)
+            	list.add(new SVMInstance(getLabel((Label) instance.getTarget()), SVMClassifier.featureVectorToSVMNodes(instance)));
+        
         return list;
     }
 
