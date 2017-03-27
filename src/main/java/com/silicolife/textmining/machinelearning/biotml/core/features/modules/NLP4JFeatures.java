@@ -83,6 +83,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		uids.add("NLP4JPOS");
 		uids.add("NLP4JBETWEENCONTAINSNOT");
 		uids.add("NLP4JBETWEENVERB");
+		uids.add("NLP4JOUTSIDEVERB");
 		uids.add("NLP4JDEPENDECY");
 		uids.add("NLP4JPOSREPRESENTATIVE");
 		uids.add("NLP4JDEPENDECYREPRESENTATIVE");
@@ -97,6 +98,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		infoMap.put("NLP4JPOS", "The NLP4J part-of-speech system is used to create a feature that associates POS for event annotations.");
 		infoMap.put("NLP4JBETWEENCONTAINSNOT", "Verifies if there is a 'not' lemma between event annotations.");
 		infoMap.put("NLP4JBETWEENVERB", "Gives the lemma verbs between annotation events.");
+		infoMap.put("NLP4JOUTSIDEVERB", "");
 		infoMap.put("NLP4JDEPENDECY", "The NLP4J dependency parsing system is used to create a feature that associates the dependecy label for event annotations.");
 		infoMap.put("NLP4JPOSREPRESENTATIVE", "The NLP4J POS parsing system is used to create a feature that associates the POS label representative of each annotation in event.");
 		infoMap.put("NLP4JDEPENDECYREPRESENTATIVE", "The NLP4J dependency parsing system is used to create a feature that associates the dependecy label representative of each annotation in event.");

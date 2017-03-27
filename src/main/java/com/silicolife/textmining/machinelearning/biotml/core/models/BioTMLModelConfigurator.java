@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
-import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithms;
+import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
 
 import libsvm.svm_parameter;
 
@@ -23,7 +23,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 	private String ieType;
 	private int modelOrder;
 	private int numThreads;
-	private String algorithm;
+	private BioTMLAlgorithm algorithm;
 	private svm_parameter svmparams;
 	private String nlpSystemUsed;
 	private String reMethodology;
@@ -38,7 +38,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 		this.ieType = new String();
 		this.modelOrder = 1;
 		this.numThreads = Runtime.getRuntime().availableProcessors();
-		this.algorithm = BioTMLAlgorithms.malletcrf.toString();
+		this.algorithm = BioTMLAlgorithm.malletcrf;
 		this.svmparams = svmdefparams();
 		this.nlpSystemUsed = "nlp4j";
 		this.reMethodology = new String();
@@ -56,7 +56,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 		this.ieType = ieType;
 		this.modelOrder = 1;
 		this.numThreads = Runtime.getRuntime().availableProcessors();
-		this.algorithm = BioTMLAlgorithms.malletcrf.toString();
+		this.algorithm = BioTMLAlgorithm.malletcrf;
 		this.svmparams = svmdefparams();
 		this.nlpSystemUsed = "nlp4j";
 		this.reMethodology = BioTMLREModelTypes.events.toString();
@@ -78,7 +78,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 		return numThreads;
 	}
 
-	public String getAlgorithmType() {
+	public BioTMLAlgorithm getAlgorithmType() {
 		return algorithm;
 	}
 	
@@ -110,7 +110,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 		this.svmparams = svmparams;
 	}
 
-	public void setAlgorithmType(String algorithm){
+	public void setAlgorithmType(BioTMLAlgorithm algorithm){
 		this.algorithm = algorithm;
 	}
 	
@@ -140,7 +140,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
     public String toString(){
     	StringBuilder sb = new StringBuilder();
     	sb.append("ML Algorithm: " + getAlgorithmType( )+ System.lineSeparator());
-    	if(!getAlgorithmType().equals(BioTMLAlgorithms.malletsvm.toString())){
+    	if(!getAlgorithmType().equals(BioTMLAlgorithm.malletsvm.toString())){
     		sb.append("Model Order: " + String.valueOf(getModelOrder())+System.lineSeparator());
     		return sb.toString();
     	}else{

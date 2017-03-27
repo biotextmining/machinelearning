@@ -12,7 +12,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLE
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
-import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithms;
+import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
 
 import cc.mallet.classify.Classifier;
 import cc.mallet.fst.Transducer;
@@ -121,13 +121,13 @@ public class BioTMLMalletAnnotatorImpl implements IBioTMLAnnotator{
 				|| model.getModelConfiguration().getIEType().equals(BioTMLConstants.re.toString())){
 			
 			if (model.getModel() instanceof Transducer){
-				if(	model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.malletcrf.toString())
-						|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.mallethmm.toString())){
+				if(	model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString())
+						|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString())){
 					return true;
 				}
 			}
 			
-			if (model.getModel() instanceof Classifier && model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.malletsvm.toString())){
+			if (model.getModel() instanceof Classifier && model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletsvm.toString())){
 				return true;
 			}
 			

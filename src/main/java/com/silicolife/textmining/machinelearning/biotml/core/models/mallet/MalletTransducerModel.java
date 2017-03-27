@@ -1,4 +1,4 @@
-package com.silicolife.textmining.machinelearning.biotml.core.models;
+package com.silicolife.textmining.machinelearning.biotml.core.models.mallet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,12 +23,12 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationResults;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelMatrixToPrint;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiEvaluation;
-import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithms;
+import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.BioTMLCorpusToInstanceMallet;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.features.CorpusWithFeatures2TokenSequence;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.fst.MultiSegmentationEvaluator;
+import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModel;
 
 import cc.mallet.fst.CRF;
 import cc.mallet.fst.CRFTrainerByThreadedLabelLikelihood;
@@ -41,12 +41,7 @@ import cc.mallet.pipe.SerialPipes;
 import cc.mallet.pipe.TokenSequence2FeatureSequence;
 import cc.mallet.pipe.TokenSequence2FeatureVectorSequence;
 import cc.mallet.types.Alphabet;
-import cc.mallet.types.FeatureVector;
-import cc.mallet.types.FeatureVectorSequence;
-import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
-import cc.mallet.types.Label;
-import cc.mallet.types.LabelSequence;
 
 /**
  * 
@@ -60,7 +55,6 @@ public class MalletTransducerModel extends BioTMLModel implements IBioTMLModel{
 
 	private IBioTMLCorpus corpus;
 	private Transducer transducerModel;
-	private IBioTMLModelMatrixToPrint matrix;
 	private Pipe pipe;
 	private InstanceList trainingdataset;
 	
@@ -77,7 +71,6 @@ public class MalletTransducerModel extends BioTMLModel implements IBioTMLModel{
 		setTransducerModel(null);
 		this.corpus = corpus;
 		this.pipe = setupPipe();
-		this.matrix = null;
 	}
 
 	public MalletTransducerModel(	IBioTMLCorpus corpus,
@@ -88,7 +81,6 @@ public class MalletTransducerModel extends BioTMLModel implements IBioTMLModel{
 		setTransducerModel(null);
 		this.corpus = corpus;
 		this.pipe = setupPipe();
-		this.matrix = null;
 	}
 
 	public MalletTransducerModel(Transducer model, 			
@@ -98,7 +90,6 @@ public class MalletTransducerModel extends BioTMLModel implements IBioTMLModel{
 		setTransducerModel(model);
 		this.corpus = null;
 		this.pipe = getModel().getInputPipe();
-		this.matrix = null;
 	}
 
 	public IBioTMLCorpus getCorpus() throws BioTMLException{
@@ -114,9 +105,9 @@ public class MalletTransducerModel extends BioTMLModel implements IBioTMLModel{
 //		pipe.add(new Corpus2TokenSequence()); 	
 //		pipe.add(new FeaturesClasses2MalletFeatures(getFeatureConfiguration()));
 //		pipe.add(new PrintTokenSequenceFeatures());
-		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.malletcrf.toString()))
+		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString()))
 			pipe.add(new TokenSequence2FeatureVectorSequence(true, true));
-		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.mallethmm.toString()))
+		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString()))
 			pipe.add(new TokenSequence2FeatureSequence());
 		return new SerialPipes(pipe);
 	}
@@ -192,27 +183,6 @@ public class MalletTransducerModel extends BioTMLModel implements IBioTMLModel{
 		return hmmModel;
 	}
 
-	@SuppressWarnings("unchecked")
-	private void loadMatrix(InstanceList dataset) throws BioTMLException{
-		this.matrix =  new ModelMatrixToPrint(getFeatureConfiguration().getFeaturesUIDs());
-		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.malletcrf.toString())){
-			Iterator<Instance> intData = dataset.iterator();
-			while(intData.hasNext()){
-				Instance instanceData = intData.next();
-				FeatureVectorSequence data = (FeatureVectorSequence) instanceData.getData();
-				LabelSequence dataTarget = (LabelSequence) instanceData.getTarget();
-				Iterator<FeatureVector> dataIt = data.iterator();
-				Iterator<Label> dataTargetIt = dataTarget.iterator();
-				while(dataIt.hasNext() && dataTargetIt.hasNext()){
-					FeatureVector row = dataIt.next();
-					Label target = dataTargetIt.next();
-					String rowToString = row.toString()+ "LABEL=" + target.toString() + "\n";
-					getMatrix().addMatrixRow(rowToString.split("\n"));
-				}
-			} 
-		}
-	}
-
 	private CRFTrainerByThreadedLabelLikelihood trainByThreadedLabelLikelihood(InstanceList dataToTrain, CRF model, boolean saveModel) throws BioTMLException{
 		CRFTrainerByThreadedLabelLikelihood modelTraining = new CRFTrainerByThreadedLabelLikelihood(model, getModelConfiguration().getNumThreads());
 		modelTraining.train(dataToTrain);
@@ -234,10 +204,10 @@ public class MalletTransducerModel extends BioTMLModel implements IBioTMLModel{
 
 	private IBioTMLEvaluation evaluateFold(InstanceList trainingData, InstanceList testingData, String foldIDString) throws BioTMLException{
 		TransducerTrainer evaluationModelTraining = null;
-		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.malletcrf.toString())){
+		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString())){
 			evaluationModelTraining = trainByThreadedLabelLikelihood(trainingData, defineCRF(trainingData), false);
 		}
-		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.mallethmm.toString())){
+		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString())){
 			evaluationModelTraining = trainByLikelihood(trainingData, defineHMM(trainingData), false);
 		}
 		MultiSegmentationEvaluator evaluator = new MultiSegmentationEvaluator(
@@ -292,12 +262,11 @@ public class MalletTransducerModel extends BioTMLModel implements IBioTMLModel{
 
 		trainingdataset = loadCorpus(getCorpus(), getModelConfiguration().getNumThreads());
 		BioTMLFeaturesManager.getInstance().cleanMemoryFeaturesClass();
-		loadMatrix(trainingdataset);
 		// Train with Threads
-		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.malletcrf.toString())){
+		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString())){
 			trainByThreadedLabelLikelihood(trainingdataset, defineCRF(trainingdataset), true);
 		}
-		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.mallethmm.toString())){
+		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString())){
 			trainByLikelihood(trainingdataset, defineHMM(trainingdataset), true);
 		}
 
@@ -346,13 +315,6 @@ public class MalletTransducerModel extends BioTMLModel implements IBioTMLModel{
 				outputPipe.cleanPipeFromMemory();
 			}
 		}
-	}
-
-	public IBioTMLModelMatrixToPrint getMatrix() throws BioTMLException {
-		if(matrix == null){
-			throw new BioTMLException(23);
-		}
-		return matrix;
 	}
 	
 	private void setTransducerModel(Transducer model){

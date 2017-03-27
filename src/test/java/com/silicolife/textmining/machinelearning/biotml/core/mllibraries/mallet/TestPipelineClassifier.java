@@ -23,11 +23,10 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationResults;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelMatrixToPrint;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelWriter;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfigurator;
-import com.silicolife.textmining.machinelearning.biotml.core.models.MalletClassifierModel;
+import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.MalletClassifierModel;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j.BioTMLNLP4J;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReaderImpl;
 import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLModelWriterImpl;
@@ -192,10 +191,6 @@ public class TestPipelineClassifier {
 		IBioTMLModelEvaluationResults res = svm.evaluate();
 		System.out.println(res.printResults());
 		svm.train();
-		IBioTMLModelMatrixToPrint matrix = svm.getMatrix();
-		Set<String> headers = matrix.getFeatures();
-		System.out.println(headers.toString());
-		matrix.saveMatrix("C:/Users/RRodrigues/Desktop/corpora/matrix_SVM.txt");
 		IBioTMLModelWriter writer = new BioTMLModelWriterImpl("C:/Users/RRodrigues/Desktop/corpora/model_SVM.gz");
 		writer.writeGZModelFile(svm);
 	}

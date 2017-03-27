@@ -22,11 +22,10 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLD
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationConfigurator;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelMatrixToPrint;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelWriter;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfigurator;
-import com.silicolife.textmining.machinelearning.biotml.core.models.MalletTransducerModel;
+import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.MalletTransducerModel;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j.BioTMLNLP4J;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReaderImpl;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReaderImpl;
@@ -189,10 +188,6 @@ public class TestModelCreationAndAnnotation {
 //		IBioTMLModelEvaluationResults res = model.evaluate();
 //		System.out.println(res.printResults());
 		model.train();
-		IBioTMLModelMatrixToPrint matrix = model.getMatrix();
-		Set<String> headers = matrix.getFeatures();
-		System.out.println(headers.toString());
-		matrix.saveMatrix(matrixFilename);
 		IBioTMLModelWriter writer = new BioTMLModelWriterImpl(modelDir);
 		writer.writeGZModelFile(model);
 	}

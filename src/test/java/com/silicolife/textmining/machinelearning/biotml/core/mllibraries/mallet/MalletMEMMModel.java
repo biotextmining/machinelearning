@@ -29,24 +29,17 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationResults;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelMatrixToPrint;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiEvaluation;
-import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.BioTMLCorpusToInstanceMallet;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.features.Corpus2TokenSequence;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.features.FeaturesClasses2MalletFeatures;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.fst.MultiSegmentationEvaluator;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModel;
-import com.silicolife.textmining.machinelearning.biotml.core.models.ModelMatrixToPrint;
 
 import cc.mallet.fst.MEMM;
 import cc.mallet.fst.MEMMTrainer;
 import cc.mallet.pipe.Pipe;
 import cc.mallet.pipe.SerialPipes;
 import cc.mallet.pipe.TokenSequence2FeatureVectorSequence;
-import cc.mallet.types.FeatureVector;
-import cc.mallet.types.FeatureVectorSequence;
-import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
-import cc.mallet.types.Label;
-import cc.mallet.types.LabelSequence;
 
 /**
  * 
@@ -150,26 +143,6 @@ public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
 		return memmModel;
 	}
 
-	private void loadMatrix(InstanceList dataset) throws BioTMLException{
-		this.matrix =  new ModelMatrixToPrint(getFeatureConfiguration().getFeaturesUIDs());
-
-		Iterator<Instance> intData = dataset.iterator();
-		while(intData.hasNext()){
-			Instance instanceData = intData.next();
-			FeatureVectorSequence data = (FeatureVectorSequence) instanceData.getData();
-			LabelSequence dataTarget = (LabelSequence) instanceData.getTarget();
-			Iterator<FeatureVector> dataIt = data.iterator();
-			@SuppressWarnings("unchecked")
-			Iterator<Label> dataTargetIt = dataTarget.iterator();
-			while(dataIt.hasNext() && dataTargetIt.hasNext()){
-				FeatureVector row = dataIt.next();
-				Label target = dataTargetIt.next();
-				String rowToString = row.toString()+ "LABEL=" + target.toString() + "\n";
-				getMatrix().addMatrixRow(rowToString.split("\n"));
-			}
-		} 
-	}
-
 	private MEMMTrainer trainByLikelihood(InstanceList dataToTrain, MEMM model, boolean saveModel){
 		MEMMTrainer modelTraining = new MEMMTrainer(model);
 		modelTraining.train(dataToTrain);
@@ -238,7 +211,6 @@ public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
 
 		InstanceList dataset = loadCorpus(getCorpus(), getModelConfiguration().getNumThreads());
 		BioTMLFeaturesManager.getInstance().cleanMemoryFeaturesClass();
-		loadMatrix(dataset);
 		// Define MEMM
 		MEMM memmModel = defineMEMM(dataset);
 		// Train with Threads

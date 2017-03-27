@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureSelectionConfiguration;
 
 /**
  * 
@@ -16,6 +17,7 @@ public class BioTMLFeatureGeneratorConfiguratorImpl implements IBioTMLFeatureGen
 
 	private static final long serialVersionUID = 1L;
 	private Set<String> featuresUIDs;
+	private IBioTMLFeatureSelectionConfiguration featureSelectionConfiguration;
 	
 	/**
 	 *
@@ -26,6 +28,12 @@ public class BioTMLFeatureGeneratorConfiguratorImpl implements IBioTMLFeatureGen
 	 */
 	public BioTMLFeatureGeneratorConfiguratorImpl(Set<String> featuresUIDs){
 		this.featuresUIDs = featuresUIDs;
+		this.featureSelectionConfiguration = new BioTMLFeatureSelectionConfigurationImpl();
+	}
+	
+	public BioTMLFeatureGeneratorConfiguratorImpl(Set<String> featuresUIDs, IBioTMLFeatureSelectionConfiguration featureSelectionConfiguration){
+		this.featuresUIDs = featuresUIDs;
+		this.featureSelectionConfiguration = featureSelectionConfiguration;
 	}
 
 	public Set<String> getFeaturesUIDs() {
@@ -42,6 +50,11 @@ public class BioTMLFeatureGeneratorConfiguratorImpl implements IBioTMLFeatureGen
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public IBioTMLFeatureSelectionConfiguration getFeatureSelectionConfiguration() {
+		return featureSelectionConfiguration;
 	}
 
 }

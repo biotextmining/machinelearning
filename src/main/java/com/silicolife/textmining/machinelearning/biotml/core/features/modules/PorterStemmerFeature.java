@@ -1,5 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.TreeSet;
 
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLFeatureColumns;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
@@ -51,12 +53,16 @@ public class PorterStemmerFeature implements IBioTMLFeatureGenerator{
 	
 	@Override
 	public Set<String> getREFeatureIds() {
-		return new TreeSet<String>();
+		Set<String> uids = new TreeSet<String>();
+		uids.add("PORTERSTEM");
+		return uids;
 	}
 
 	@Override
 	public Map<String, String> getREFeatureIdsInfos() {
-		return new HashMap<>();
+		Map<String, String> infoMap = new HashMap<>();
+		infoMap.put("PORTERSTEM", "The Porter Stemmer system is used to create a feature that stores the stem of each annotation token in event.");
+		return infoMap;
 	}
 
 	@Override
@@ -97,11 +103,44 @@ public class PorterStemmerFeature implements IBioTMLFeatureGenerator{
 	public IBioTMLFeatureColumns<IBioTMLAssociation> getEventFeatureColumns(List<IBioTMLToken> tokens, List<IBioTMLAssociation> associations,
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
 		IBioTMLFeatureColumns<IBioTMLAssociation> features = new BioTMLFeatureColumns<>(associations, getREFeatureIds(), configuration);
-//		for(IBioTMLAssociation association : associations){
-//			//features
-//		}
+		for(IBioTMLAssociation association : associations){
+			if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAnnotation){
+				IBioTMLAnnotation annotationOne = (IBioTMLAnnotation) association.getEntryOne();
+				IBioTMLAnnotation annotationTwo = (IBioTMLAnnotation) association.getEntryTwo();
+				
+				if(configuration.hasFeatureUID("PORTERSTEM"))
+					features.addBioTMLObjectFeature("PORTERSTEM="+getSteamsAssociated(annotationOne, annotationTwo, tokens), "PORTERSTEM");
+				
+			}else if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAssociation){
+				//TODO
+			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAnnotation){
+				//TODO
+			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAssociation){
+				//TODO
+			}
+		}
 		
 		return features;
+	}
+	
+	private String getSteamsAssociated(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens){
+		String result = new String();
+		Collections.sort(tokens);
+		for(IBioTMLToken token : tokens){
+			BioTMLStemmer stemmer = new BioTMLStemmer(token.getToken());
+    		String stem = stemmer.getStem();
+			if(annotationOne.getAnnotationOffsets().offsetsOverlap(token.getTokenOffsetsPair())){
+				if(!result.isEmpty())
+					result = result +"__&__";
+				result = result+ stem;
+			}
+			if(annotationTwo.getAnnotationOffsets().offsetsOverlap(token.getTokenOffsetsPair())){
+				if(!result.isEmpty())
+					result = result +"__&__";
+				result = result+ stem;
+			}
+		}
+		return result;
 	}
 
 }
