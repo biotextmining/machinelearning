@@ -13,7 +13,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLA
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
-import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithms;
+import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
 
 import cc.mallet.classify.Classifier;
 import cc.mallet.fst.Transducer;
@@ -55,12 +55,16 @@ public class BioTMLMalletNERAnnotator {
 		}
 		
 		Set<IBioTMLAnnotation> annotations = new HashSet<>();
-		if(model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.malletcrf.toString())
-				|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.mallethmm.toString()))
+		if(model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf)
+				|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm))
 		{
 			predictAnnotationsUsingTransducerProcessor(corpus, model, threads, annotations);	
 		}
-		else if(model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.malletsvm.toString()))
+		else if(model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletsvm)
+				|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletnaivebayes)
+				|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletdecisiontree)
+				|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletmaxent)
+				|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletc45))
 		{
 			predictAnnotationsUsingClassifierProcessor(corpus, model, threads, annotations);
 		}
@@ -109,13 +113,13 @@ public class BioTMLMalletNERAnnotator {
 		if(model.getModelConfiguration().getIEType().equals(BioTMLConstants.ner.toString())){
 			
 			if (model.getModel() instanceof Transducer){
-				if(	model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.malletcrf.toString())
-						|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.mallethmm.toString())){
+				if(	model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString())
+						|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString())){
 					return true;
 				}
 			}
 			
-			if (model.getModel() instanceof Classifier && model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.malletsvm.toString())){
+			if (model.getModel() instanceof Classifier && model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletsvm.toString())){
 				return true;
 			}
 			

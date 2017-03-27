@@ -1,4 +1,4 @@
-package com.silicolife.textmining.machinelearning.biotml.core.models;
+package com.silicolife.textmining.machinelearning.biotml.core.models.mallet;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,7 +15,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPOutputStream;
 
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationResultsImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLMultiEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.utils.BioTMLCrossValidationCorpusIterator;
@@ -25,30 +24,35 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLC
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusToInstanceMallet;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvaluation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureSelectionConfiguration;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationResults;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelMatrixToPrint;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiEvaluation;
-import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithms;
+import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
+import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLFeatureSelectionAlgorithm;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.libsvm.mallet.SVMClassifierTrainer;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.BioTMLCorpusToInstanceMallet;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.FeatureVectorSequence2FeatureVectorsFixed;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.features.CorpusWithFeatures2TokenSequence;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.multithread.MalletClassifierFoldProcessedInThread;
+import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModel;
 
+import cc.mallet.classify.C45Trainer;
 import cc.mallet.classify.Classifier;
 import cc.mallet.classify.ClassifierTrainer;
-import cc.mallet.classify.Trial;
+import cc.mallet.classify.DecisionTreeTrainer;
+import cc.mallet.classify.MaxEntTrainer;
+import cc.mallet.classify.NaiveBayesTrainer;
 import cc.mallet.pipe.Pipe;
 import cc.mallet.pipe.SerialPipes;
 import cc.mallet.pipe.TokenSequence2FeatureVectorSequence;
 import cc.mallet.types.Alphabet;
-import cc.mallet.types.FeatureVector;
-import cc.mallet.types.Instance;
+import cc.mallet.types.FeatureCounts;
+import cc.mallet.types.FeatureSelection;
+import cc.mallet.types.InfoGain;
 import cc.mallet.types.InstanceList;
-import cc.mallet.types.Label;
 
 /**
  * 
@@ -62,7 +66,6 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 
 	private IBioTMLCorpus corpus;
 	private Classifier classifierModel;
-	private IBioTMLModelMatrixToPrint matrix;
 	private Pipe pipe;
 	private InstanceList trainingdataset;
 	
@@ -79,7 +82,6 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 		setClassifierModel(null);
 		this.corpus = corpus;
 		this.pipe = setupPipe();
-		this.matrix = null;
 	}
 
 	public MalletClassifierModel(	IBioTMLCorpus corpus, 
@@ -90,7 +92,6 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 		setClassifierModel(null);
 		this.corpus = corpus;
 		this.pipe = setupPipe();
-		this.matrix = null;
 	}
 
 	public MalletClassifierModel(	Classifier classifier,		
@@ -100,7 +101,6 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 		setClassifierModel(classifier);
 		this.corpus = null;
 		this.pipe = getModel().getInstancePipe();
-		this.matrix = null;
 	}
 
 	public IBioTMLCorpus getCorpus() throws BioTMLException{
@@ -143,47 +143,43 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 		IBioTMLCorpusToInstanceMallet malletCorpus = new BioTMLCorpusToInstanceMallet(corpusToLoad, getModelConfiguration());
 		return malletCorpus.exportToMalletFeatures(getPipe(), numThreads, getFeatureConfiguration());
 	}
-
-	private void loadMatrix(InstanceList dataset) throws BioTMLException{
-		this.matrix =  new ModelMatrixToPrint(getFeatureConfiguration().getFeaturesUIDs());
-		
-		Iterator<Instance> intData = dataset.iterator();
-		while(intData.hasNext()){
-			Instance instanceData = intData.next();
-			FeatureVector row = (FeatureVector) instanceData.getData();
-			Label target = (Label) instanceData.getTarget();
-			String rowToString = row.toString()+ "LABEL=" + target.toString() + "\n";
-			getMatrix().addMatrixRow(rowToString.split("\n"));
+	
+	private InstanceList loadFeaturesSelection(InstanceList intances, IBioTMLFeatureSelectionConfiguration featSelectConfig){
+		if(featSelectConfig.getFeatureSelectionAlgorithm().equals(BioTMLFeatureSelectionAlgorithm.none))
+			return intances;
+		if(featSelectConfig.getFeatureSelectionAlgorithm().equals(BioTMLFeatureSelectionAlgorithm.infogain)){
+			InfoGain infogain = new InfoGain(intances);
+			FeatureSelection selectedFeatures = new FeatureSelection(infogain, featSelectConfig.getSelectedFeaturesSize());
+			intances.setFeatureSelection(selectedFeatures);
+		}else if(featSelectConfig.getFeatureSelectionAlgorithm().equals(BioTMLFeatureSelectionAlgorithm.featurecounts)){
+			FeatureCounts featureCounts = new FeatureCounts(intances);
+			FeatureSelection selectedFeatures = new FeatureSelection(featureCounts, featSelectConfig.getSelectedFeaturesSize());
+			intances.setFeatureSelection(selectedFeatures);
 		}
+		return intances;
 	}
 	
 	@SuppressWarnings("rawtypes")
 	private ClassifierTrainer train(InstanceList dataToTrain, boolean saveModel){
+		
 		ClassifierTrainer modelTraining=null;
-		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.malletsvm.toString())){
+		
+		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletsvm))
 			modelTraining = new SVMClassifierTrainer(getModelConfiguration().getSVMParameters());
-		}
+		else if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletnaivebayes))
+			modelTraining = new NaiveBayesTrainer(getPipe());
+		else if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletdecisiontree))
+			modelTraining = new DecisionTreeTrainer();
+		else if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletmaxent))
+			modelTraining = new MaxEntTrainer();
+		else if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletc45))
+			modelTraining = new C45Trainer();
+		
 		modelTraining.train(dataToTrain);
-		if(saveModel){
+		if(saveModel)
 			setClassifierModel(modelTraining.getClassifier());
-		}
+		
 		return modelTraining;
-	}
-
-	@SuppressWarnings({ "rawtypes", "unused" })
-	private IBioTMLEvaluation evaluateFold(InstanceList trainingData, InstanceList testingData){
-		ClassifierTrainer evaluationModelTraining = train(trainingData, false);
-		Trial trial = new Trial(evaluationModelTraining.getClassifier(), testingData);
-		int size = testingData.getTargetAlphabet().size();
-		double precision = 0.0;
-		double recall = 0.0;
-		double f1 = 0.0;
-		for(int i=0; i<size; i++){
-			precision += trial.getPrecision(i);
-			recall += trial.getRecall(i);
-			f1 += trial.getF1(i);
-		}
-		return new BioTMLEvaluationImpl((float)precision/(float)size, (float)recall/(float)size, (float)f1/(float)size);
 	}
 
 	private IBioTMLMultiEvaluation evaluateByDocumentCrossValidation() throws BioTMLException{
@@ -194,9 +190,12 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 		while(itCross.hasNext()){
 			IBioTMLCorpus[] folds = itCross.next();	        
 			InstanceList trainingData = loadCorpus(folds[0], getModelConfiguration().getNumThreads());
+			trainingData = loadFeaturesSelection(trainingData, getFeatureConfiguration().getFeatureSelectionConfiguration());
 			InstanceList testingData = loadCorpus(folds[1], getModelConfiguration().getNumThreads());
+			testingData = loadFeaturesSelection(testingData, getFeatureConfiguration().getFeatureSelectionConfiguration());
 //			multiEvaluations.add(evaluateFold(trainingData, testingData));
-			executor.execute(new MalletClassifierFoldProcessedInThread(trainingData, testingData, multiEvaluations, getModelConfiguration(), "Cross Validation by documents fold "+foldCount));
+			executor.execute(new MalletClassifierFoldProcessedInThread(trainingData, testingData, getPipe(), 
+					multiEvaluations, getModelConfiguration(), "Cross Validation by documents fold "+foldCount));
 			foldCount++;
 		}
 		executor.shutdown();
@@ -217,8 +216,11 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 		while(itCross.hasNext()){
 			InstanceList[] dataSplited = itCross.next();
 			InstanceList trainingData = dataSplited[0];
+			trainingData = loadFeaturesSelection(trainingData, getFeatureConfiguration().getFeatureSelectionConfiguration());
 			InstanceList testingData = dataSplited[1];
-			executor.execute(new MalletClassifierFoldProcessedInThread(trainingData, testingData, multiEvaluations, getModelConfiguration(), "Cross Validation by sentences fold "+foldCount));
+			testingData = loadFeaturesSelection(testingData, getFeatureConfiguration().getFeatureSelectionConfiguration());
+			executor.execute(new MalletClassifierFoldProcessedInThread(trainingData, testingData, getPipe(),
+					multiEvaluations, getModelConfiguration(), "Cross Validation by sentences fold "+foldCount));
 //			multiEvaluations.add(evaluateFold(trainingData, testingData));
 			foldCount++;
 		}
@@ -248,9 +250,8 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 
 	public void train() throws BioTMLException {
 		trainingdataset = loadCorpus(getCorpus(), getModelConfiguration().getNumThreads());
-		//dataset = reprocessInstances(dataset);
+		trainingdataset = loadFeaturesSelection(trainingdataset, getFeatureConfiguration().getFeatureSelectionConfiguration());
 		BioTMLFeaturesManager.getInstance().cleanMemoryFeaturesClass();
-		loadMatrix(trainingdataset);
 		// Train with Threads
 		train(trainingdataset, true);
 	}
@@ -271,13 +272,6 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 				inputPipe.cleanPipeFromMemory();
 			}
 		}
-	}
-
-	public IBioTMLModelMatrixToPrint getMatrix() throws BioTMLException {
-		if(matrix == null){
-			throw new BioTMLException(22);
-		}
-		return matrix;
 	}
 
 	public Classifier getModel(){

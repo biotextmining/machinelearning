@@ -21,9 +21,9 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLF
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
-import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithms;
-import com.silicolife.textmining.machinelearning.biotml.core.models.MalletClassifierModel;
-import com.silicolife.textmining.machinelearning.biotml.core.models.MalletTransducerModel;
+import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
+import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.MalletClassifierModel;
+import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.MalletTransducerModel;
 
 import cc.mallet.classify.Classifier;
 import cc.mallet.fst.CRF;
@@ -104,13 +104,13 @@ public class BioTMLModelReaderImpl implements IBioTMLModelReader{
 				modelresult = (List<?>) ois.readObject();
 				IBioTMLFeatureGeneratorConfigurator features = (IBioTMLFeatureGeneratorConfigurator) modelresult.get(0);
 				IBioTMLModelConfigurator configuration = (IBioTMLModelConfigurator) modelresult.get(1);
-				if(configuration.getAlgorithmType().equals(BioTMLAlgorithms.malletcrf.toString()) 
-						|| configuration.getAlgorithmType().equals(BioTMLAlgorithms.mallethmm.toString())){
+				if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString()) 
+						|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString())){
 					Transducer transducer = (Transducer) modelresult.get(2);
 					ois.close();
 					return new MalletTransducerModel(transducer, features, configuration);
 				}
-				if(configuration.getAlgorithmType().equals(BioTMLAlgorithms.malletsvm.toString())){
+				if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletsvm.toString())){
 					ois.close();
 					Classifier classifier = (Classifier) modelresult.get(2);
 					return new MalletClassifierModel(classifier, features, configuration);
@@ -166,13 +166,13 @@ public class BioTMLModelReaderImpl implements IBioTMLModelReader{
 				modelresult = (List<Object>) ois.readObject();
 				IBioTMLFeatureGeneratorConfigurator features = (IBioTMLFeatureGeneratorConfigurator) modelresult.get(0);
 				IBioTMLModelConfigurator configuration = (IBioTMLModelConfigurator) modelresult.get(1);
-				if(configuration.getAlgorithmType().equals(BioTMLAlgorithms.malletcrf.toString()) 
-						|| configuration.getAlgorithmType().equals(BioTMLAlgorithms.mallethmm.toString())){
+				if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString()) 
+						|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString())){
 					ois.close();
 					cleanMalletModelFromMemory(modelresult);
 					return new MalletTransducerModel(features, configuration);
 				}
-				if(configuration.getAlgorithmType().equals(BioTMLAlgorithms.malletsvm.toString())){
+				if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletsvm.toString())){
 					ois.close();
 					cleanMalletModelFromMemory(modelresult);
 					return new MalletClassifierModel(features, configuration);

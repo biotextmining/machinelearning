@@ -6,11 +6,16 @@ import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvaluation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
-import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithms;
+import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.libsvm.mallet.SVMClassifierTrainer;
 
+import cc.mallet.classify.C45Trainer;
 import cc.mallet.classify.ClassifierTrainer;
+import cc.mallet.classify.DecisionTreeTrainer;
+import cc.mallet.classify.MaxEntTrainer;
+import cc.mallet.classify.NaiveBayesTrainer;
 import cc.mallet.classify.Trial;
+import cc.mallet.pipe.Pipe;
 import cc.mallet.types.InstanceList;
 
 /**
@@ -25,6 +30,7 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 
 	private InstanceList trainingData;
 	private InstanceList testingData;
+	private Pipe pipe;
 	private Set<IBioTMLEvaluation> multiEvaluations;
 	private IBioTMLModelConfigurator modelConfiguration;
 	private String foldDescription;
@@ -38,10 +44,11 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 	 * @param multiEvaluations - Set of fold evaluations to be populated in multi-threading process.
 	 * @param iBioTMLModelConfigurator - Mallet algorithm type.
 	 */
-	public MalletClassifierFoldProcessedInThread(InstanceList trainingData, InstanceList testingData, 
+	public MalletClassifierFoldProcessedInThread(InstanceList trainingData, InstanceList testingData, Pipe pipe,
 			Set<IBioTMLEvaluation> multiEvaluations, IBioTMLModelConfigurator iBioTMLModelConfigurator, String foldDescription){
 		this.trainingData = trainingData;
 		this.testingData = testingData;
+		this.pipe = pipe;
 		this.multiEvaluations = multiEvaluations;
 		this.modelConfiguration = iBioTMLModelConfigurator;
 		this.foldDescription = foldDescription;
@@ -65,6 +72,10 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 	 */
 	public InstanceList getTestingData() {
 		return testingData;
+	}
+	
+	public Pipe getPipe(){
+		return pipe;
 	}
 
 	/**
@@ -99,11 +110,22 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 	
 	@SuppressWarnings("rawtypes")
 	private ClassifierTrainer train(InstanceList dataToTrain){
+		
 		ClassifierTrainer modelTraining=null;
-		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithms.malletsvm.toString())){
+		
+		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletsvm))
 			modelTraining = new SVMClassifierTrainer(getModelConfiguration().getSVMParameters());
-			modelTraining.train(dataToTrain);
-		}
+		else if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletnaivebayes))
+			modelTraining = new NaiveBayesTrainer(getPipe());
+		else if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletdecisiontree))
+			modelTraining = new DecisionTreeTrainer();
+		else if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletmaxent))
+			modelTraining = new MaxEntTrainer();
+		else if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletc45))
+			modelTraining = new C45Trainer();
+		
+		modelTraining.train(dataToTrain);
+		
 		return modelTraining;
 	}
 	
@@ -122,21 +144,19 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 		if(evaluationModelTraining !=null){
 			Trial trial = new Trial(evaluationModelTraining.getClassifier(), getTestingData());
 			int size = getTestingData().getTargetAlphabet().size();
-			int index = 0;
+
 			for(int i=0; i<size; i++){
 				Object label = getTestingData().getTargetAlphabet().lookupObject(i);
-				if(label.toString().equals(BioTMLConstants.b.toString())){
-					index = i;
+				if(!label.toString().equals(BioTMLConstants.o.toString())){
+					float precision = (float) trial.getPrecision(i);
+					float recall = (float) trial.getRecall(i);
+					float f1 = (float) trial.getF1(i);
+					if(recall == 0.0)
+						addToMultiEvaluations(new BioTMLEvaluationImpl(0, 0, 0, getFoldDescription()+" instance class: "+ label.toString()));
+					else
+						addToMultiEvaluations(new BioTMLEvaluationImpl(precision, recall, f1, getFoldDescription()+" instance class: "+ label.toString()));
 				}
 			}
-			float precision = (float) trial.getPrecision(index);
-			float recall = (float) trial.getRecall(index);
-			float f1 = (float) trial.getF1(index);
-
-			if(recall == 0.0)
-				addToMultiEvaluations(new BioTMLEvaluationImpl(0, 0, 0, getFoldDescription()));
-			else
-				addToMultiEvaluations(new BioTMLEvaluationImpl(precision, recall, f1, getFoldDescription()));
 		}
 	}
 

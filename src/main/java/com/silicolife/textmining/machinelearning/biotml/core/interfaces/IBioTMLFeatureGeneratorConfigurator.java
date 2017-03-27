@@ -28,5 +28,7 @@ public interface IBioTMLFeatureGeneratorConfigurator extends Serializable{
 	 * @return Boolean that validates the feature.
 	 */
 	public boolean hasFeatureUID(String featureUID);
+	
+	public IBioTMLFeatureSelectionConfiguration getFeatureSelectionConfiguration();
 
 }

@@ -38,15 +38,6 @@ public interface IBioTMLModel {
 	
 	/**
 	 * 
-	 * Method to get the training model matrix.
-	 * 
-	 * @return {@link IBioTMLModelMatrixToPrint}.
-	 * @throws BioTMLException
-	 */
-	public IBioTMLModelMatrixToPrint getMatrix() throws BioTMLException;
-	
-	/**
-	 * 
 	 * Method to perform the evaluation regarding the evaluation configurations inputed.
 	 * 
 	 * @return {link IBioTMLModelEvaluationResults}.

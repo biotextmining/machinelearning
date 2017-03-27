@@ -2,6 +2,8 @@ package com.silicolife.textmining.machinelearning.biotml.core.interfaces;
 
 import java.io.Serializable;
 
+import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
+
 import libsvm.svm_parameter;
 
 /**
@@ -52,7 +54,7 @@ public interface IBioTMLModelConfigurator extends Serializable{
 	 * 
 	 * @return Algorithm type string.
 	 */
-	public String getAlgorithmType();
+	public BioTMLAlgorithm getAlgorithmType();
 
 	/**
 	 * 
@@ -98,7 +100,7 @@ public interface IBioTMLModelConfigurator extends Serializable{
 	 * Method to set the model algorithm type.
 	 * 
 	 */
-	public void setAlgorithmType(String algorithm);
+	public void setAlgorithmType(BioTMLAlgorithm algorithm);
 	
 	/**
 	 * 
