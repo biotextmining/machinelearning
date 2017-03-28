@@ -1,5 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.evaluation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Set;
 
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLConfusionMatrix;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvaluation;
@@ -26,15 +28,39 @@ public class BioTMLCorpusEvaluator {
 		Set<IBioTMLAnnotation> inBothCorpusAnnotations = new HashSet<>();
 		fillNERAnnotationSets(goldStandard, toCompare, onlyToCompareAnnotations, onlyGoldStandardAnnotations, inBothCorpusAnnotations);
 
-		Map<String, Integer> onlyToCompareMap = countByAnnotationType(onlyToCompareAnnotations);
-		Map<String, Integer> onlyGoldStandardMap = countByAnnotationType(onlyGoldStandardAnnotations);
-		Map<String, Integer> inBothCorpusMap = countByAnnotationType(inBothCorpusAnnotations);
+		Map<String, List<IBioTMLAnnotation>> onlyToCompareMap = countByAnnotationType(onlyToCompareAnnotations);
+		Map<String, List<IBioTMLAnnotation>> onlyGoldStandardMap = countByAnnotationType(onlyGoldStandardAnnotations);
+		Map<String, List<IBioTMLAnnotation>> inBothCorpusMap = countByAnnotationType(inBothCorpusAnnotations);
 		Set<String> keySet = new HashSet<>();
 //		keySet.addAll(onlyToCompareMap.keySet());
 		keySet.addAll(onlyGoldStandardMap.keySet());
 		keySet.addAll(inBothCorpusMap.keySet());
 
-		Set<IBioTMLEvaluation> evaluations = calculateEvaluationsByAnnotType(onlyToCompareMap, onlyGoldStandardMap, inBothCorpusMap, keySet);
+		Map<String, List<IBioTMLEvaluation>> evaluations = new HashMap<>();
+		for(String annotType : keySet){
+			IBioTMLConfusionMatrix<IBioTMLAnnotation> confusionMatrix = new BioTMLConfusionMatrixImpl<>();
+			List<IBioTMLAnnotation> onlyToCompareSize = new ArrayList<>();
+			List<IBioTMLAnnotation> onlyGoldStandardSize = new ArrayList<>();
+			List<IBioTMLAnnotation> inBothCorpusSize = new ArrayList<>();
+			if(onlyToCompareMap.containsKey(annotType)){
+				onlyToCompareSize = onlyToCompareMap.get(annotType);
+			}
+			if(onlyGoldStandardMap.containsKey(annotType)){
+				onlyGoldStandardSize = onlyGoldStandardMap.get(annotType);
+			}
+			if(inBothCorpusMap.containsKey(annotType)){
+				inBothCorpusSize = inBothCorpusMap.get(annotType);
+			}
+			confusionMatrix.addAllTruePositives(inBothCorpusSize);
+			confusionMatrix.addAllFalsePositives(onlyToCompareSize);
+			confusionMatrix.addAllFalseNegatives(onlyGoldStandardSize);
+			
+			if(!evaluations.containsKey(annotType))
+				evaluations.put(annotType, new ArrayList<IBioTMLEvaluation>());
+			List<IBioTMLEvaluation> eval = evaluations.get(annotType);
+			eval.add(new BioTMLEvaluationImpl(confusionMatrix));
+			evaluations.put(annotType, eval);
+		}
 
 		return new BioTMLMultiEvaluationImpl(evaluations);
 	}
@@ -45,16 +71,40 @@ public class BioTMLCorpusEvaluator {
 		Set<IBioTMLEvent> inBothCorpusRelations = new HashSet<>();
 		fillREAnnotationSets(goldStandard, toCompare, onlyToCompareRelations, onlyGoldStandardRelations, inBothCorpusRelations);
 		
-		Map<String, Integer> onlyToCompareMap = countByRelationType(onlyToCompareRelations);
-		Map<String, Integer> onlyGoldStandardMap = countByRelationType(onlyGoldStandardRelations);
-		Map<String, Integer> inBothCorpusMap = countByRelationType(inBothCorpusRelations);
+		Map<String, List<IBioTMLEvent>> onlyToCompareMap = countByEventType(onlyToCompareRelations);
+		Map<String, List<IBioTMLEvent>> onlyGoldStandardMap = countByEventType(onlyGoldStandardRelations);
+		Map<String, List<IBioTMLEvent>> inBothCorpusMap = countByEventType(inBothCorpusRelations);
 		
 		Set<String> keySet = new HashSet<>();
 //		keySet.addAll(onlyToCompareMap.keySet());
 		keySet.addAll(onlyGoldStandardMap.keySet());
 		keySet.addAll(inBothCorpusMap.keySet());
 
-		Set<IBioTMLEvaluation> evaluations = calculateEvaluationsByAnnotType(onlyToCompareMap, onlyGoldStandardMap, inBothCorpusMap, keySet);;
+		Map<String, List<IBioTMLEvaluation>> evaluations = new HashMap<>();
+		for(String annotType : keySet){
+			IBioTMLConfusionMatrix<IBioTMLEvent> confusionMatrix = new BioTMLConfusionMatrixImpl<>();
+			List<IBioTMLEvent> onlyToCompareSize = new ArrayList<>();
+			List<IBioTMLEvent> onlyGoldStandardSize = new ArrayList<>();
+			List<IBioTMLEvent> inBothCorpusSize = new ArrayList<>();
+			if(onlyToCompareMap.containsKey(annotType)){
+				onlyToCompareSize = onlyToCompareMap.get(annotType);
+			}
+			if(onlyGoldStandardMap.containsKey(annotType)){
+				onlyGoldStandardSize = onlyGoldStandardMap.get(annotType);
+			}
+			if(inBothCorpusMap.containsKey(annotType)){
+				inBothCorpusSize = inBothCorpusMap.get(annotType);
+			}
+			confusionMatrix.addAllTruePositives(inBothCorpusSize);
+			confusionMatrix.addAllFalsePositives(onlyToCompareSize);
+			confusionMatrix.addAllFalseNegatives(onlyGoldStandardSize);
+			
+			if(!evaluations.containsKey(annotType))
+				evaluations.put(annotType, new ArrayList<IBioTMLEvaluation>());
+			List<IBioTMLEvaluation> eval = evaluations.get(annotType);
+			eval.add(new BioTMLEvaluationImpl(confusionMatrix));
+			evaluations.put(annotType, eval);
+		}
 		return new BioTMLMultiEvaluationImpl(evaluations);
 	}
 
@@ -82,51 +132,28 @@ public class BioTMLCorpusEvaluator {
 		}
 	}
 
-
-	private Set<IBioTMLEvaluation> calculateEvaluationsByAnnotType(Map<String, Integer> onlyToCompareMap,
-			Map<String, Integer> onlyGoldStandardMap, Map<String, Integer> inBothCorpusMap, Set<String> keySet) {
-		Set<IBioTMLEvaluation> evaluationsPerAnnotType = new HashSet<>();
-		for(String annotType : keySet){
-			int onlyToCompareSize = 0;
-			int onlyGoldStandardSize = 0;
-			int inBothCorpusSize = 0;
-			if(onlyToCompareMap.containsKey(annotType)){
-				onlyToCompareSize = onlyToCompareMap.get(annotType);
-			}
-			if(onlyGoldStandardMap.containsKey(annotType)){
-				onlyGoldStandardSize = onlyGoldStandardMap.get(annotType);
-			}
-			if(inBothCorpusMap.containsKey(annotType)){
-				inBothCorpusSize = inBothCorpusMap.get(annotType);
-			}
-			float precision = calculatePrecision(onlyToCompareSize, inBothCorpusSize);
-			float recall = calculateRecall(onlyGoldStandardSize, inBothCorpusSize);
-			float fscore = calculateFScore(onlyToCompareSize, onlyGoldStandardSize, inBothCorpusSize);
-			evaluationsPerAnnotType.add(new BioTMLEvaluationImpl(precision, recall, fscore, annotType));
-		}
-		return evaluationsPerAnnotType;
-	}
-
-	private Map<String, Integer> countByAnnotationType(Set<IBioTMLAnnotation> annotations){
-		Map<String, Integer> map = new HashMap<>();
+	private Map<String, List<IBioTMLAnnotation>> countByAnnotationType(Set<IBioTMLAnnotation> annotations){
+		Map<String, List<IBioTMLAnnotation>> map = new HashMap<>();
 		for(IBioTMLAnnotation annotation :annotations){
 			if(!map.containsKey(annotation.getAnnotType())){
-				map.put(annotation.getAnnotType(), 0);
+				map.put(annotation.getAnnotType(), new ArrayList<IBioTMLAnnotation>());
 			}
-			Integer count = map.get(annotation.getAnnotType());
-			map.put(annotation.getAnnotType(), count+1);
+			List<IBioTMLAnnotation> countedAnnotations = map.get(annotation.getAnnotType());
+			countedAnnotations.add(annotation);
+			map.put(annotation.getAnnotType(), countedAnnotations);
 		}
 		return map;
 	}
 	
-	private Map<String, Integer> countByRelationType(Set<IBioTMLEvent> relations){
-		Map<String, Integer> map = new HashMap<>();
-		for(IBioTMLEvent relation : relations){
-			if(!map.containsKey(relation.getEventType())){
-				map.put(relation.getEventType(), 0);
+	private Map<String, List<IBioTMLEvent>> countByEventType(Set<IBioTMLEvent> events){
+		Map<String, List<IBioTMLEvent>> map = new HashMap<>();
+		for(IBioTMLEvent event : events){
+			if(!map.containsKey(event.getEventType())){
+				map.put(event.getEventType(), new ArrayList<IBioTMLEvent>());
 			}
-			Integer count = map.get(relation.getEventType());
-			map.put(relation.getEventType(), count+1);
+			List<IBioTMLEvent> countedevents = map.get(event.getEventType());
+			countedevents.add(event);
+			map.put(event.getEventType(), countedevents);
 		}
 		return map;
 	}
@@ -184,24 +211,4 @@ public class BioTMLCorpusEvaluator {
 		return found;
 	}
 
-	private float calculatePrecision( int onlyToCompareAnnotSize, int inBothCorpusAnnotSize){
-		if ( (inBothCorpusAnnotSize + onlyToCompareAnnotSize) == 0) {
-			return 0;
-		}
-		return (float)inBothCorpusAnnotSize/(float)(inBothCorpusAnnotSize + onlyToCompareAnnotSize);
-	}
-
-	private float calculateRecall(  int onlyGoldStandardAnnotSize, int inBothCorpusAnnotSize){
-		if ((inBothCorpusAnnotSize + onlyGoldStandardAnnotSize) == 0){
-			return 0;
-		}
-		return (float)inBothCorpusAnnotSize/(float)(inBothCorpusAnnotSize + onlyGoldStandardAnnotSize);
-	}
-
-	private float calculateFScore(int onlyToCompareAnnotSize,  int onlyGoldStandardAnnotSize, int inBothCorpusAnnotSize){
-		if (calculatePrecision(onlyToCompareAnnotSize, inBothCorpusAnnotSize) + calculateRecall(onlyGoldStandardAnnotSize, inBothCorpusAnnotSize) == 0){
-			return 0;
-		}
-		return 2 * (calculatePrecision(onlyToCompareAnnotSize, inBothCorpusAnnotSize) * calculateRecall(onlyGoldStandardAnnotSize, inBothCorpusAnnotSize) ) / (calculatePrecision(onlyToCompareAnnotSize, inBothCorpusAnnotSize) + calculateRecall(onlyGoldStandardAnnotSize, inBothCorpusAnnotSize) );
-	}
 }

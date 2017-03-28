@@ -2,14 +2,12 @@ package com.silicolife.textmining.machinelearning.biotml.core.models.mallet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationResultsImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLMultiEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.utils.BioTMLCrossValidationCorpusIterator;
@@ -202,7 +200,7 @@ public class MalletTransducerModel extends BioTMLModel implements IBioTMLModel{
 		return modelTraining;
 	}
 
-	private IBioTMLEvaluation evaluateFold(InstanceList trainingData, InstanceList testingData, String foldIDString) throws BioTMLException{
+	private Map<String, IBioTMLEvaluation> evaluateFold(InstanceList trainingData, InstanceList testingData, String foldIDString) throws BioTMLException{
 		TransducerTrainer evaluationModelTraining = null;
 		if(getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString())){
 			evaluationModelTraining = trainByThreadedLabelLikelihood(trainingData, defineCRF(trainingData), false);
@@ -215,25 +213,37 @@ public class MalletTransducerModel extends BioTMLModel implements IBioTMLModel{
 				new String[]{foldIDString}, new String[]{BioTMLConstants.b.toString(), BioTMLConstants.i.toString()}, new String[]{BioTMLConstants.b.toString(), BioTMLConstants.i.toString()}) {
 		};
 		evaluator.evaluate(evaluationModelTraining);
-		return new BioTMLEvaluationImpl(evaluator.getOverallPrecision(), evaluator.getOverallRecall(), evaluator.getOverallF1(), foldIDString);
+		System.err.println("The MultiSegmentationEvaluator don't fill the confusion matrix! Evaluation for Transducers is not completed!");
+//		Map<String, IBioTMLConfusionMatrix<Object>> confusion = evaluator.getConfusionMatrixBySegmentString();
+//		return new BioTMLEvaluationImpl(evaluator.getOverallPrecision(), evaluator.getOverallRecall(), evaluator.getOverallF1(), foldIDString);
+		return null;
 	}
 
 	private IBioTMLMultiEvaluation evaluateByDocumentCrossValidation() throws BioTMLException{
-		Set<IBioTMLEvaluation> multiEvaluations = new HashSet<IBioTMLEvaluation>();
+		Map<String, List<IBioTMLEvaluation>> multiEvaluations = new HashMap<>();
 		int foldID = 1;
 		Iterator<IBioTMLCorpus[]> itCross = new BioTMLCrossValidationCorpusIterator(getCorpus(), getModelEvaluationConfiguration().getCVFoldsByDocuments());
 		while(itCross.hasNext()){
 			IBioTMLCorpus[] folds = itCross.next();	        
 			InstanceList trainingData = loadCorpus(folds[0], getModelConfiguration().getNumThreads());
 			InstanceList testingData = loadCorpus(folds[1], getModelConfiguration().getNumThreads());
-			multiEvaluations.add(evaluateFold(trainingData, testingData, "CV By Doc Fold: " + String.valueOf(foldID)));
+			
+			Map<String, IBioTMLEvaluation> evaluationByLabel = evaluateFold(trainingData, testingData, "CV By Doc Fold: " + String.valueOf(foldID));
+			for(String label : evaluationByLabel.keySet()){
+				if(!multiEvaluations.containsKey(label))
+					multiEvaluations.put(label, new ArrayList<>());
+				List<IBioTMLEvaluation> evaluations = multiEvaluations.get(label);
+				evaluations.add(evaluationByLabel.get(label));
+				multiEvaluations.put(label, evaluations);
+			}
+
 			foldID++;
 		}
 		return new BioTMLMultiEvaluationImpl(multiEvaluations);
 	}
 
 	private IBioTMLMultiEvaluation evaluateBySentenceCrossValidation() throws BioTMLException{
-		Set<IBioTMLEvaluation> multiEvaluations = new HashSet<IBioTMLEvaluation>();
+		Map<String, List<IBioTMLEvaluation>> multiEvaluations = new HashMap<>();
 		int foldID = 1;
 		InstanceList datasetToEvaluate = loadCorpus(getCorpus(), getModelConfiguration().getNumThreads());
 		Iterator<InstanceList[]> itCross = datasetToEvaluate.crossValidationIterator(getModelEvaluationConfiguration().getCVFoldsBySentences());
@@ -241,7 +251,16 @@ public class MalletTransducerModel extends BioTMLModel implements IBioTMLModel{
 			InstanceList[] dataSplited = itCross.next();
 			InstanceList trainingData = dataSplited[0];
 			InstanceList testingData = dataSplited[1];
-			multiEvaluations.add(evaluateFold(trainingData, testingData, "CV By Sent Fold: " + String.valueOf(foldID)));
+			
+			Map<String, IBioTMLEvaluation> evaluationByLabel = evaluateFold(trainingData, testingData, "CV By Sent Fold: " + String.valueOf(foldID));
+			for(String label : evaluationByLabel.keySet()){
+				if(!multiEvaluations.containsKey(label))
+					multiEvaluations.put(label, new ArrayList<>());
+				List<IBioTMLEvaluation> evaluations = multiEvaluations.get(label);
+				evaluations.add(evaluationByLabel.get(label));
+				multiEvaluations.put(label, evaluations);
+			}
+			
 			foldID++;
 		}
 		return new BioTMLMultiEvaluationImpl(multiEvaluations);

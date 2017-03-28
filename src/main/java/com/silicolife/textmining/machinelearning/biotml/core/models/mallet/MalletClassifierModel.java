@@ -183,7 +183,7 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 	}
 
 	private IBioTMLMultiEvaluation evaluateByDocumentCrossValidation() throws BioTMLException{
-		Set<IBioTMLEvaluation> multiEvaluations = new HashSet<IBioTMLEvaluation>();
+		Map<String, List<IBioTMLEvaluation>> multiEvaluations = new HashMap<>();
 		ExecutorService executor = Executors.newFixedThreadPool(getModelConfiguration().getNumThreads());
 		Iterator<IBioTMLCorpus[]> itCross = new BioTMLCrossValidationCorpusIterator(getCorpus(), getModelEvaluationConfiguration().getCVFoldsByDocuments());
 		int foldCount = 1;
@@ -208,7 +208,7 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 	}
 
 	private IBioTMLMultiEvaluation evaluateBySentenceCrossValidation() throws BioTMLException{
-		Set<IBioTMLEvaluation> multiEvaluations = new HashSet<IBioTMLEvaluation>();
+		Map<String, List<IBioTMLEvaluation>> multiEvaluations = new HashMap<>();
 		ExecutorService executor = Executors.newFixedThreadPool(getModelConfiguration().getNumThreads());
 		InstanceList datasetToEvaluate = loadCorpus(getCorpus(), getModelConfiguration().getNumThreads());
 		Iterator<InstanceList[]> itCross = datasetToEvaluate.crossValidationIterator(getModelEvaluationConfiguration().getCVFoldsBySentences());

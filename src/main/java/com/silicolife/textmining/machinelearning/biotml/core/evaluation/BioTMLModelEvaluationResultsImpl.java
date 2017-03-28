@@ -16,6 +16,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 
 public class BioTMLModelEvaluationResultsImpl implements IBioTMLModelEvaluationResults{
 	
+	private static final long serialVersionUID = 1L;
 	private Map<String, IBioTMLMultiEvaluation> evaluationResults;
 
 	/**
@@ -36,9 +37,15 @@ public class BioTMLModelEvaluationResultsImpl implements IBioTMLModelEvaluationR
 	public String printResults() {
 		String print = "\tModel Evaluation Results:\n\n";
 		for(String res: getResults().keySet()){
-			print = print +"\t" +res + "\n";
+			print = print +"\t" + res + "\n";
 			IBioTMLMultiEvaluation result = getResults().get(res);
-			print = print + "\tPrecision: " + String.format("%.2f", result.getMeanPrecision()*100) + "%\n\t" + "Recall: " + String.format("%.2f", result.getMeanRecall()*100) + "%\n\tF1-Score: " + String.format("%.2f", result.getMeanFscore()*100) + "%\n\n";
+			for( String label : result.getMultiEvaluations().keySet()){
+				print = print +"\tLabel: " + label+ "\n\t"
+						+ "Precision: " + String.format("%.2f", result.getAverangePrecision().get(label)*100) + "%\n\t" 
+						+ "Recall: " + String.format("%.2f", result.getAverangeRecall().get(label)*100) + "%\n\t"
+					    + "F1-Score: " + String.format("%.2f", result.getAverangeFscore().get(label)*100) + "%\n\n";
+			}
+			
 		}
 		return print;
 	}

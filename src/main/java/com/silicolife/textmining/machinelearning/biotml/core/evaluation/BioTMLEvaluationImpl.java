@@ -1,5 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.evaluation;
 
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLConfusionMatrix;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvaluation;
 
 /**
@@ -12,10 +13,13 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLE
 
 public class BioTMLEvaluationImpl implements IBioTMLEvaluation{
 	
-	private float precision;
-	private float recall;
-	private float fscore;
+	private static final long serialVersionUID = 1L;
+	private IBioTMLConfusionMatrix<?> confusionMatrix;
 	private String evaluationDescription;
+	private double precision;
+	private double recall;
+	private double fscore;
+	
 	
 	/**
 	 * 
@@ -26,30 +30,36 @@ public class BioTMLEvaluationImpl implements IBioTMLEvaluation{
 	 * @param fscore - F-score.
 	 */
 	
-	public BioTMLEvaluationImpl(float precision, float recall, float fscore){
-		this.precision = precision;
-		this.recall = recall;
-		this.fscore = fscore;
+	public BioTMLEvaluationImpl(IBioTMLConfusionMatrix<?> confusionMatrix){
+		this.confusionMatrix = confusionMatrix;
+		this.precision = calculatePrecision(confusionMatrix);
+		this.recall = calculateRecall(confusionMatrix);
+		this.fscore = calculateFScore(precision, recall);
 		this.evaluationDescription = new String();
 	}
-	
-	public BioTMLEvaluationImpl(float precision, float recall, float fscore, String evaluationDescription){
-		this(precision, recall, fscore);
+
+	public BioTMLEvaluationImpl(IBioTMLConfusionMatrix<?> confusionMatrix, String evaluationDescription){
+		this(confusionMatrix);
 		this.evaluationDescription = evaluationDescription;
+	}
+	
+	@Override
+	public IBioTMLConfusionMatrix<?> getConfusionMatrix() {
+		return confusionMatrix;
 	}
 
 	@Override
-	public float getPrecision() {
+	public double getPrecision() {
 		return precision;
 	}
 
 	@Override
-	public float getRecall() {
+	public double getRecall() {
 		return recall;
 	}
 
 	@Override
-	public float getFscore() {
+	public double getFscore() {
 		return fscore;
 	}
 
@@ -64,5 +74,28 @@ public class BioTMLEvaluationImpl implements IBioTMLEvaluation{
 				+ ", evaluationDescription=" + evaluationDescription + "]";
 	}
 	
+	private double calculatePrecision(IBioTMLConfusionMatrix<?> confusionMatrix){
+		double tp = (double)confusionMatrix.getTruePositives().size();
+		double fp = (double)confusionMatrix.getFalsePositives().size();
+		if(tp == 0)
+			return 0;
+		return tp/(tp+fp);
+	}
+	
+	
+	private double calculateRecall(IBioTMLConfusionMatrix<?> confusionMatrix) {
+		double tp = (double)confusionMatrix.getTruePositives().size();
+		double fn = (double)confusionMatrix.getFalseNegatives().size();
+		if(tp == 0)
+			return 0;
+		return tp/(tp+fn);
+	}
+	
+	private double calculateFScore(double precision, double recall) {
+		double dividend = precision * recall;
+		if(dividend == 0)
+			return 0;
+		return 2*(dividend/(precision + recall));
+	}
 	
 }

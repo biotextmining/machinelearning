@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLConfusionMatrix;
+
 import cc.mallet.fst.SegmentationEvaluator;
 import cc.mallet.fst.Transducer;
 import cc.mallet.fst.TransducerEvaluator;
@@ -55,6 +57,8 @@ public class MultiSegmentationEvaluator extends TransducerEvaluator
 	Map<String, Float> precisionMapBySegmentString;
 	Map<String, Float> recallMapBySegmentString;
 	Map<String, Float> f1MapBySegmentString;
+	
+	Map<String, IBioTMLConfusionMatrix<Object>> confusionMatrixBySegmentString;
 
 	public MultiSegmentationEvaluator (InstanceList[] instanceLists, String[] instanceListDescriptions,
 			Object[] segmentStartTags, Object[] segmentContinueTags)
@@ -62,9 +66,10 @@ public class MultiSegmentationEvaluator extends TransducerEvaluator
 		super (instanceLists, instanceListDescriptions);
 		this.segmentStartTags = segmentStartTags;
 		this.segmentContinueTags = segmentContinueTags;
-		this.precisionMapBySegmentString = new HashMap<String, Float>();
-		this.recallMapBySegmentString = new HashMap<String, Float>();
-		this.f1MapBySegmentString = new HashMap<String, Float>();
+		this.precisionMapBySegmentString = new HashMap<>();
+		this.recallMapBySegmentString = new HashMap<>();
+		this.f1MapBySegmentString = new HashMap<>();
+		this.confusionMatrixBySegmentString = new HashMap<>();
 		assert (segmentStartTags.length == segmentContinueTags.length);
 	}
 
@@ -438,5 +443,9 @@ public class MultiSegmentationEvaluator extends TransducerEvaluator
 	 */
 	public Float getOverallF1(){
 		return f1MapBySegmentString.get("OVERALL");
+	}
+	
+	public Map<String, IBioTMLConfusionMatrix<Object>> getConfusionMatrixBySegmentString(){
+		return confusionMatrixBySegmentString;
 	}
 }

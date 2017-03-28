@@ -1,5 +1,7 @@
 package com.silicolife.textmining.machinelearning.biotml.core.interfaces;
 
+import java.io.Serializable;
+
 /**
  * 
  * BioTML evaluation interface.
@@ -8,7 +10,9 @@ package com.silicolife.textmining.machinelearning.biotml.core.interfaces;
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public interface IBioTMLEvaluation {
+public interface IBioTMLEvaluation extends Serializable{
+	
+	public IBioTMLConfusionMatrix<?> getConfusionMatrix();
 	
 	/**
 	 * 
@@ -16,7 +20,7 @@ public interface IBioTMLEvaluation {
 	 * 
 	 * @return Precision score.
 	 */
-	public float getPrecision();
+	public double getPrecision();
 	
 	/**
 	 * 
@@ -24,7 +28,7 @@ public interface IBioTMLEvaluation {
 	 * 
 	 * @return Recall score.
 	 */
-	public float getRecall();
+	public double getRecall();
 	
 	/**
 	 * 
@@ -32,7 +36,7 @@ public interface IBioTMLEvaluation {
 	 * 
 	 * @return F-score.
 	 */
-	public float getFscore();
+	public double getFscore();
 	
 	
 	public String getEvaluationDescription();

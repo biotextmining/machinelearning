@@ -13,9 +13,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationResultsImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLMultiEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.utils.BioTMLCrossValidationCorpusIterator;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeaturesManager;
@@ -160,7 +158,8 @@ public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
 				new String[]{foldIDString}, new String[]{"B", "I"}, new String[]{"B", "I"}) {
 		};
 		evaluator.evaluate(evaluationModelTraining);
-		return new BioTMLEvaluationImpl(evaluator.getOverallPrecision(), evaluator.getOverallRecall(), evaluator.getOverallF1(), foldIDString);
+//		return new BioTMLEvaluationImpl(evaluator.getOverallPrecision(), evaluator.getOverallRecall(), evaluator.getOverallF1(), foldIDString);
+		return null;
 	}
 
 	private IBioTMLMultiEvaluation evaluateByDocumentCrossValidation() throws BioTMLException{
@@ -174,7 +173,8 @@ public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
 			multiEvaluations.add(evaluateFold(trainingData, testingData, "CV By Doc Fold:" + String.valueOf(foldID)));
 			foldID++;
 		}
-		return new BioTMLMultiEvaluationImpl(multiEvaluations);
+//		return new BioTMLMultiEvaluationImpl(multiEvaluations);
+		return null;
 	}
 
 	private IBioTMLMultiEvaluation evaluateBySentenceCrossValidation() throws BioTMLException{
@@ -189,7 +189,8 @@ public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
 			multiEvaluations.add(evaluateFold(trainingData, testingData, "CV By Sent Fold:" + String.valueOf(foldID)));
 			foldID++;
 		}
-		return new BioTMLMultiEvaluationImpl(multiEvaluations);
+//		return new BioTMLMultiEvaluationImpl(multiEvaluations);
+		return null;
 	}
 
 	public IBioTMLModelEvaluationResults evaluate() throws BioTMLException{

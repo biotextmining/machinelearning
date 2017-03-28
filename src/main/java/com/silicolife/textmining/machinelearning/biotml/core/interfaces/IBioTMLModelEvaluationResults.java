@@ -1,5 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.interfaces;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Map;
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public interface IBioTMLModelEvaluationResults {
+public interface IBioTMLModelEvaluationResults extends Serializable{
 	
 	/**
 	 * 

@@ -1,6 +1,8 @@
 package com.silicolife.textmining.machinelearning.biotml.core.interfaces;
 
-import java.util.Set;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -10,38 +12,38 @@ import java.util.Set;
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public interface IBioTMLMultiEvaluation {
+public interface IBioTMLMultiEvaluation extends Serializable{
 	
 	/**
 	 * 
 	 * Method to get a set of evaluations from a cross-evaluation process.
 	 * 
-	 * @return Set of {@link IBioTMLEvaluation}.
+	 * @return List of {@link IBioTMLEvaluation}.
 	 */
-	public Set<IBioTMLEvaluation> getMultiEvaluations();
+	public Map<String, List<IBioTMLEvaluation>> getMultiEvaluations();
 	
 	/**
 	 * 
-	 * Method to get the precision mean from all evaluations. 
+	 * Method to get the precision Averange from all evaluations. 
 	 * 
 	 * @return Mean precision.
 	 */
-	public float getMeanPrecision();
+	public Map<String, Double> getAverangePrecision();
 	
 	/**
 	 * 
-	 * Method to get the recall mean from all evaluations. 
+	 * Method to get the recall Averange from all evaluations. 
 	 * 
 	 * @return Mean recall.
 	 */
-	public float getMeanRecall();
+	public Map<String, Double> getAverangeRecall();
 	
 	/**
 	 * 
-	 * Method to get the f-score mean from all evaluations. 
+	 * Method to get the f-score Averange from all evaluations. 
 	 * 
 	 * @return Mean f-score.
 	 */
-	public float getMeanFscore();
+	public Map<String, Double> getAverangeFscore();
 
 }
