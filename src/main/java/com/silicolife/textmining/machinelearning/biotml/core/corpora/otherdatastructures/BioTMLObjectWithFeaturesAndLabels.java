@@ -1,5 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,8 +8,9 @@ import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 
-public class BioTMLObjectWithFeaturesAndLabels<O> {
+public class BioTMLObjectWithFeaturesAndLabels<O> implements Serializable{
 	
+	private static final long serialVersionUID = 1L;
 	private Class<O> type;
 	private List<O> bioTMLObjects;
 	private List<BioTMLConstants> labels;

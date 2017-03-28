@@ -1,13 +1,15 @@
 package com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 
 @SuppressWarnings("rawtypes")
-public class BioTMLDocSentIDs {
+public class BioTMLDocSentIDs implements Serializable{
 	
+	private static final long serialVersionUID = 1L;
 	private long docId;
 	private int sentId;
 	private int tokenId = -1;
