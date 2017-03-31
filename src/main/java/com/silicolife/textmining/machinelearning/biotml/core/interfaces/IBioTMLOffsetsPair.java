@@ -84,4 +84,6 @@ public interface IBioTMLOffsetsPair extends Comparable<IBioTMLOffsetsPair>, Seri
 	public boolean endsWith(IBioTMLOffsetsPair pairToCompare);
 	
 	public boolean endsWith(long endOffset);
+	
+	public boolean isLessDistantThan(IBioTMLOffsetsPair pairToCompare, int distanceOffset);
 }

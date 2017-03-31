@@ -46,9 +46,9 @@ public class BioTMLOffsetsPairImpl implements IBioTMLOffsetsPair{
 	
 	@Override
 	public boolean containsInside(IBioTMLOffsetsPair pairToBeInside){
-		if(getStartOffset()<= pairToBeInside.getStartOffset() && getEndOffset() >= pairToBeInside.getEndOffset()){
+		if(getStartOffset()<= pairToBeInside.getStartOffset() && getEndOffset() >= pairToBeInside.getEndOffset())
 			return true;
-		}
+		
 		return false;
 	}
 	
@@ -59,9 +59,9 @@ public class BioTMLOffsetsPairImpl implements IBioTMLOffsetsPair{
 
 	@Override
 	public boolean offsetsOverlap(long startOffset, long endOffset){
-		if(!(this.getEndOffset() <= startOffset) && !(this.getStartOffset() >= endOffset)){
+		if(!(this.getEndOffset() <= startOffset) && !(this.getStartOffset() >= endOffset))
 			return true;
-		}
+		
 		return false;
 	}
 
@@ -84,7 +84,15 @@ public class BioTMLOffsetsPairImpl implements IBioTMLOffsetsPair{
 	public boolean endsWith(long endOffset) {
 		return getEndOffset() == endOffset;
 	}
-
+	
+	@Override
+	public boolean isLessDistantThan(IBioTMLOffsetsPair pairToCompare, int distanceOffset) {
+		
+		if(this.compareTo(pairToCompare)>0)
+			return (pairToCompare.getEndOffset() - this.getStartOffset()) <= distanceOffset;
+		
+		return (this.getEndOffset() - pairToCompare.getStartOffset()) <= distanceOffset;
+	}
 
 	@Override
 	public int hashCode() {
@@ -113,21 +121,21 @@ public class BioTMLOffsetsPairImpl implements IBioTMLOffsetsPair{
 
 	@Override
 	public int compareTo(IBioTMLOffsetsPair o) {
-		if(this.equals(o)){
+		if(this.equals(o))
 			return 0;
-		}
-		if(this.getStartOffset()>o.getStartOffset()){
+		
+		if(this.getStartOffset()>o.getStartOffset())
 			return 1;
-		}
-		if(this.getStartOffset()<o.getStartOffset()){
+		
+		if(this.getStartOffset()<o.getStartOffset())
 			return -1;
-		}
-		if(this.getEndOffset()> o.getEndOffset()){
+		
+		if(this.getEndOffset()> o.getEndOffset())
 			return 1;
-		}
-		if(this.getEndOffset()< o.getEndOffset()){
+		
+		if(this.getEndOffset()< o.getEndOffset())
 			return -1;
-		}
+		
 		return 0;
 	}
 

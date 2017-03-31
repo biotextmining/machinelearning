@@ -1,6 +1,7 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.print.DocFlavor.STRING;
 
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLOffsetsPairImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
@@ -27,13 +30,16 @@ import edu.emory.mathcs.nlp.component.template.node.NLPNode;
 
 /**
  * 
- * A class responsible for features from ClearNLP.
+ * A class responsible for features from NLP4J.
  * 
  * @since 1.0.0
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 
+	private String[] keywordsEssentiality = {"cell", "growth", "viability", "protein", "gene", "familiy", 
+			"proliferation", "biosynthesis", "mitochondria", "ribossome"};
+	
 	/**
 	 * 
 	 * Initializes the insertion of features from ClearNLP.
@@ -82,8 +88,16 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		uids.add("NLP4JLEMMA");
 		uids.add("NLP4JPOS");
 		uids.add("NLP4JBETWEENCONTAINSNOT");
+		uids.add("NLP4JBETWEENCONTAINSFOR");
+		uids.add("NLP4JBETWEENCONTAINSBY");
+		uids.add("NLP4JBETWEENCONTAINSFROM");
+		uids.add("NLP4JLEMMASAFTERFOR");
+		uids.add("NLP4JLEMMASAFTERROLE");
+		uids.add("NLP4JLEMMASAFTERIN");
+		uids.add("NLP4JGETKEYWORDSAFTERFOR");
 		uids.add("NLP4JBETWEENVERB");
 		uids.add("NLP4JOUTSIDEVERB");
+		uids.add("NLP4JLASTVERBBEFOREANNOTS");
 		uids.add("NLP4JDEPENDECY");
 		uids.add("NLP4JPOSREPRESENTATIVE");
 		uids.add("NLP4JDEPENDECYREPRESENTATIVE");
@@ -97,13 +111,19 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		infoMap.put("NLP4JLEMMA", "The NLP4J lemmatization system is used to create a feature that associates lemmas for event annotations.");
 		infoMap.put("NLP4JPOS", "The NLP4J part-of-speech system is used to create a feature that associates POS for event annotations.");
 		infoMap.put("NLP4JBETWEENCONTAINSNOT", "Verifies if there is a 'not' lemma between event annotations.");
+		infoMap.put("NLP4JBETWEENCONTAINSFOR", "Verifies if there is a 'for' lemma between event annotations.");
+		infoMap.put("NLP4JBETWEENCONTAINSBY", "Verifies if there is a 'by' lemma between event annotations.");
+		infoMap.put("NLP4JBETWEENCONTAINSFROM", "Verifies if there is a 'from' lemma between event annotations.");
 		infoMap.put("NLP4JBETWEENVERB", "Gives the lemma verbs between annotation events.");
-		infoMap.put("NLP4JOUTSIDEVERB", "");
+		infoMap.put("NLP4JLEMMASAFTERFOR", "Gives the lemma tokens after a 'for' lemma.");
+		infoMap.put("NLP4JLEMMASAFTERROLE", "Gives the lemma tokens after a 'role' lemma.");
+		infoMap.put("NLP4JLEMMASAFTERIN", "Gives the lemma tokens after a 'in' lemma.");
+		infoMap.put("NLP4JOUTSIDEVERB", "Gives the lemma verbs ouside annotation events.");
 		infoMap.put("NLP4JDEPENDECY", "The NLP4J dependency parsing system is used to create a feature that associates the dependecy label for event annotations.");
 		infoMap.put("NLP4JPOSREPRESENTATIVE", "The NLP4J POS parsing system is used to create a feature that associates the POS label representative of each annotation in event.");
 		infoMap.put("NLP4JDEPENDECYREPRESENTATIVE", "The NLP4J dependency parsing system is used to create a feature that associates the dependecy label representative of each annotation in event.");
 		infoMap.put("NLP4JDEPENDECYDISTANCE", "The NLP4J dependency parsing system is used to create a feature that calculates the distance of annotations in dependency tree.");
-		
+		infoMap.put("NLP4JGETKEYWORDSAFTERFOR", "");
 		return infoMap;
 	}
 
@@ -120,6 +140,8 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		}
 
 		IBioTMLFeatureColumns<IBioTMLToken> features = new BioTMLFeatureColumns<>(tokens, getNERFeatureIds(), configuration);
+		
+		Collections.sort(tokens);
 		
 		List<String> tokenStrings = new ArrayList<>();
 		for(IBioTMLToken token:tokens)
@@ -200,7 +222,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 
 		IBioTMLFeatureColumns<IBioTMLAssociation> features = new BioTMLFeatureColumns<>(associations, getREFeatureIds(), configuration);
 		
-		Collections.sort(tokens);
+		
 		List<String> tokenStrings = new ArrayList<>();
 		for(IBioTMLToken token:tokens)
 			tokenStrings.add(token.getToken());
@@ -224,12 +246,41 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 					features.addBioTMLObjectFeature("NLP4JPOS="+addAssociatedFeature(annotationOne, annotationTwo, tokens, poss), "NLP4JPOS");
 				
 				if(configuration.hasFeatureUID("NLP4JBETWEENCONTAINSNOT")){
-					Boolean containsNot = containsNotFeature(annotationOne, annotationTwo, tokens, lemmas);
+					Boolean containsNot = containsFeature(annotationOne, annotationTwo, tokens, lemmas, "not");
 					features.addBioTMLObjectFeature("NLP4JBETWEENCONTAINSNOT="+String.valueOf(containsNot), "NLP4JBETWEENCONTAINSNOT");
 				}
 				
+				if(configuration.hasFeatureUID("NLP4JBETWEENCONTAINSFOR")){
+					Boolean containsNot = containsFeature(annotationOne, annotationTwo, tokens, lemmas, "for");
+					features.addBioTMLObjectFeature("NLP4JBETWEENCONTAINSFOR="+String.valueOf(containsNot), "NLP4JBETWEENCONTAINSFOR");
+				}
+				
+				if(configuration.hasFeatureUID("NLP4JBETWEENCONTAINSBY")){
+					Boolean containsBy = containsFeature(annotationOne, annotationTwo, tokens, lemmas, "by");
+					features.addBioTMLObjectFeature("NLP4JBETWEENCONTAINSBY="+String.valueOf(containsBy), "NLP4JBETWEENCONTAINSBY");
+				}
+				if(configuration.hasFeatureUID("NLP4JBETWEENCONTAINSFROM")){
+					Boolean containsfrom = containsFeature(annotationOne, annotationTwo, tokens, lemmas, "from");
+					features.addBioTMLObjectFeature("NLP4JBETWEENCONTAINSFROM="+String.valueOf(containsfrom), "NLP4JBETWEENCONTAINSFROM");
+				}
+				
 				if(configuration.hasFeatureUID("NLP4JBETWEENVERB"))
-					features.addBioTMLObjectFeature("BETWEENVERB="+String.valueOf(verbBetween(annotationOne, annotationTwo, tokens, poss, lemmas)), "NLP4JBETWEENVERB");
+					features.addBioTMLObjectFeature("NLP4JBETWEENVERB="+verbBetween(annotationOne, annotationTwo, tokens, poss, lemmas), "NLP4JBETWEENVERB");
+				
+				if(configuration.hasFeatureUID("NLP4JOUTSIDEVERB"))
+					features.addBioTMLObjectFeature("NLP4JOUTSIDEVERB="+verbOutside(annotationOne, annotationTwo, tokens, poss, lemmas), "NLP4JOUTSIDEVERB");
+				
+				if(configuration.hasFeatureUID("NLP4JLASTVERBBEFOREANNOTS"))
+					features.addBioTMLObjectFeature("NLP4JLASTVERBBEFOREANNOTS="+lastverbBeforeAnnotations(annotationOne, annotationTwo, tokens, poss, lemmas), "NLP4JLASTVERBBEFOREANNOTS");
+				
+				if(configuration.hasFeatureUID("NLP4JLEMMASAFTERFOR"))
+					features.addBioTMLObjectFeature("NLP4JLEMMASAFTERFOR="+getTokensAfterLastAnnotationsAndTokenLemma(annotationOne, annotationTwo, tokens, lemmas, "for"),"NLP4JLEMMASAFTERFOR");
+				
+				if(configuration.hasFeatureUID("NLP4JLEMMASAFTERROLE"))
+					features.addBioTMLObjectFeature("NLP4JLEMMASAFTERROLE="+getTokensAfterLastAnnotationsAndTokenLemma(annotationOne, annotationTwo, tokens, lemmas, "role"),"NLP4JLEMMASAFTERROLE");
+				
+				if(configuration.hasFeatureUID("NLP4JLEMMASAFTERIN"))
+					features.addBioTMLObjectFeature("NLP4JLEMMASAFTERIN="+getTokensAfterLastAnnotationsAndTokenLemma(annotationOne, annotationTwo, tokens, lemmas, "in"),"NLP4JLEMMASAFTERIN");
 				
 				if(configuration.hasFeatureUID("NLP4JDEPENDECY"))
 					features.addBioTMLObjectFeature("NLP4JDEPENDECY="+addAssociatedFeature(annotationOne, annotationTwo, tokens, dependencyLabels), "NLP4JDEPENDECY");
@@ -248,6 +299,18 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 				}
 					
 				
+				if(configuration.hasFeatureUID("NLP4JGETKEYWORDSAFTERFOR")){
+					String result = new String();
+					List<String> listLemmas = getLemmasAfterLemaPoint(annotationOne, annotationTwo, tokens, lemmas, "for");
+					for(String keyword : keywordsEssentiality){
+						if(listLemmas.contains(keyword)){
+							if(!result.isEmpty())
+								result = result + "\t";
+							result = result + "NLP4JGETKEYWORDSAFTERFOR="+keyword;
+						}
+					}
+					features.addBioTMLObjectFeature("NLP4JGETKEYWORDSAFTERFOR="+result, "NLP4JGETKEYWORDSAFTERFOR");
+				}
 			}else if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAssociation){
 				//TODO
 			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAnnotation){
@@ -277,7 +340,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		return result;
 	}
 	
-	private Boolean containsNotFeature(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, List<String> lemmas){
+	private Boolean containsFeature(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, List<String> lemmas, String contains){
 		IBioTMLOffsetsPair offsetspair = null;
 		if(annotationOne.compareTo(annotationTwo)<0){
 			offsetspair = new BioTMLOffsetsPairImpl(annotationOne.getStartOffset(), annotationTwo.getEndOffset());
@@ -285,7 +348,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 			offsetspair = new BioTMLOffsetsPairImpl(annotationTwo.getStartOffset(), annotationOne.getEndOffset());
 		}
 		for(int i=0; i<tokens.size(); i++){
-			if(offsetspair.offsetsOverlap(tokens.get(i).getTokenOffsetsPair()) && lemmas.get(i).equals("not")){
+			if(offsetspair.offsetsOverlap(tokens.get(i).getTokenOffsetsPair()) && lemmas.get(i).equals(contains)){
 				return true;
 			}
 		}
@@ -296,13 +359,58 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 	private String verbBetween(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, List<String> pos, List<String> lemmas){
 		String verbString = new String();
 		IBioTMLOffsetsPair offsetspair = null;
-		if(annotationOne.compareTo(annotationTwo)<0){
+		if(annotationOne.compareTo(annotationTwo)<0)
 			offsetspair = new BioTMLOffsetsPairImpl(annotationOne.getStartOffset(), annotationTwo.getEndOffset());
-		}else{
+		else
 			offsetspair = new BioTMLOffsetsPairImpl(annotationTwo.getStartOffset(), annotationOne.getEndOffset());
-		}
+		
 		for(int i=0; i<tokens.size(); i++){
 			if(offsetspair.offsetsOverlap(tokens.get(i).getTokenOffsetsPair()) && pos.get(i).startsWith("VB")){
+				if(!verbString.isEmpty())
+					verbString = verbString + " ";
+				verbString = verbString + lemmas.get(i);
+			}
+		}
+		return verbString;
+
+	}
+	
+	private String lastverbBeforeAnnotations(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, List<String> pos, List<String> lemmas){
+		String verbString = new String();
+		IBioTMLOffsetsPair offsetspair = null;
+		if(annotationOne.compareTo(annotationTwo)<0)
+			offsetspair = new BioTMLOffsetsPairImpl(annotationOne.getStartOffset(), annotationTwo.getEndOffset());
+		else
+			offsetspair = new BioTMLOffsetsPairImpl(annotationTwo.getStartOffset(), annotationOne.getEndOffset());
+		
+		IBioTMLToken verbToken = null;
+		
+		for(int i=0; i<tokens.size(); i++){
+			IBioTMLOffsetsPair tokenoffsetpair = tokens.get(i).getTokenOffsetsPair();
+			if(!offsetspair.offsetsOverlap(tokenoffsetpair) 
+					&& pos.get(i).startsWith("VB")
+					&& tokenoffsetpair.compareTo(offsetspair)<0){
+				if(verbToken == null || verbToken != null && verbToken.getTokenOffsetsPair().compareTo(tokenoffsetpair)>0)
+					verbToken = tokens.get(i);
+			}
+		}
+		
+		if(verbToken != null)
+			verbString = verbToken.getToken();
+		return verbString;
+
+	}
+	
+	private String verbOutside(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, List<String> pos, List<String> lemmas){
+		String verbString = new String();
+		IBioTMLOffsetsPair offsetspair = null;
+		if(annotationOne.compareTo(annotationTwo)<0)
+			offsetspair = new BioTMLOffsetsPairImpl(annotationOne.getStartOffset(), annotationTwo.getEndOffset());
+		else
+			offsetspair = new BioTMLOffsetsPairImpl(annotationTwo.getStartOffset(), annotationOne.getEndOffset());
+		
+		for(int i=0; i<tokens.size(); i++){
+			if(!offsetspair.offsetsOverlap(tokens.get(i).getTokenOffsetsPair()) && pos.get(i).startsWith("VB")){
 				if(!verbString.isEmpty())
 					verbString = verbString + " ";
 				verbString = verbString + lemmas.get(i);
@@ -343,6 +451,47 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 				ascenstor = ascenstor.getLowestCommonAncestor(node);
 		}
 		return ascenstor;
+	}
+	
+	private String getTokensAfterLastAnnotationsAndTokenLemma(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, 
+			List<IBioTMLToken> tokens, List<String> lemmas, String lemmatofind){
+		String result = new String();
+		List<String> resultList = getLemmasAfterLemaPoint(annotationOne, annotationTwo, tokens, lemmas, lemmatofind);
+		for(String res : resultList){
+			if(!result.isEmpty())
+				result = result + "__&&__";
+			result = result + res;
+		}
+		return result;
+	}
+
+	private List<String> getLemmasAfterLemaPoint(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo,
+			List<IBioTMLToken> tokens, List<String> lemmas, String lemmatofind) {
+		List<String> resultList = new ArrayList<>();
+		IBioTMLOffsetsPair offsetspair = null;
+		if(annotationOne.compareTo(annotationTwo)<0)
+			offsetspair = new BioTMLOffsetsPairImpl(annotationOne.getStartOffset(), annotationTwo.getEndOffset());
+		else
+			offsetspair = new BioTMLOffsetsPairImpl(annotationTwo.getStartOffset(), annotationOne.getEndOffset());
+		
+		String[] finisherLemmas = {".", ",", "because", "that", "who", "which"};
+		List<String> finisherLemmasList = Arrays.asList(finisherLemmas);
+		
+		boolean found = false;
+		boolean foundForFinisher = false;
+		for(int i=0; i<tokens.size(); i++){
+			if(offsetspair.compareTo(tokens.get(i).getTokenOffsetsPair())<0){			
+				if(found && !foundForFinisher){
+					if(finisherLemmasList.contains(lemmas.get(i)))
+						foundForFinisher = true;
+					else
+						resultList.add(lemmas.get(i));
+				}
+				if(lemmas.get(i).equals(lemmatofind))
+					found = true;
+			}
+		}
+		return resultList;
 	}
 
 }

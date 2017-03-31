@@ -1,6 +1,7 @@
 package com.silicolife.textmining.machinelearning.biotml.core.features.modules;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLT
 import com.silicolife.textmining.machinelearning.biotml.core.resources.datalists.BioTMLDataLists;
 
 public class DictionariesFeature implements IBioTMLFeatureGenerator{
-
+	
 	public Set<String> getNERFeatureIds() {
 		Set<String> uids = new TreeSet<String>();
 		uids.add("INCHEMICALLIST");
@@ -158,9 +159,18 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 				annotationsOffsets = new BioTMLOffsetsPairImpl(annotationOne.getStartOffset(), annotationTwo.getEndOffset());
 			else
 				annotationsOffsets = new BioTMLOffsetsPairImpl(annotationTwo.getStartOffset(), annotationOne.getEndOffset());
+
+			String[] breakers = {"that", "who", "which", "because"};
+			List<String> breakersList = Arrays.asList(breakers);
+
+			IBioTMLToken foundbreaker = null;
+
 			for(IBioTMLToken token : tokens){
 				if(!result.isEmpty())
 					result = result + "\t";
+				if(breakersList.contains(token.getToken().toLowerCase()))
+					foundbreaker = token;
+
 				if(annotationsOffsets.offsetsOverlap(token.getTokenOffsetsPair()) 
 						&& featureUID.equals("GETPOSITIVEWORDSBETWEENANNOTS")
 						&& BioTMLDataLists.getInstance().findStringInPositiveWordsList(token.getToken())){
@@ -169,21 +179,30 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 						&& featureUID.equals("GETNEGATIVEWORDSBETWEENANNOTS")
 						&& BioTMLDataLists.getInstance().findStringInNegativeWordsList(token.getToken())){
 					result = result + "GETNEGATIVEWORDSBETWEENANNOTS="+token.getToken();
-				}else if(!annotationsOffsets.offsetsOverlap(token.getTokenOffsetsPair()) 
-						&& featureUID.equals("GETPOSITIVEWORDSOUTSIDEANNOTS")
-						&& BioTMLDataLists.getInstance().findStringInPositiveWordsList(token.getToken())){
+				}else if(notOverlapNegativeWord(annotationsOffsets, token, foundbreaker, featureUID,"GETPOSITIVEWORDSOUTSIDEANNOTS"))
 					result = result + "GETPOSITIVEWORDSOUTSIDEANNOTS="+token.getToken();
-				}
-				else if(!annotationsOffsets.offsetsOverlap(token.getTokenOffsetsPair()) 
-						&& featureUID.equals("GETNEGATIVEWORDSOUTSIDEANNOTS")
-						&& BioTMLDataLists.getInstance().findStringInNegativeWordsList(token.getToken())){
+				else if(notOverlapNegativeWord(annotationsOffsets, token, foundbreaker, featureUID, "GETNEGATIVEWORDSOUTSIDEANNOTS"))
 					result = result + "GETNEGATIVEWORDSOUTSIDEANNOTS="+token.getToken();
-				}
 			}
 		}catch (Exception e) {
 			throw new BioTMLException(e);
 		}
 		return result;
+	}
+
+	private boolean notOverlapNegativeWord(IBioTMLOffsetsPair annotationsOffsets, IBioTMLToken token, IBioTMLToken foundbreaker, String featureUID, String feature) throws ClassNotFoundException, IOException{
+		if(!annotationsOffsets.offsetsOverlap(token.getTokenOffsetsPair()) && featureUID.equals(feature)){
+			if(BioTMLDataLists.getInstance().findStringInNegativeWordsList(token.getToken()))
+					if(foundbreaker == null 
+					|| (annotationsOffsets.compareTo(foundbreaker.getTokenOffsetsPair())>0 
+							&& token.getTokenOffsetsPair().compareTo(foundbreaker.getTokenOffsetsPair())>0)
+					|| (annotationsOffsets.compareTo(foundbreaker.getTokenOffsetsPair())<0 
+							&& token.getTokenOffsetsPair().compareTo(foundbreaker.getTokenOffsetsPair())<0)
+							)
+						return true;
+
+		}
+		return false;
 	}
 
 }
