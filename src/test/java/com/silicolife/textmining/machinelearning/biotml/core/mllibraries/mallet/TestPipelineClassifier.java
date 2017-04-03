@@ -12,7 +12,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMal
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationConfiguratorImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLModelEvaluationConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeatureGeneratorConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
@@ -187,10 +187,10 @@ public class TestPipelineClassifier {
 	
 	private void testTrainAndSavingModel() throws BioTMLException, IOException{
 		IBioTMLCorpus corpus = new BioTMLCorpusImpl(loadDocuments(), loadAnnotations(),"");
-		IBioTMLModel svm = new MalletClassifierModel(corpus, loadfeatures(), defaultConfiguration("protein","NER"), defaultEvaluationConfiguration());
-		IBioTMLModelEvaluationResults res = svm.evaluate();
+		IBioTMLModel svm = new MalletClassifierModel(loadfeatures(), defaultConfiguration("protein","NER"));
+		IBioTMLModelEvaluationResults res = svm.evaluate(corpus, defaultEvaluationConfiguration());
 		System.out.println(res.printResults());
-		svm.train();
+		svm.train(corpus);
 		IBioTMLModelWriter writer = new BioTMLModelWriterImpl("C:/Users/RRodrigues/Desktop/corpora/model_SVM.gz");
 		writer.writeGZModelFile(svm);
 	}

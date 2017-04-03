@@ -1,4 +1,4 @@
-package com.silicolife.textmining.machinelearning.biotml.core.evaluation;
+package com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures;
 
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationConfigurator;
 
@@ -14,6 +14,7 @@ public class BioTMLModelEvaluationConfiguratorImpl implements IBioTMLModelEvalua
 	
 	private int cvFoldsByDoc;
 	private int cvFoldsBySent;
+	private boolean useMultipleModelsToEvaluate;
 	
 	/**
 	 * 
@@ -24,6 +25,7 @@ public class BioTMLModelEvaluationConfiguratorImpl implements IBioTMLModelEvalua
 	public BioTMLModelEvaluationConfiguratorImpl(){
 		this.cvFoldsByDoc = 0;
 		this.cvFoldsBySent = 0;
+		this.useMultipleModelsToEvaluate=false;
 	}
 
 	public void setCrossValidationByCorpusDoc(int folds) {
@@ -57,6 +59,16 @@ public class BioTMLModelEvaluationConfiguratorImpl implements IBioTMLModelEvalua
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public boolean isUseMultipleModelsToEvaluate() {
+		return useMultipleModelsToEvaluate;
+	}
+
+	@Override
+	public void setUseMultipleModelsToEvaluate(boolean useMultipleModelsToEvaluate) {
+		this.useMultipleModelsToEvaluate = useMultipleModelsToEvaluate;
 	}
 	
 }

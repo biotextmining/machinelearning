@@ -9,7 +9,7 @@ import java.util.TreeSet;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationConfiguratorImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLModelEvaluationConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeatureGeneratorConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
@@ -181,10 +181,10 @@ public class TestPipelineMEMM {
 	
 	private static void testTrainAndSavingModel() throws BioTMLException, IOException{
 		IBioTMLCorpus corpus = new BioTMLCorpusImpl(loadDocuments(), loadAnnotations(),"");
-		IBioTMLModel memm = new MalletMEMMModel(corpus, loadfeatures(), defaultConfiguration("protein", "NER"), defaultEvaluationConfiguration());
-		//IBioTMLModelEvaluationResults res = crf.evaluate();
+		IBioTMLModel memm = new MalletMEMMModel(corpus, loadfeatures(), defaultConfiguration("protein", "NER"));
+		//IBioTMLModelEvaluationResults res = crf.evaluate(corpus, defaultEvaluationConfiguration());
 		//System.out.println(res.printResults());
-		memm.train();
+		memm.train(corpus);
 //		IBioTMLModelMatrixToPrint matrix = memm.getMatrix();
 //		Set<String> headers = matrix.getFeatures();
 //		System.out.println(headers.toString());

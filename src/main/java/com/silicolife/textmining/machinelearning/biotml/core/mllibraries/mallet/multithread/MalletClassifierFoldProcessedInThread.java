@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLEvaluationImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLConfusionMatrix;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvaluation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;

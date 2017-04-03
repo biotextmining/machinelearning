@@ -1,6 +1,7 @@
-package com.silicolife.textmining.machinelearning.biotml.core.evaluation;
+package com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLConfusionMatrix;
@@ -40,7 +41,7 @@ public class BioTMLConfusionMatrixImpl<O> implements IBioTMLConfusionMatrix<O>{
 		getTruePositives().add(truePositive);
 	}
 	
-	public void addAllTruePositives(List<O> truePositives){
+	public void addAllTruePositives(Collection<O> truePositives){
 		getTruePositives().addAll(truePositives);
 	}
 	
@@ -48,7 +49,7 @@ public class BioTMLConfusionMatrixImpl<O> implements IBioTMLConfusionMatrix<O>{
 		getTrueNegatives().add(trueNegative);
 	}
 	
-	public void addAllTrueNegatives(List<O> truePositives){
+	public void addAllTrueNegatives(Collection<O> truePositives){
 		getTrueNegatives().addAll(truePositives);
 	}
 	
@@ -56,7 +57,7 @@ public class BioTMLConfusionMatrixImpl<O> implements IBioTMLConfusionMatrix<O>{
 		getFalsePositives().add(falsePositive);
 	}
 	
-	public void addAllFalsePositives(List<O> falsePositives){
+	public void addAllFalsePositives(Collection<O> falsePositives){
 		getFalsePositives().addAll(falsePositives);
 	}
 	
@@ -64,7 +65,7 @@ public class BioTMLConfusionMatrixImpl<O> implements IBioTMLConfusionMatrix<O>{
 		getFalseNegatives().add(falseNegative);
 	}
 	
-	public void addAllFalseNegatives(List<O> falseNegatives){
+	public void addAllFalseNegatives(Collection<O> falseNegatives){
 		getFalseNegatives().addAll(falseNegatives);
 	}
 

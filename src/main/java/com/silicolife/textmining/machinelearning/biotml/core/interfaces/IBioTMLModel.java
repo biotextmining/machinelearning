@@ -30,28 +30,25 @@ public interface IBioTMLModel {
 	
 	/**
 	 * 
-	 * Method to get the model evaluation configuration.
-	 * 
-	 * @return {@link IBioTMLModelEvaluationConfigurator}.
-	 */
-	public IBioTMLModelEvaluationConfigurator getModelEvaluationConfiguration();
-	
-	/**
-	 * 
 	 * Method to perform the evaluation regarding the evaluation configurations inputed.
 	 * 
+	 * @param corpus {@link IBioTMLCorpus} to evaluate the model.
+	 * @param configuration {@link IBioTMLModelEvaluationConfigurator} model evaluation configuration
 	 * @return {link IBioTMLModelEvaluationResults}.
 	 * @throws BioTMLException
 	 */
-	public IBioTMLModelEvaluationResults evaluate()  throws BioTMLException;
+	public IBioTMLModelEvaluationResults evaluate(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator configuration)  throws BioTMLException;
 	
 	/**
 	 * 
 	 * Method to train a model.
 	 * 
+	 * @param corpus {@link IBioTMLCorpus} to train the model.
 	 * @throws BioTMLException
 	 */
-	public void train() throws BioTMLException;
+	public void train(IBioTMLCorpus corpus) throws BioTMLException;
+	
+	public IBioTMLCorpus predict(IBioTMLCorpus corpus) throws BioTMLException;
 	
 	/**
 	 * 
@@ -74,5 +71,13 @@ public interface IBioTMLModel {
 	 * @return Object that represents the model and could be casted into CRF, HMM, SVM, etc.
 	 */
 	public Object getModel();
+	
+	/**
+	 * 
+	 * Method to return if the model is trained.
+	 * 
+	 * @return Boolean
+	 */
+	public boolean isTrained();
 
 }

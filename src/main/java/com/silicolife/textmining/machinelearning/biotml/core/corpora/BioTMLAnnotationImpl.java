@@ -32,7 +32,7 @@ public class BioTMLAnnotationImpl implements IBioTMLAnnotation{
 	 * @param endOffset - Annotation end offset in raw text.
 	 */
 	public BioTMLAnnotationImpl( long docID, String annotType, long startOffset, long endOffset ){
-		this(docID, annotType, startOffset, endOffset, 0.0);
+		this(docID, annotType, startOffset, endOffset, 100000.0);
 	}
 
 	/**

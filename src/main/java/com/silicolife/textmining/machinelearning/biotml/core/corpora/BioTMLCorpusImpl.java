@@ -295,5 +295,27 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return annotations;
 	}
 
+	@Override
+	public List<IBioTMLAnnotation> getAnnotationsByAnnotationTypes(Set<String> annotationTypes) {
+		List<IBioTMLAnnotation> annotationsResult = new ArrayList<>();
+		
+		for(IBioTMLAnnotation annotation : getAnnotations())
+			if(annotationTypes.contains(annotation.getAnnotType()))
+				annotationsResult.add(annotation);
+
+		return annotationsResult;
+	}
+
+	@Override
+	public List<IBioTMLEvent> getEventsByEventTypes(Set<String> eventTypes) {
+		List<IBioTMLEvent> eventsResult = new ArrayList<>();
+		
+		for(IBioTMLEvent event : getEvents())
+			if(eventTypes.contains(event.getEventType()))
+				eventsResult.add(event);
+		
+		return eventsResult;
+	}
+
 
 }

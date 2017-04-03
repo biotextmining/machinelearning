@@ -1,6 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.evaluation;
 
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLConfusionMatrixImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLConfusionMatrixImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLConfusionMatrix;
 
 import cc.mallet.classify.Classifier;

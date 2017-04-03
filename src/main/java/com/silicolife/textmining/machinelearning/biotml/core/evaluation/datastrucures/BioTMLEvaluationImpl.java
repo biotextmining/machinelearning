@@ -1,4 +1,4 @@
-package com.silicolife.textmining.machinelearning.biotml.core.evaluation;
+package com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures;
 
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLConfusionMatrix;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvaluation;

@@ -26,7 +26,7 @@ public class BioTMLEventImpl implements IBioTMLEvent {
 	private double score;
 	
 	public BioTMLEventImpl(IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation> association, String eventType){
-		this(association, eventType, 0.0);
+		this(association, eventType, 100000.0);
 	}
 	
 	public BioTMLEventImpl(IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation> association, String eventType, double score){

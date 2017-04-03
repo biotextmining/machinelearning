@@ -49,8 +49,8 @@ public class BioTMLMalletREAnnotator {
 		}
 		
 		Set<IBioTMLEvent> events = new HashSet<>();
-		if(model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString())
-				|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString()))
+		if(model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf)
+				|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm))
 		{
 			predictEventsUsingTransducerProcessor(corpus, model, threads, events);	
 		}
@@ -118,16 +118,18 @@ public class BioTMLMalletREAnnotator {
 		
 		if(model.getModelConfiguration().getIEType().equals(BioTMLConstants.re.toString())){
 			
-			if (model.getModel() instanceof Transducer){
-				if(	model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString())
-						|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString())){
+			if (model.getModel() instanceof Transducer)
+				if(	model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf)
+						|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm))
 					return true;
-				}
-			}
-			
-			if (model.getModel() instanceof Classifier && model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletsvm.toString())){
-				return true;
-			}
+
+			if (model.getModel() instanceof Classifier)
+				if(model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletsvm)
+						|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletnaivebayes)
+						|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletdecisiontree)
+						|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletmaxent)
+						|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletc45))
+					return true;
 			
 		}
 

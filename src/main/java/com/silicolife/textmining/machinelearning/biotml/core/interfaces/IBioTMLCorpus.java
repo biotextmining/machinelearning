@@ -33,6 +33,8 @@ public interface IBioTMLCorpus extends Serializable {
 	 */
 	public List<IBioTMLAnnotation> getAnnotations();
 	
+	public List<IBioTMLAnnotation> getAnnotationsByAnnotationTypes(Set<String> annotationTypes);
+	
 	/**
 	 * 
 	 * Method to get all events in all documents;
@@ -40,6 +42,8 @@ public interface IBioTMLCorpus extends Serializable {
 	 * @return List of {@link IBioTMLEvent}.
 	 */
 	public List<IBioTMLEvent> getEvents();
+	
+	public List<IBioTMLEvent> getEventsByEventTypes(Set<String> eventTypes);
 	
 	/**
 	 * 
