@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPOutputStream;
 
+import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLModelEvaluationResultsImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLMultiEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.utils.BioTMLCrossValidationCorpusIterator;
@@ -161,7 +162,8 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 	private IBioTMLMultiEvaluation evaluateByDocumentCrossValidation(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator configuration) throws BioTMLException{
 		Map<String, List<IBioTMLEvaluation>> multiEvaluations = new HashMap<>();
 		ExecutorService executor = Executors.newFixedThreadPool(getModelConfiguration().getNumThreads());
-		Iterator<IBioTMLCrossValidationFold<IBioTMLCorpus>> itCross = new BioTMLCrossValidationCorpusIterator(corpus, configuration.getCVFoldsByDocuments());
+		Iterator<IBioTMLCrossValidationFold<IBioTMLCorpus>> itCross = new BioTMLCrossValidationCorpusIterator(corpus, 
+				configuration.getCVFoldsByDocuments(), configuration.isSuffleDataBeforeCV());
 		int foldCount = 1;
 		while(itCross.hasNext()){
 			IBioTMLCrossValidationFold<IBioTMLCorpus> folds = itCross.next();	        
@@ -282,6 +284,20 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 	@Override
 	public boolean isTrained() {
 		return isTrained;
+	}
+
+	@Override
+	public boolean isValid() {
+		if(getModelConfiguration().getIEType().equals(BioTMLConstants.ner.toString())
+				|| getModelConfiguration().getIEType().equals(BioTMLConstants.re.toString())){
+			if((getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletsvm)
+				|| getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletnaivebayes)
+				|| getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletdecisiontree)
+				|| getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletmaxent)
+				|| getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletc45)) && getModel() instanceof Classifier)
+				return true;
+		}
+		return false;
 	}
 
 }

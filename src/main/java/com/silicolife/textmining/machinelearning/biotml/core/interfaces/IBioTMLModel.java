@@ -79,5 +79,13 @@ public interface IBioTMLModel {
 	 * @return Boolean
 	 */
 	public boolean isTrained();
+	
+	/**
+	 * 
+	 * Method to verify if the configurations used on the model are valid.
+	 * 
+	 * @return Boolean
+	 */
+	public boolean isValid();
 
 }

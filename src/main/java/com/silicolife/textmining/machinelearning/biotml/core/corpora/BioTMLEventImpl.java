@@ -134,4 +134,11 @@ public class BioTMLEventImpl implements IBioTMLEvent {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "( " + association + ", eventType=" + eventType + ", score=" + score + " )";
+	}
+	
+	
+
 }

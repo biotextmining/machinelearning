@@ -200,7 +200,7 @@ public class MalletTransducerModel extends BioTMLModel implements IBioTMLModel{
 	private IBioTMLMultiEvaluation evaluateByDocumentCrossValidation(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator configuration) throws BioTMLException{
 		Map<String, List<IBioTMLEvaluation>> multiEvaluations = new HashMap<>();
 		int foldID = 1;
-		Iterator<IBioTMLCrossValidationFold<IBioTMLCorpus>> itCross = new BioTMLCrossValidationCorpusIterator(corpus, configuration.getCVFoldsByDocuments());
+		Iterator<IBioTMLCrossValidationFold<IBioTMLCorpus>> itCross = new BioTMLCrossValidationCorpusIterator(corpus, configuration.getCVFoldsByDocuments(), configuration.isSuffleDataBeforeCV());
 		while(itCross.hasNext()){
 			IBioTMLCrossValidationFold<IBioTMLCorpus> folds = itCross.next();	        
 			InstanceList trainingData = loadCorpus(folds.getTrainingDataset(), getModelConfiguration().getNumThreads());
@@ -329,5 +329,16 @@ public class MalletTransducerModel extends BioTMLModel implements IBioTMLModel{
 	@Override
 	public boolean isTrained() {
 		return isTrained;
+	}
+
+	@Override
+	public boolean isValid() {
+		if(getModelConfiguration().getIEType().equals(BioTMLConstants.ner.toString())
+				|| getModelConfiguration().getIEType().equals(BioTMLConstants.re.toString())){
+			if((getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf) 
+			|| getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm)) && getModel() instanceof Transducer)
+				return true;
+		}
+		return false;
 	}
 }

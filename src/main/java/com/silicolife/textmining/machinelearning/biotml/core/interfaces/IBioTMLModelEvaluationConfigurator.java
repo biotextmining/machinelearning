@@ -70,4 +70,8 @@ public interface IBioTMLModelEvaluationConfigurator {
 	 */
 	public void setUseMultipleModelsToEvaluate(boolean useMultipleModelsToEvaluate);
 
+	boolean isSuffleDataBeforeCV();
+
+	void setSuffleDataBeforeCV(boolean suffleDataBeforeCV);
+
 }

@@ -46,7 +46,7 @@ public class BioTMLModelsCrossValidationCorpusEvaluator {
 
 	public IBioTMLMultiEvaluation evaluate(IBioTMLCorpus corpus) throws BioTMLException{
 		Map<String, List<IBioTMLEvaluation>> evaluations = new HashMap<>();
-		Iterator<IBioTMLCrossValidationFold<IBioTMLCorpus>> itCross = new BioTMLCrossValidationCorpusIterator(corpus, getConfiguration().getCVFoldsByDocuments());
+		Iterator<IBioTMLCrossValidationFold<IBioTMLCorpus>> itCross = new BioTMLCrossValidationCorpusIterator(corpus, getConfiguration().getCVFoldsByDocuments(), getConfiguration().isSuffleDataBeforeCV());
 		int foldCount = 1;
 		while(itCross.hasNext()){
 			IBioTMLCrossValidationFold<IBioTMLCorpus> fold = itCross.next();	    
@@ -60,7 +60,7 @@ public class BioTMLModelsCrossValidationCorpusEvaluator {
 			throws BioTMLException {
 		IBioTMLCorpus trainingData = fold.getTrainingDataset();
 		IBioTMLCorpus testingData = fold.getTestingDataset();
-		Map<IBioTMLOffsetsPair, IBioTMLAnnotation> predictedAnnotations = new HashMap<>();
+		Map<IBioTMLOffsetsPair, Set<IBioTMLAnnotation>> predictedAnnotations = new HashMap<>();
 		Map<IBioTMLAssociation<?, ?>, IBioTMLEvent> predictedEvents = new HashMap<>();
 		Set<String> nerClassTypes = new HashSet<>();
 		Set<String> reEventTypes = new HashSet<>();
@@ -99,9 +99,12 @@ public class BioTMLModelsCrossValidationCorpusEvaluator {
 		return new BioTMLEvaluationImpl(confusionMatrix, "Multi model event evaluation on fold: "+foldCount);
 	}
 
-	private IBioTMLEvaluation getNEREvaluation(int foldCount, IBioTMLCorpus testingData, Map<IBioTMLOffsetsPair, IBioTMLAnnotation> predictedAnnotations, Set<String> nerClassTypes) {
+	private IBioTMLEvaluation getNEREvaluation(int foldCount, IBioTMLCorpus testingData, Map<IBioTMLOffsetsPair, Set<IBioTMLAnnotation>> predictedAnnotations, Set<String> nerClassTypes) {
 		Collection<IBioTMLAnnotation> goldAnnotations = testingData.getAnnotationsByAnnotationTypes(nerClassTypes);
-		Collection<IBioTMLAnnotation> toCompareAnnotations = predictedAnnotations.values();
+		Collection<Set<IBioTMLAnnotation>> toCompareAnnotationSets = predictedAnnotations.values();
+		Collection<IBioTMLAnnotation> toCompareAnnotations = new HashSet<>();
+		for(Set<IBioTMLAnnotation> toCompareAnnotationSet : toCompareAnnotationSets)
+			toCompareAnnotations.addAll(toCompareAnnotationSet);
 		BioTMLAnnotationEvaluator annotationsEvaluator = new BioTMLAnnotationEvaluator();
 		IBioTMLConfusionMatrix<IBioTMLAnnotation> confusionMatrix = annotationsEvaluator.generateConfusionMatrix(goldAnnotations, toCompareAnnotations);
 		return new BioTMLEvaluationImpl(confusionMatrix, "Multi model annotation evaluation on fold: "+foldCount);
@@ -121,16 +124,25 @@ public class BioTMLModelsCrossValidationCorpusEvaluator {
 		}
 	}
 
-	private void addPredictedAnnotationsToMap(Map<IBioTMLOffsetsPair, IBioTMLAnnotation> predictedAnnotations, IBioTMLCorpus predictedCorpus) {
+	private void addPredictedAnnotationsToMap(Map<IBioTMLOffsetsPair, Set<IBioTMLAnnotation>> predictedAnnotations, IBioTMLCorpus predictedCorpus) {
 		List<IBioTMLAnnotation> annotations = predictedCorpus.getAnnotations();
 		for(IBioTMLAnnotation annotation : annotations){
 			
-			if(!predictedAnnotations.containsKey(annotation.getAnnotationOffsets()))
-				predictedAnnotations.put(annotation.getAnnotationOffsets(), annotation);
-			else{
-				IBioTMLAnnotation storedAnnotation = predictedAnnotations.get(annotation.getAnnotationOffsets());
-				if(storedAnnotation.getScore()<annotation.getScore())
-					predictedAnnotations.put(annotation.getAnnotationOffsets(), annotation);
+			if(!predictedAnnotations.containsKey(annotation.getAnnotationOffsets())){
+				Set<IBioTMLAnnotation> annotationSet = new HashSet<>();
+				annotationSet.add(annotation);
+				predictedAnnotations.put(annotation.getAnnotationOffsets(), annotationSet);
+			}else{
+				Set<IBioTMLAnnotation> annotationSetToStore = new HashSet<>();
+				Set<IBioTMLAnnotation> storedAnnotations = predictedAnnotations.get(annotation.getAnnotationOffsets());
+				for(IBioTMLAnnotation storedAnnotation : storedAnnotations){
+					if(storedAnnotation.getDocID() == annotation.getDocID()
+							&& storedAnnotation.getScore() < annotation.getScore())
+						annotationSetToStore.add(annotation);
+					else
+						annotationSetToStore.add(storedAnnotation);
+				}
+				predictedAnnotations.put(annotation.getAnnotationOffsets(), annotationSetToStore);
 			}
 			
 		}

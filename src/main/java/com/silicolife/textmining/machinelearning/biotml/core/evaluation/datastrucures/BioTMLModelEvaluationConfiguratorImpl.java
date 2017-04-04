@@ -15,7 +15,9 @@ public class BioTMLModelEvaluationConfiguratorImpl implements IBioTMLModelEvalua
 	private int cvFoldsByDoc;
 	private int cvFoldsBySent;
 	private boolean useMultipleModelsToEvaluate;
-	
+	private boolean suffleDataBeforeCV;
+
+
 	/**
 	 * 
 	 * Initializes the model evaluation configurator.
@@ -26,6 +28,7 @@ public class BioTMLModelEvaluationConfiguratorImpl implements IBioTMLModelEvalua
 		this.cvFoldsByDoc = 0;
 		this.cvFoldsBySent = 0;
 		this.useMultipleModelsToEvaluate=false;
+		this.suffleDataBeforeCV=false;
 	}
 
 	public void setCrossValidationByCorpusDoc(int folds) {
@@ -69,6 +72,16 @@ public class BioTMLModelEvaluationConfiguratorImpl implements IBioTMLModelEvalua
 	@Override
 	public void setUseMultipleModelsToEvaluate(boolean useMultipleModelsToEvaluate) {
 		this.useMultipleModelsToEvaluate = useMultipleModelsToEvaluate;
+	}
+	
+	@Override
+	public boolean isSuffleDataBeforeCV() {
+		return suffleDataBeforeCV;
+	}
+
+	@Override
+	public void setSuffleDataBeforeCV(boolean suffleDataBeforeCV) {
+		this.suffleDataBeforeCV = suffleDataBeforeCV;
 	}
 	
 }

@@ -34,37 +34,12 @@ public interface IBioTMLMultiModel {
 	
 	/**
 	 * 
-	 * Method to get the features generation configuration.
-	 * 
-	 * @return Features configuration ({@link IBioTMLFeatureGeneratorConfigurator}).
-	 */
-	public IBioTMLFeatureGeneratorConfigurator getFeatureConfiguration();
-	
-	/**
-	 * 
-	 * Method to get the model configuration.
-	 * 
-	 * @return Model configuration ({@link IBioTMLModelConfigurator}).
-	 */
-	public List<IBioTMLModelConfigurator> getModelConfigurations();
-	
-	/**
-	 * 
-	 * Method to get the model evaluation configuration.
-	 * 
-	 * @return Model evaluation configuration ({@link IBioTMLModelEvaluationConfigurator}).
-	 */
-	public IBioTMLModelEvaluationConfigurator getModelEvaluationConfiguration();
-	
-	
-	/**
-	 * 
 	 * Method to evaluate the multi-model using the initialized evaluation configurations.
 	 * 
 	 * @return Map of evaluations by submodel.
 	 * @throws BioTMLException
 	 */
-	public Map<String,IBioTMLModelEvaluationResults> evaluate(IBioTMLCorpus corpus)  throws BioTMLException;
+	public Map<String,IBioTMLModelEvaluationResults> evaluate(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator modelEvaluationConfiguration)  throws BioTMLException;
 	
 	/**
 	 * 
@@ -109,6 +84,6 @@ public interface IBioTMLMultiModel {
 	 * 
 	 * @return File object that contains the model readme.
 	 */
-	public File generateReadmeFile(IBioTMLCorpus corpus);
+	public File generateReadmeFile(IBioTMLCorpus corpus, List<IBioTMLModel> models);
 
 }

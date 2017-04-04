@@ -42,10 +42,10 @@ public class BioTMLCrossValidationCorpusIterator implements Iterator<IBioTMLCros
 	 * @param numFolds - Number of folds for CV.
 	 */
 	
-	public BioTMLCrossValidationCorpusIterator(IBioTMLCorpus corpus, int numFolds){
+	public BioTMLCrossValidationCorpusIterator(IBioTMLCorpus corpus, int numFolds, boolean shuffle){
 		this.corpus = corpus;
 		this.numFolds = numFolds;
-		this.folds = getDocumentsByFolds(numFolds);
+		this.folds = getDocumentsByFolds(numFolds, shuffle);
 		this.index = 0;
 	}
 
@@ -65,14 +65,15 @@ public class BioTMLCrossValidationCorpusIterator implements Iterator<IBioTMLCros
 		return index;
 	}
 	
-	private List<IBioTMLCrossValidationFold<IBioTMLCorpus>> getDocumentsByFolds(int folds){
+	private List<IBioTMLCrossValidationFold<IBioTMLCorpus>> getDocumentsByFolds(int folds, boolean shufffle){
 		if(folds<=0)
 	          throw new IndexOutOfBoundsException("the number of folds must be greater than 0");
 		if(folds>getCorpus().getDocuments().size())
 			throw new IndexOutOfBoundsException("the number of folds must be less or equal to number of documents");
 		List<IBioTMLCrossValidationFold<IBioTMLCorpus>> corpusFolds = new ArrayList<>();
 		List<IBioTMLDocument> docListShuffled = getCorpus().getDocuments();
-		Collections.shuffle(docListShuffled);
+		if(shufffle)
+			Collections.shuffle(docListShuffled);
 		int foldSize = (int) Math.ceil(docListShuffled.size()/(double)folds);
 		int fold = 0;
 		boolean finished = false;

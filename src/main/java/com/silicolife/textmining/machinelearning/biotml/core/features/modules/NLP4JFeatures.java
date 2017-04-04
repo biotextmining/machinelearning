@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.print.DocFlavor.STRING;
-
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLOffsetsPairImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLFeatureColumns;
@@ -474,7 +472,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		else
 			offsetspair = new BioTMLOffsetsPairImpl(annotationTwo.getStartOffset(), annotationOne.getEndOffset());
 		
-		String[] finisherLemmas = {".", ",", "because", "that", "who", "which"};
+		String[] finisherLemmas = {".", ",", "because", "that", "who", "which", "by", "for", "from"};
 		List<String> finisherLemmasList = Arrays.asList(finisherLemmas);
 		
 		boolean found = false;
