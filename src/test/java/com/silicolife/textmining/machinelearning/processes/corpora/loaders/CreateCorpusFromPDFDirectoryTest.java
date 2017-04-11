@@ -14,6 +14,7 @@ import org.junit.Test;
 import com.silicolife.textmining.core.datastructures.corpora.CorpusCreateConfigurationImpl;
 import com.silicolife.textmining.core.datastructures.init.InitConfiguration;
 import com.silicolife.textmining.core.datastructures.init.exception.InvalidDatabaseAccess;
+import com.silicolife.textmining.core.interfaces.core.corpora.CorpusCreateSourceEnum;
 import com.silicolife.textmining.core.interfaces.core.corpora.ICorpusCreateConfiguration;
 import com.silicolife.textmining.core.interfaces.core.dataaccess.exception.ANoteException;
 import com.silicolife.textmining.core.interfaces.core.document.IPublication;
@@ -39,7 +40,7 @@ public class CreateCorpusFromPDFDirectoryTest {
 		String corpusName = "Corpus PDF test";
 		CorpusTextType textType = CorpusTextType.FullText;
 		CorpusCreation creation = new CorpusCreation();
-		ICorpusCreateConfiguration configuration = new CorpusCreateConfigurationImpl(corpusName , notes , docIds , textType , journalRetrievalBefore);
+		ICorpusCreateConfiguration configuration = new CorpusCreateConfigurationImpl(corpusName , notes , docIds , textType , journalRetrievalBefore,CorpusCreateSourceEnum.Other);
 		ICorpusCreateReport reportCreateCorpus = creation.createCorpus(configuration );
 		assertTrue(reportCreateCorpus.isFinishing());
 	}
