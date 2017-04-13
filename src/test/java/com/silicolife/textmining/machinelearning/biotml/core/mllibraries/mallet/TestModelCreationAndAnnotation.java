@@ -12,7 +12,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMal
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationConfiguratorImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLModelEvaluationConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeatureGeneratorConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
@@ -56,12 +56,12 @@ public class TestModelCreationAndAnnotation {
 		System.out.println("Starting the model...");
 		
 //		IBioTMLModel model =new MalletClassifierModel(corpus, loadFeatures(), configuration, defaultEvaluationConfiguration());
-		IBioTMLModel model = new MalletTransducerModel(corpus, loadFeatures(),defaultConfiguration(modelClassType, modelIEType), defaultEvaluationConfiguration());
+		IBioTMLModel model = new MalletTransducerModel(loadFeatures(),defaultConfiguration(modelClassType, modelIEType));
 //		System.out.println("Executing the model evaluation...");
-//		IBioTMLModelEvaluationResults evaluation = model.evaluate();
+//		IBioTMLModelEvaluationResults evaluation = model.evaluate(corpus, defaultEvaluationConfiguration());
 //		System.out.println(evaluation.printResults());
 		System.out.println("Executing the model training...");
-		model.train();
+		model.train(corpus);
 		System.out.println("Saving the model...");
 		IBioTMLModelWriter writer = new BioTMLModelWriterImpl(modelDir);
 		writer.writeGZModelFile(model);
@@ -184,10 +184,10 @@ public class TestModelCreationAndAnnotation {
 		String modelIEType = "NER";
 		String modelDir = "C:\\Users\\RRodrigues\\Desktop\\corpora\\test.gz";
 		IBioTMLCorpus corpus = new BioTMLCorpusImpl(loadDocumentsInJava(), loadAnnotationsInJava(),"");
-		IBioTMLModel model = new MalletTransducerModel(corpus, loadFeatures(),defaultConfiguration(modelClassType, modelIEType), defaultEvaluationConfiguration());
-//		IBioTMLModelEvaluationResults res = model.evaluate();
+		IBioTMLModel model = new MalletTransducerModel(loadFeatures(),defaultConfiguration(modelClassType, modelIEType));
+//		IBioTMLModelEvaluationResults res = model.evaluate(corpus, defaultEvaluationConfiguration());
 //		System.out.println(res.printResults());
-		model.train();
+		model.train(corpus);
 		IBioTMLModelWriter writer = new BioTMLModelWriterImpl(modelDir);
 		writer.writeGZModelFile(model);
 	}

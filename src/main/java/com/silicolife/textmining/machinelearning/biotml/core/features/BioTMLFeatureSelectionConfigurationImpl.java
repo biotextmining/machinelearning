@@ -29,4 +29,29 @@ public class BioTMLFeatureSelectionConfigurationImpl implements IBioTMLFeatureSe
 		return selectedFeaturesSize;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((featureselectionAlgorithm == null) ? 0 : featureselectionAlgorithm.hashCode());
+		result = prime * result + selectedFeaturesSize;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BioTMLFeatureSelectionConfigurationImpl other = (BioTMLFeatureSelectionConfigurationImpl) obj;
+		if (featureselectionAlgorithm != other.featureselectionAlgorithm)
+			return false;
+		if (selectedFeaturesSize != other.selectedFeaturesSize)
+			return false;
+		return true;
+	}
+
 }

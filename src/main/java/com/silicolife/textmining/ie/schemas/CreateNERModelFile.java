@@ -20,8 +20,8 @@ public class CreateNERModelFile {
 		BioTMLConverter converter = new BioTMLConverter(configuration.getBioTMLNLPSystemsEnum(), configuration.getNERSChema());
 		IBioTMLCorpus bioTMLCorpus = converter.convertToBioTMLCorpus();
 		if(bioTMLCorpus!= null){
-			IBioTMLMultiModel model = new BioTMLMultiModel(bioTMLCorpus, configuration.getFeaturesSet(), configuration.getModelConfigurations());
-			model.trainAndSaveFile(configuration.getFileModelPath());
+			IBioTMLMultiModel model = new BioTMLMultiModel(configuration.getFeaturesSet(), configuration.getModelConfigurations());
+			model.trainAndSaveFile(bioTMLCorpus, configuration.getFileModelPath());
 		}
 		System.gc();
 	}

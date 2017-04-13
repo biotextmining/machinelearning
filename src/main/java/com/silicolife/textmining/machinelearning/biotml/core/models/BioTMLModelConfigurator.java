@@ -131,7 +131,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
         params.eps = 1e-3;
         params.p = 0.1;
         params.shrinking = 1;
-        params.probability = 0;
+        params.probability = 1;
         params.nr_weight = 0;
         params.weight_label = new int[0];
         return params;

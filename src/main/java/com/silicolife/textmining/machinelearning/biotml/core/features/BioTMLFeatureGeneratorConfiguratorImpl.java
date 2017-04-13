@@ -57,4 +57,38 @@ public class BioTMLFeatureGeneratorConfiguratorImpl implements IBioTMLFeatureGen
 		return featureSelectionConfiguration;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((featureSelectionConfiguration == null) ? 0 : featureSelectionConfiguration.hashCode());
+		result = prime * result + ((featuresUIDs == null) ? 0 : featuresUIDs.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BioTMLFeatureGeneratorConfiguratorImpl other = (BioTMLFeatureGeneratorConfiguratorImpl) obj;
+		if (featureSelectionConfiguration == null) {
+			if (other.featureSelectionConfiguration != null)
+				return false;
+		} else if (!featureSelectionConfiguration.equals(other.featureSelectionConfiguration))
+			return false;
+		if (featuresUIDs == null) {
+			if (other.featuresUIDs != null)
+				return false;
+		} else if (!featuresUIDs.equals(other.featuresUIDs))
+			return false;
+		return true;
+	}
+	
+	
+
 }

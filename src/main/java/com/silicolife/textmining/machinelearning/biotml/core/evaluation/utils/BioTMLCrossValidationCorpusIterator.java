@@ -20,16 +20,18 @@ import java.util.List;
 import java.util.Set;
 
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLCrossValidationFoldImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCrossValidationFold;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 
-public class BioTMLCrossValidationCorpusIterator implements Iterator<IBioTMLCorpus[]>{
+public class BioTMLCrossValidationCorpusIterator implements Iterator<IBioTMLCrossValidationFold<IBioTMLCorpus>>{
 	
 	private IBioTMLCorpus corpus;
 	private int numFolds;
-	private List<IBioTMLCorpus[]> folds;
+	private List<IBioTMLCrossValidationFold<IBioTMLCorpus>> folds;
 	private int index;
 
 	/**
@@ -40,10 +42,10 @@ public class BioTMLCrossValidationCorpusIterator implements Iterator<IBioTMLCorp
 	 * @param numFolds - Number of folds for CV.
 	 */
 	
-	public BioTMLCrossValidationCorpusIterator(IBioTMLCorpus corpus, int numFolds){
+	public BioTMLCrossValidationCorpusIterator(IBioTMLCorpus corpus, int numFolds, boolean shuffle){
 		this.corpus = corpus;
 		this.numFolds = numFolds;
-		this.folds = getDocumentsByFolds(numFolds);
+		this.folds = getDocumentsByFolds(numFolds, shuffle);
 		this.index = 0;
 	}
 
@@ -55,7 +57,7 @@ public class BioTMLCrossValidationCorpusIterator implements Iterator<IBioTMLCorp
 		return numFolds;
 	}
 	
-	private List<IBioTMLCorpus[]> getFolds(){
+	private List<IBioTMLCrossValidationFold<IBioTMLCorpus>> getFolds(){
 		return folds;
 	}
 	
@@ -63,21 +65,21 @@ public class BioTMLCrossValidationCorpusIterator implements Iterator<IBioTMLCorp
 		return index;
 	}
 	
-	private List<IBioTMLCorpus[]> getDocumentsByFolds(int folds){
+	private List<IBioTMLCrossValidationFold<IBioTMLCorpus>> getDocumentsByFolds(int folds, boolean shufffle){
 		if(folds<=0)
 	          throw new IndexOutOfBoundsException("the number of folds must be greater than 0");
 		if(folds>getCorpus().getDocuments().size())
 			throw new IndexOutOfBoundsException("the number of folds must be less or equal to number of documents");
-		List<IBioTMLCorpus[]> corpusFolds = new ArrayList<IBioTMLCorpus[]>(folds-1);
+		List<IBioTMLCrossValidationFold<IBioTMLCorpus>> corpusFolds = new ArrayList<>();
 		List<IBioTMLDocument> docListShuffled = getCorpus().getDocuments();
-		Collections.shuffle(docListShuffled);
+		if(shufffle)
+			Collections.shuffle(docListShuffled);
 		int foldSize = (int) Math.ceil(docListShuffled.size()/(double)folds);
 		int fold = 0;
 		boolean finished = false;
 		while(!finished){
 			int start = fold * foldSize;
 	        int end = Math.min(start + foldSize, docListShuffled.size());
-	        IBioTMLCorpus[] corpusFold = new IBioTMLCorpus[2];
 	        List<IBioTMLDocument> documentFold = docListShuffled.subList(start, end);
 	        List<IBioTMLDocument> documentBigFold = new ArrayList<IBioTMLDocument>();
 	        if(start>0){
@@ -86,8 +88,9 @@ public class BioTMLCrossValidationCorpusIterator implements Iterator<IBioTMLCorp
 	        if(end<getCorpus().getDocuments().size()){
 	        	documentBigFold.addAll(docListShuffled.subList(end, docListShuffled.size()));
 	        }
-	        corpusFold[0] = new BioTMLCorpusImpl(documentBigFold, getAnnotationsByDocList(documentBigFold), getRelationsByDocList(documentBigFold), getCorpus().toString());
-	        corpusFold[1] = new BioTMLCorpusImpl(documentFold, getAnnotationsByDocList(documentFold), getRelationsByDocList(documentFold), getCorpus().toString());
+	        IBioTMLCorpus trainingDataset = new BioTMLCorpusImpl(documentBigFold, getAnnotationsByDocList(documentBigFold), getRelationsByDocList(documentBigFold), getCorpus().toString());
+			IBioTMLCorpus testingDataset = new BioTMLCorpusImpl(documentFold, getAnnotationsByDocList(documentFold), getRelationsByDocList(documentFold), getCorpus().toString());
+			IBioTMLCrossValidationFold<IBioTMLCorpus> corpusFold = new BioTMLCrossValidationFoldImpl<IBioTMLCorpus>(trainingDataset, testingDataset);
 	        corpusFolds.add(corpusFold);
 	        if(end == docListShuffled.size()){
 	        	finished = true;
@@ -123,8 +126,8 @@ public class BioTMLCrossValidationCorpusIterator implements Iterator<IBioTMLCorp
 		return false;
 	}
 
-	public IBioTMLCorpus[] next() {
-		IBioTMLCorpus[] res = getFolds().get(getIndex());
+	public IBioTMLCrossValidationFold<IBioTMLCorpus> next() {
+		IBioTMLCrossValidationFold<IBioTMLCorpus> res = getFolds().get(getIndex());
 		index++;
 		return res;
 	}

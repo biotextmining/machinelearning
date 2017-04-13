@@ -116,24 +116,7 @@ public class BioTMLMalletAnnotatorImpl implements IBioTMLAnnotator{
 
 
 	public boolean validateModel(IBioTMLModel model) {
-		
-		if(model.getModelConfiguration().getIEType().equals(BioTMLConstants.ner.toString())
-				|| model.getModelConfiguration().getIEType().equals(BioTMLConstants.re.toString())){
-			
-			if (model.getModel() instanceof Transducer){
-				if(	model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString())
-						|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString())){
-					return true;
-				}
-			}
-			
-			if (model.getModel() instanceof Classifier && model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletsvm.toString())){
-				return true;
-			}
-			
-		}
-
-		return false;
+		return model.isValid();
 	}
 
 	private boolean validateSubModels(List<IBioTMLModel> models){

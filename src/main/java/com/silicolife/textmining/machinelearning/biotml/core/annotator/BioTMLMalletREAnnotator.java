@@ -17,8 +17,6 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLE
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
 
-import cc.mallet.classify.Classifier;
-import cc.mallet.fst.Transducer;
 import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
 import cc.mallet.types.Sequence;
@@ -49,8 +47,8 @@ public class BioTMLMalletREAnnotator {
 		}
 		
 		Set<IBioTMLEvent> events = new HashSet<>();
-		if(model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString())
-				|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString()))
+		if(model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf)
+				|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm))
 		{
 			predictEventsUsingTransducerProcessor(corpus, model, threads, events);	
 		}
@@ -115,32 +113,18 @@ public class BioTMLMalletREAnnotator {
 	}
 	
 	public boolean validateModel(IBioTMLModel model) {
-		
-		if(model.getModelConfiguration().getIEType().equals(BioTMLConstants.re.toString())){
-			
-			if (model.getModel() instanceof Transducer){
-				if(	model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString())
-						|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString())){
-					return true;
-				}
-			}
-			
-			if (model.getModel() instanceof Classifier && model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletsvm.toString())){
-				return true;
-			}
-			
-		}
-
+		if(model.getModelConfiguration().getIEType().equals(BioTMLConstants.re.toString()))
+			return model.isValid() && model.isTrained();
 		return false;
 	}
 
 	public void stopAnnotator() {
-		if(transducerProcessor != null){
+		if(transducerProcessor != null)
 			transducerProcessor.stopProcessor();
-		}
-		if(classifierProcessor != null){
+		
+		if(classifierProcessor != null)
 			classifierProcessor.stopProcessor();
-		}
+		
 	}
 
 

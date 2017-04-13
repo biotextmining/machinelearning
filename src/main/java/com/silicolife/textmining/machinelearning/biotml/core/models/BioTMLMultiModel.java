@@ -12,7 +12,9 @@ import java.util.Map;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMalletAnnotatorImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelEvaluationConfiguratorImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelsCrossValidationCorpusEvaluator;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLModelEvaluationConfiguratorImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLModelEvaluationResultsImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
@@ -23,6 +25,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationResults;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelWriter;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiEvaluation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiModel;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
 import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.MalletClassifierModel;
@@ -40,13 +43,9 @@ import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLModelWriter
 
 public class BioTMLMultiModel implements IBioTMLMultiModel{
 
-	private IBioTMLCorpus corpus;
-	private IBioTMLFeatureGeneratorConfigurator featureConfiguration;
-	private List<IBioTMLModelConfigurator> modelConfigurations;
-	private IBioTMLModelEvaluationConfigurator modelEvaluationConfiguration;
+	private Map<IBioTMLFeatureGeneratorConfigurator, List<IBioTMLModelConfigurator>> modelFeaturesAndConfigurations;
 	private List<IBioTMLModel> models;
 	private boolean usedEvaluation = false;
-	private HashMap<String, IBioTMLModelEvaluationResults> evaluationByTypes;
 
 	/**
 	 * 
@@ -56,17 +55,19 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 	 * @throws BioTMLException
 	 */
 	public BioTMLMultiModel(String file) throws BioTMLException{
-		this.corpus = null;
 		IBioTMLModelReader reader = new BioTMLModelReaderImpl();
-		List<IBioTMLModelConfigurator> configurations = new ArrayList<>();
+
 		this.models = reader.loadModelFromZipFile(file);
-		this.featureConfiguration = models.get(0).getFeatureConfiguration();
+		this.modelFeaturesAndConfigurations = new HashMap<>();
+
 		for(IBioTMLModel model : models){
+			if(!modelFeaturesAndConfigurations.containsKey(model.getFeatureConfiguration()))
+				modelFeaturesAndConfigurations.put(model.getFeatureConfiguration(), new ArrayList<>());
+			List<IBioTMLModelConfigurator> configurations = modelFeaturesAndConfigurations.get(model.getFeatureConfiguration());
 			configurations.add(model.getModelConfiguration());
+			modelFeaturesAndConfigurations.put(model.getFeatureConfiguration(), configurations);
 		}
-		this.modelConfigurations = configurations;
-		this.modelEvaluationConfiguration = new BioTMLModelEvaluationConfiguratorImpl();
-		this.evaluationByTypes = new HashMap<String, IBioTMLModelEvaluationResults>();
+
 	}
 
 	/**
@@ -79,139 +80,99 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 	 * @param featureConfiguration {@link IBioTMLFeatureGeneratorConfigurator} to generate the model training features. 
 	 * @param modelConfigurations {@link IBioTMLModelConfigurator} model configurations.
 	 */
-	public BioTMLMultiModel(IBioTMLCorpus corpus,
+	public BioTMLMultiModel(
 			IBioTMLFeatureGeneratorConfigurator featureConfiguration,  
 			List<IBioTMLModelConfigurator> modelConfigurations){
-		this.corpus = corpus;
-		this.featureConfiguration = featureConfiguration;
-		this.modelConfigurations = modelConfigurations;
-		this.modelEvaluationConfiguration = new BioTMLModelEvaluationConfiguratorImpl();
-		this.evaluationByTypes = new HashMap<String, IBioTMLModelEvaluationResults>();
+		this.modelFeaturesAndConfigurations = new HashMap<>();
+		this.modelFeaturesAndConfigurations.put(featureConfiguration, modelConfigurations);
 	}
-
-	/**
-	 * 
-	 * Initializes a multi-model using a corpus ({@link IBioTMLCorpus}),
-	 * features configuration ({@link IBioTMLFeatureGeneratorConfigurator}) ,
-	 * model configurations ({@link IBioTMLModelConfigurator}) that will be used to train the model
-	 * and model evaluation settings ({@link IBioTMLModelEvaluationConfigurator}) to evaluate the features generation.
-	 * 
-	 * @param corpus {@link IBioTMLCorpus} to train the model.
-	 * @param featureConfiguration {@link IBioTMLFeatureGeneratorConfigurator} to generate the model training features. 
-	 * @param modelConfigurations {@link IBioTMLModelConfigurator} model configurations.
-	 * @param modelEvaluationConfiguration {@link IBioTMLModelEvaluationConfigurator} to evaluate the model generated with the initialized features.
-	 */
-	public BioTMLMultiModel(IBioTMLCorpus corpus,
-			IBioTMLFeatureGeneratorConfigurator featureConfiguration,  
-			List<IBioTMLModelConfigurator> modelConfigurations, 
-			IBioTMLModelEvaluationConfigurator modelEvaluationConfiguration){
-		this.corpus = corpus;
-		this.featureConfiguration = featureConfiguration;
-		this.modelConfigurations = modelConfigurations;
-		this.modelEvaluationConfiguration = modelEvaluationConfiguration;
-		this.evaluationByTypes = new HashMap<String, IBioTMLModelEvaluationResults>();
+	
+	public BioTMLMultiModel(Map<IBioTMLFeatureGeneratorConfigurator, List<IBioTMLModelConfigurator>> modelFeaturesAndConfigurations){
+		this.modelFeaturesAndConfigurations = modelFeaturesAndConfigurations;
 	}
 
 	private List<IBioTMLModel> iniModels(){
 		List<IBioTMLModel> modelsList = new ArrayList<IBioTMLModel>();
-		for( IBioTMLModelConfigurator configuration : getModelConfigurations()){
-			if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletcrf) 
-					|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.mallethmm)){
-				modelsList.add(new MalletTransducerModel(getCorpus(), getFeatureConfiguration(), configuration, getModelEvaluationConfiguration()));
-			}
-			if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletsvm)
-					|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletnaivebayes)
-					|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletdecisiontree)
-					|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletmaxent)
-					|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletc45)){
-				modelsList.add(new MalletClassifierModel(getCorpus(), getFeatureConfiguration(), configuration, getModelEvaluationConfiguration()));
-			}
+		for(IBioTMLFeatureGeneratorConfigurator features : getModelFeaturesAndConfiguration().keySet()){
+			List<IBioTMLModelConfigurator> modelconfigs = getModelFeaturesAndConfiguration().get(features);
+			for(IBioTMLModelConfigurator modelconfig :modelconfigs)
+				addInitModelConfig(modelsList, features, modelconfig);
 		}
 		return modelsList;
 	}
 
-	private IBioTMLCorpus getCorpus(){
-		return corpus;
+	private void addInitModelConfig(List<IBioTMLModel> modelsList, IBioTMLFeatureGeneratorConfigurator features, IBioTMLModelConfigurator configuration) {
+		if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletcrf) 
+				|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.mallethmm)){
+			modelsList.add(new MalletTransducerModel(features, configuration));
+		}
+		if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletsvm)
+				|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletnaivebayes)
+				|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletdecisiontree)
+				|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletmaxent)
+				|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletc45)){
+			modelsList.add(new MalletClassifierModel(features, configuration));
+		}
 	}
 
 	public List<String> getClassTypes() {
 		List<String> classTypes = new ArrayList<String>();
-		for(IBioTMLModelConfigurator modelConfiguration : getModelConfigurations()){
-			classTypes.add(modelConfiguration.getClassType());
-		}
+		for(IBioTMLModel model : getModels())
+			classTypes.add(model.getModelConfiguration().getClassType());
+		
 		return classTypes;
 	}
 
 	public String getIEType(){
-		for(IBioTMLModelConfigurator configurations : getModelConfigurations()){
-			if(configurations.getAlgorithmType().equals(BioTMLConstants.re.toString())){
+		for(IBioTMLModel model : getModels()){
+			if(model.getModelConfiguration().getAlgorithmType().equals(BioTMLConstants.re.toString()))
 				return BioTMLConstants.re.toString();
-			}
 		}
 		return BioTMLConstants.ner.toString();
 	}
 
-	public IBioTMLFeatureGeneratorConfigurator getFeatureConfiguration() {
-		return featureConfiguration;
+	public Map<IBioTMLFeatureGeneratorConfigurator, List<IBioTMLModelConfigurator>> getModelFeaturesAndConfiguration() {
+		return modelFeaturesAndConfigurations;
 	}
 
-	public List<IBioTMLModelConfigurator> getModelConfigurations() {
-		return modelConfigurations;
-	}
+	public Map<String, IBioTMLModelEvaluationResults> evaluate(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator modelEvaluationConfiguration) throws BioTMLException {
+		Map<String, IBioTMLModelEvaluationResults> evaluationByTypes = new HashMap<>();
+		if(modelEvaluationConfiguration.isUseMultipleModelsToEvaluate()){
+			BioTMLModelsCrossValidationCorpusEvaluator cvEvaluator = new BioTMLModelsCrossValidationCorpusEvaluator(getModels(), modelEvaluationConfiguration);
+			IBioTMLMultiEvaluation result = cvEvaluator.evaluate(corpus);
+			Map<String, IBioTMLMultiEvaluation> evaluationResultscv = new HashMap<>();
+			evaluationResultscv.put("", result);
+			evaluationByTypes.put("General", new BioTMLModelEvaluationResultsImpl(evaluationResultscv));
+		}else
+			for(IBioTMLModel model : getModels())
+				evaluationByTypes.put(model.getModelConfiguration().getClassType(), model.evaluate(corpus, modelEvaluationConfiguration));
 
-	public IBioTMLModelEvaluationConfigurator getModelEvaluationConfiguration() {
-		return modelEvaluationConfiguration;
-	}
-
-	public Map<String, IBioTMLModelEvaluationResults> evaluate()
-			throws BioTMLException {
-		for(IBioTMLModel model : getModels()){
-			evaluationByTypes.put(model.getModelConfiguration().getClassType(), model.evaluate());
-		}
 		this.usedEvaluation = true;
 		return evaluationByTypes;
 	}
 
-	public void train() throws BioTMLException {
+	public void train(IBioTMLCorpus corpus) throws BioTMLException {
 		for(IBioTMLModel model : getModels()){
-			model.train();
+			model.train(corpus);
 		}
 	}
 
-	public void trainAndSaveFile(String modelPathAndFilename) throws BioTMLException{
+	public void trainAndSaveFile(IBioTMLCorpus corpus, String modelPathAndFilename) throws BioTMLException{
 		IBioTMLModelWriter writer = new BioTMLModelWriterImpl(modelPathAndFilename);
 		List<String> modelPaths = new ArrayList<>();
-		for( IBioTMLModelConfigurator configuration : getModelConfigurations()){
-			if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletcrf) 
-					|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.mallethmm)){
-				IBioTMLModel model = new MalletTransducerModel(getCorpus(), getFeatureConfiguration(), configuration, getModelEvaluationConfiguration());
-				model.train();
-				String modelpath = writer.saveGZModelForMultiModel(model);
-				modelPaths.add(modelpath);
-				model = null;
-				System.gc();
-			}
-			if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletsvm)
-					|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletnaivebayes)
-					|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletmaxent)
-					|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletdecisiontree)
-					|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletc45)){
-				IBioTMLModel model = new MalletClassifierModel(getCorpus(), getFeatureConfiguration(), configuration, getModelEvaluationConfiguration());
-				model.train();
-				String modelpath = writer.saveGZModelForMultiModel(model);
-				modelPaths.add(modelpath);
-				model = null;
-				System.gc();
-			}
+		for(IBioTMLModel model : getModels()){
+			model.train(corpus);
+			String modelpath = writer.saveGZModelForMultiModel(model);
+			modelPaths.add(modelpath);
 		}
 		if(!modelPaths.isEmpty()){
-			writer.writeZIPModelFilesSaved(modelPaths, generateReadmeFile());
+			writer.writeZIPModelFilesSaved(modelPaths, generateReadmeFile(corpus, getModels()));
 		}
 	}
 
 	public IBioTMLCorpus annotate(IBioTMLCorpus corpusToAnotate) throws BioTMLException {
 		IBioTMLAnnotator annotator = new BioTMLMalletAnnotatorImpl(corpusToAnotate);
-		return annotator.generateAnnotatedBioTMCorpus(getModels(),getModelConfigurations().get(0).getNumThreads());
+		return annotator.generateAnnotatedBioTMCorpus(getModels(),getModels().get(0).getModelConfiguration().getNumThreads());
 	}
 
 	public List<IBioTMLModel> getModels() {
@@ -221,7 +182,7 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 		return models;
 	}
 
-	public File generateReadmeFile(){
+	public File generateReadmeFile(IBioTMLCorpus corpus, List<IBioTMLModel> models){
 		File readme = new File("README");
 		try {
 			readme.createNewFile();
@@ -232,16 +193,20 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 		try {
 			fos = new FileOutputStream(readme);
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-			String evaluation = (this.usedEvaluation) ? " * Evaluation scores: " + "\n\n"+foldTypesString() + processEvaluationbyTypes(): "";
+			IBioTMLModelEvaluationConfigurator evaluationConfiguration = new BioTMLModelEvaluationConfiguratorImpl();
+			String evaluation = (this.usedEvaluation) ? " * Evaluation scores: " + "\n\n"+foldTypesString(evaluationConfiguration) + processEvaluationbyTypes(new HashMap<>()): "";
 			bw.write("\n###################### README ########################\n\n"+
 					"The multi-model file was trained with:\n\n"+
-					" * Corpus name: " + getCorpus().toString()+"\n\n"+
+					" * Corpus name: " + corpus.toString()+"\n\n"+
 					" * IE Process Type: " + getIEType()+"\n\n"+
-					" * Used NLP System: " + getModelConfigurations().get(0).getUsedNLPSystem() + "\n\n"+
-					" * Annotation Types:\n\t\t\t\t\t" + getClassTypes().toString().substring(1,getClassTypes().toString().length()-1).replace(", ", "\n\t\t\t\t\t")+"\n\n"+
-					" * Machine learning algorithm used: " + getModelConfigurations().get(0).getAlgorithmType() + "\n\n"+
-					" * Features used:\n\t\t\t\t\t" + getFeatureConfiguration().getFeaturesUIDs().toString().substring(1,getFeatureConfiguration().getFeaturesUIDs().toString().length()-1).replace(", ", "\n\t\t\t\t\t")+"\n\n"+
+					" * Annotation Types:\n\t\t\t\t\t" + getClassTypes().toString().substring(1,getClassTypes().toString().length()-1).replace(", ", "\n\t\t\t\t\t")+"\n\n");
+			for(IBioTMLModel model:models){
+				bw.write(
+					" * Used NLP System: " + model.getModelConfiguration().getUsedNLPSystem() + "\n\n"+
+					" * Machine learning algorithm used: " + model.getModelConfiguration().getAlgorithmType() + "\n\n"+
+					" * Features used:\n\t\t\t\t\t" + model.getFeatureConfiguration().getFeaturesUIDs().toString().substring(1, model.getFeatureConfiguration().getFeaturesUIDs().toString().length()-1).replace(", ", "\n\t\t\t\t\t")+"\n\n"+
 					evaluation);
+			}
 			bw.close();
 		} catch ( IOException e) {
 			e.printStackTrace();
@@ -249,18 +214,18 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 		return readme;
 	}
 
-	private String foldTypesString(){
+	private String foldTypesString(IBioTMLModelEvaluationConfigurator evaluationConfiguration){
 		String res = new String();
-		if(getModelEvaluationConfiguration().isUseCrossValidationByDocuments()){
-			res = res + "\tNumber of folds used in corpus documents for cross-validation is " + String.valueOf(getModelEvaluationConfiguration().getCVFoldsByDocuments())+"\n";
-		}
-		if(getModelEvaluationConfiguration().isUseCrossValidationBySentences()){
-			res = res + "\tNumber of folds used in corpus sentences for cross-validation is " + String.valueOf(getModelEvaluationConfiguration().getCVFoldsBySentences())+"\n";
-		}
+		if(evaluationConfiguration.isUseCrossValidationByDocuments())
+			res = res + "\tNumber of folds used in corpus documents for cross-validation is " + String.valueOf(evaluationConfiguration.getCVFoldsByDocuments())+"\n";
+
+		if(evaluationConfiguration.isUseCrossValidationBySentences())
+			res = res + "\tNumber of folds used in corpus sentences for cross-validation is " + String.valueOf(evaluationConfiguration.getCVFoldsBySentences())+"\n";
+
 		return res;
 	}
 
-	private String processEvaluationbyTypes(){
+	private String processEvaluationbyTypes(Map<String, IBioTMLModelEvaluationResults> evaluationByTypes){
 		String result = new String();
 		for(String key : evaluationByTypes.keySet()){
 			result = result + "\n\n\tModel Type: " + key +"\n";

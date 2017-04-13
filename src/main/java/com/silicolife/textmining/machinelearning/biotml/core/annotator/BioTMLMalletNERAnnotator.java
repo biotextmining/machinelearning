@@ -15,8 +15,6 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLD
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
 
-import cc.mallet.classify.Classifier;
-import cc.mallet.fst.Transducer;
 import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
 import cc.mallet.types.Sequence;
@@ -50,9 +48,7 @@ public class BioTMLMalletNERAnnotator {
 	public Set<IBioTMLAnnotation> generateAnnotations(IBioTMLCorpus corpus, IBioTMLModel model, int threads) throws BioTMLException{
 		
 		if(!validateModel(model))
-		{
 			throw new BioTMLException(5);
-		}
 		
 		Set<IBioTMLAnnotation> annotations = new HashSet<>();
 		if(model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf)
@@ -109,32 +105,18 @@ public class BioTMLMalletNERAnnotator {
 	}
 	
 	public boolean validateModel(IBioTMLModel model) {
-		
-		if(model.getModelConfiguration().getIEType().equals(BioTMLConstants.ner.toString())){
-			
-			if (model.getModel() instanceof Transducer){
-				if(	model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString())
-						|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString())){
-					return true;
-				}
-			}
-			
-			if (model.getModel() instanceof Classifier && model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletsvm.toString())){
-				return true;
-			}
-			
-		}
-
+		if(model.getModelConfiguration().getIEType().equals(BioTMLConstants.ner.toString()))
+			return model.isValid() && model.isTrained();
 		return false;
 	}
 	
 	public void stopAnnotator() {
-		if(getTransducerProcessor() != null){
+		if(getTransducerProcessor() != null)
 			getTransducerProcessor().stopProcessor();
-		}
-		if(getClassifierProcessor() != null){
+		
+		if(getClassifierProcessor() != null)
 			getClassifierProcessor().stopProcessor();
-		}
+		
 	}
 
 }

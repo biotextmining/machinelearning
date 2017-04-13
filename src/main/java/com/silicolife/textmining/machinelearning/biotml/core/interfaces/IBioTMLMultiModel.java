@@ -34,54 +34,31 @@ public interface IBioTMLMultiModel {
 	
 	/**
 	 * 
-	 * Method to get the features generation configuration.
-	 * 
-	 * @return Features configuration ({@link IBioTMLFeatureGeneratorConfigurator}).
-	 */
-	public IBioTMLFeatureGeneratorConfigurator getFeatureConfiguration();
-	
-	/**
-	 * 
-	 * Method to get the model configuration.
-	 * 
-	 * @return Model configuration ({@link IBioTMLModelConfigurator}).
-	 */
-	public List<IBioTMLModelConfigurator> getModelConfigurations();
-	
-	/**
-	 * 
-	 * Method to get the model evaluation configuration.
-	 * 
-	 * @return Model evaluation configuration ({@link IBioTMLModelEvaluationConfigurator}).
-	 */
-	public IBioTMLModelEvaluationConfigurator getModelEvaluationConfiguration();
-	
-	
-	/**
-	 * 
 	 * Method to evaluate the multi-model using the initialized evaluation configurations.
 	 * 
 	 * @return Map of evaluations by submodel.
 	 * @throws BioTMLException
 	 */
-	public Map<String,IBioTMLModelEvaluationResults> evaluate()  throws BioTMLException;
+	public Map<String,IBioTMLModelEvaluationResults> evaluate(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator modelEvaluationConfiguration)  throws BioTMLException;
 	
 	/**
 	 * 
 	 * Method to train the multi-model using the initialized configurations.
 	 * 
+	 * @param corpus {@link IBioTMLCorpus} to train the model.
 	 * @throws BioTMLException
 	 */
-	public void train() throws BioTMLException;
+	public void train(IBioTMLCorpus corpus) throws BioTMLException;
 	
 	/**
 	 * 
 	 * Method to train the multi-model using the initialized configurations and save the trained submodels during the train model (reduces the memory usage).
 	 * 
+	 * @param corpus {@link IBioTMLCorpus} to train the model.
 	 * @param modelPathAndFilename Absolute file path to save the model.
 	 * @throws BioTMLException
 	 */
-	public void trainAndSaveFile(String modelPathAndFilename) throws BioTMLException;
+	public void trainAndSaveFile(IBioTMLCorpus corpus, String modelPathAndFilename) throws BioTMLException;
 	
 	/**
 	 * 
@@ -107,6 +84,6 @@ public interface IBioTMLMultiModel {
 	 * 
 	 * @return File object that contains the model readme.
 	 */
-	public File generateReadmeFile();
+	public File generateReadmeFile(IBioTMLCorpus corpus, List<IBioTMLModel> models);
 
 }

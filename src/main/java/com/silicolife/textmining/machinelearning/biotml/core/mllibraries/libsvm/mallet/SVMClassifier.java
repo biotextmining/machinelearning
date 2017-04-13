@@ -62,11 +62,10 @@ public class SVMClassifier extends Classifier implements Serializable {
 
     private void init() {
         svmLabel2mltLabel = new HashMap<Double, String>();
-        for (Entry<String, Double> entry : mltLabel2svmLabel.entrySet()) {
+        for (Entry<String, Double> entry : mltLabel2svmLabel.entrySet())
             svmLabel2mltLabel.put(entry.getValue(), entry.getKey());
-        }
-
-        svmIndex2mltIndex = new int[model.nr_class + 1];
+        
+        svmIndex2mltIndex = new int[model.nr_class];
         int[] sLabels = model.label;
         LabelAlphabet labelAlphabet = getLabelAlphabet();
         for (int sIndex = 0; sIndex < sLabels.length; sIndex++) {
@@ -83,14 +82,15 @@ public class SVMClassifier extends Classifier implements Serializable {
      * need to rearrange the score vector returned by the SVM model.
      * 
      * @param scores - Array of scores
+     * @return rearranged scores 
      */
-    private void rearrangeScores(double[] scores) {
-        for (int i = 0; i < scores.length; i++) {
-            int mIndex = svmIndex2mltIndex[i];
-            double tmp = scores[i];
-            scores[i] = scores[mIndex];
-            scores[mIndex] = tmp;
-        }
+    private double[] rearrangeScores(double[] scores) {
+    	
+    	double[] finalScores = new double[scores.length];
+        for (int i = 0; i < scores.length; i++)
+        	finalScores[i] = scores[svmIndex2mltIndex[i]];
+        
+        return finalScores;
     }
 
     @Override
@@ -99,14 +99,20 @@ public class SVMClassifier extends Classifier implements Serializable {
         double[] scores = new double[model.nr_class];
         svm_node[] vector = featureVectorToSVMNodes(instance);
         double p = SVMPredictor.predictProbability(new SVMInstance(vector), getSVMModel(), scores);
+
+        // scores are reorganized to match the mallet labelaphabet lookupIndex
+        scores = rearrangeScores(scores);
+        
         //if SVM is not predicting probability then assign a score of 1.0 to the best class predicted value p
         //and 0.0 to the other classes
         if (params.probability == 0) {
             String label = svmLabel2mltLabel.get(p);
             int index = getLabelAlphabet().lookupIndex(label, false);
-            scores[index] = 1.0;
-        } else {
-            rearrangeScores(scores);
+            for(int i=0; i<scores.length; i++){
+            	scores[i] = 0.0;
+            	if(i == index)
+            		scores[i] = 1.0;
+            }
         }
         return new Classification(instance, this, new LabelVector(getLabelAlphabet(), scores));
     }

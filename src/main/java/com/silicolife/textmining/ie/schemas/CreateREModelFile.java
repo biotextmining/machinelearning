@@ -40,8 +40,8 @@ public class CreateREModelFile {
 				cluesConfiguration.setUsedNLPSystem(configuration.getUsedNLPSystem());
 				configurations.add(cluesConfiguration);
 			}
-			IBioTMLMultiModel model = new BioTMLMultiModel(bioTMLCorpus, modelConfiguration.getBioTMLFeatureGeneratorConfigurator(), configurations);
-			model.trainAndSaveFile(modelConfiguration.getFileModelPath());
+			IBioTMLMultiModel model = new BioTMLMultiModel(modelConfiguration.getBioTMLFeatureGeneratorConfigurator(), configurations);
+			model.trainAndSaveFile(bioTMLCorpus, modelConfiguration.getFileModelPath());
 			System.gc();
 		}
 	}

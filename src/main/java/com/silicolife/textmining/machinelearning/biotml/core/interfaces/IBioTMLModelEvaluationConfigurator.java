@@ -55,5 +55,23 @@ public interface IBioTMLModelEvaluationConfigurator {
 	 * @return Number of folds for CV based in sentences.
 	 */
 	public int getCVFoldsBySentences();
+	
+	/**
+	 * Method to verify if the cross-validation is based in all models or for each model.
+	 * 
+	 * @return Cross-Validation is for multi models 
+	 */
+	public boolean isUseMultipleModelsToEvaluate();
+	
+	/**
+	 * 
+	 * Method to define if the cross-validation is based in all models or for each model.
+	 * 
+	 */
+	public void setUseMultipleModelsToEvaluate(boolean useMultipleModelsToEvaluate);
+
+	boolean isSuffleDataBeforeCV();
+
+	void setSuffleDataBeforeCV(boolean suffleDataBeforeCV);
 
 }

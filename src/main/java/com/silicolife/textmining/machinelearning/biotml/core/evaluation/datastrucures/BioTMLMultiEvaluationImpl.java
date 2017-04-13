@@ -1,4 +1,4 @@
-package com.silicolife.textmining.machinelearning.biotml.core.evaluation;
+package com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
