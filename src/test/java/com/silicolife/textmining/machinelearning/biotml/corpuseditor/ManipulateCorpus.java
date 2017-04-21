@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLEntityImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReaderImpl;
@@ -25,7 +25,7 @@ public class ManipulateCorpus {
 		IBioTMLCorpus annotatedcorpus = reader.readBioTMLCorpusFromFile(annotatedCorpusFilename);
 		IBioTMLCorpus unannotatedcorpus = reader.readBioTMLCorpusFromFile(unannotatedCorpusFilename);
 		
-		List<IBioTMLAnnotation> AllAnnotations = new ArrayList<>();
+		List<IBioTMLEntity> AllAnnotations = new ArrayList<>();
 		
 		for(IBioTMLDocument annotateddocument :annotatedcorpus.getDocuments()){
 			Iterator<IBioTMLDocument> itUnnAnnoted = unannotatedcorpus.getDocuments().iterator();
@@ -33,7 +33,7 @@ public class ManipulateCorpus {
 			while(itUnnAnnoted.hasNext() && !found){
 				IBioTMLDocument unnanotatedDocument = itUnnAnnoted.next();
 				if(annotateddocument.equals(unnanotatedDocument)){
-					List<IBioTMLAnnotation> annotations = annotatedcorpus.getDocAnnotations(annotateddocument.getID());
+					List<IBioTMLEntity> annotations = annotatedcorpus.getDocAnnotations(annotateddocument.getID());
 //					List<IBioTMLAnnotation> cluesInAnnotated = getClueAnnotations(annotations);
 					AllAnnotations.addAll(setAnnotationsToDocument(annotations, unnanotatedDocument));
 					found = true;
@@ -57,10 +57,10 @@ public class ManipulateCorpus {
 //		return clues;
 //	}
 	
-	private List<IBioTMLAnnotation> setAnnotationsToDocument(List<IBioTMLAnnotation> annotations, IBioTMLDocument unannotateddocument){
-		List<IBioTMLAnnotation> annotationsConverted = new ArrayList<>();
-		for(IBioTMLAnnotation annotation : annotations){
-			annotationsConverted.add(new BioTMLAnnotationImpl(unannotateddocument.getID(), annotation.getAnnotType(), annotation.getStartOffset(), annotation.getEndOffset()));
+	private List<IBioTMLEntity> setAnnotationsToDocument(List<IBioTMLEntity> annotations, IBioTMLDocument unannotateddocument){
+		List<IBioTMLEntity> annotationsConverted = new ArrayList<>();
+		for(IBioTMLEntity annotation : annotations){
+			annotationsConverted.add(new BioTMLEntityImpl(unannotateddocument.getID(), annotation.getAnnotationType(), annotation.getStartOffset(), annotation.getEndOffset()));
 		}
 		return annotationsConverted;
 	}

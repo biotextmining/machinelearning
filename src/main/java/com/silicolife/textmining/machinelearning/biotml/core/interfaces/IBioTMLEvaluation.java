@@ -20,7 +20,7 @@ public interface IBioTMLEvaluation extends Serializable{
 	 * 
 	 * @return Precision score.
 	 */
-	public double getPrecision();
+	public double getPrecisionOfLabel(String label);
 	
 	/**
 	 * 
@@ -28,7 +28,7 @@ public interface IBioTMLEvaluation extends Serializable{
 	 * 
 	 * @return Recall score.
 	 */
-	public double getRecall();
+	public double getRecallOfLabel(String label);
 	
 	/**
 	 * 
@@ -36,7 +36,7 @@ public interface IBioTMLEvaluation extends Serializable{
 	 * 
 	 * @return F-score.
 	 */
-	public double getFscore();
+	public double getFscoreOfLabel(String label);
 	
 	
 	public String getEvaluationDescription();

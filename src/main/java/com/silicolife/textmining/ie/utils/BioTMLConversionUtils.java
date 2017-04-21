@@ -20,14 +20,14 @@ import com.silicolife.textmining.core.interfaces.core.dataaccess.exception.ANote
 import com.silicolife.textmining.core.interfaces.core.document.IAnnotatedDocument;
 import com.silicolife.textmining.core.interfaces.core.general.classe.IAnoteClass;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAssociationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLEntityImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLEventImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
@@ -55,13 +55,13 @@ public class BioTMLConversionUtils {
 
 	}
 
-	public static IBioTMLAnnotation convertEntityAnnotation(IEntityAnnotation entity, Long docId){
+	public static IBioTMLEntity convertEntityAnnotation(IEntityAnnotation entity, Long docId){
 		String classType = entity.getClassAnnotation().getName();
-		return new BioTMLAnnotationImpl(docId, classType, entity.getStartOffset(), entity.getEndOffset());
+		return new BioTMLEntityImpl(docId, classType, entity.getStartOffset(), entity.getEndOffset());
 	}
 
-	public static List<IBioTMLAnnotation> convertEntityAnnotations(List<IEntityAnnotation> entities, Long docId){
-		List<IBioTMLAnnotation> annotations = new ArrayList<>();
+	public static List<IBioTMLEntity> convertEntityAnnotations(List<IEntityAnnotation> entities, Long docId){
+		List<IBioTMLEntity> annotations = new ArrayList<>();
 
 		for(IEntityAnnotation entity : entities)
 			annotations.add(convertEntityAnnotation(entity, docId));
@@ -71,22 +71,22 @@ public class BioTMLConversionUtils {
 	public static List<IBioTMLEvent> convertEventAnnotation(IEventAnnotation event, Long docId){
 		List<IBioTMLEvent> events = new ArrayList<>();
 
-		Set<IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation>> associations = new HashSet<>();
+		Set<IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity>> associations = new HashSet<>();
 
-		IBioTMLAnnotation trigger = new BioTMLAnnotationImpl(docId, BioTMLConstants.trigger.toString(), event.getStartOffset(), event.getEndOffset());
+		IBioTMLEntity trigger = new BioTMLEntityImpl(docId, BioTMLConstants.trigger.toString(), event.getStartOffset(), event.getEndOffset());
 		if(trigger.getStartOffset() != trigger.getEndOffset()){
 
-			List<IBioTMLAnnotation> entities = convertEntityAnnotations(event.getEntitiesAtLeft(), docId);
-			for(IBioTMLAnnotation entity : entities)
+			List<IBioTMLEntity> entities = convertEntityAnnotations(event.getEntitiesAtLeft(), docId);
+			for(IBioTMLEntity entity : entities)
 				associations.add(new BioTMLAssociationImpl<>(trigger, entity));
 
 			entities = convertEntityAnnotations(event.getEntitiesAtRight(), docId);
-			for(IBioTMLAnnotation entity : entities)
+			for(IBioTMLEntity entity : entities)
 				associations.add(new BioTMLAssociationImpl<>(trigger, entity));
 
 		}else{
 
-			List<IBioTMLAnnotation> entities = new ArrayList<>();
+			List<IBioTMLEntity> entities = new ArrayList<>();
 			entities.addAll(convertEntityAnnotations(event.getEntitiesAtLeft(), docId));
 			entities.addAll(convertEntityAnnotations(event.getEntitiesAtRight(), docId));
 
@@ -99,7 +99,7 @@ public class BioTMLConversionUtils {
 
 		String eventClass = event.getEventProperties().getClassification();
 
-		for(IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation> association : associations){
+		for(IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity> association : associations){
 			if(association.isValid())
 				events.add(new BioTMLEventImpl(association, eventClass));
 		}
@@ -116,18 +116,18 @@ public class BioTMLConversionUtils {
 		return events;
 	}
 
-	public static IEntityAnnotation convertBioTMLAnnotation(IBioTMLAnnotation annotation, IBioTMLDocument document) throws BioTMLException{
-		IAnoteClass anoteClass = new AnoteClass(annotation.getAnnotType());
+	public static IEntityAnnotation convertBioTMLAnnotation(IBioTMLEntity annotation, IBioTMLDocument document) throws BioTMLException{
+		IAnoteClass anoteClass = new AnoteClass(annotation.getAnnotationType());
 		List<IBioTMLToken> tokens = document.getTokens(annotation.getStartOffset(), annotation.getEndOffset());
 		String annotationString = convertTokensToString(tokens);
 
 		return new EntityAnnotationImpl(annotation.getStartOffset(), annotation.getEndOffset(), anoteClass, null, annotationString, false, false, new Properties());
 	}
 
-	public static List<IEntityAnnotation> convertBioTMLAnnotations(List<IBioTMLAnnotation> annotations, IBioTMLDocument document) throws BioTMLException{
+	public static List<IEntityAnnotation> convertBioTMLAnnotations(List<IBioTMLEntity> annotations, IBioTMLDocument document) throws BioTMLException{
 		List<IEntityAnnotation> entities = new ArrayList<>();
 
-		for(IBioTMLAnnotation annotation : annotations)
+		for(IBioTMLEntity annotation : annotations)
 			entities.add(convertBioTMLAnnotation(annotation, document));
 
 		return entities;
@@ -155,16 +155,16 @@ public class BioTMLConversionUtils {
 	public static IEventAnnotation convertBioTMLEvent(IBioTMLEvent event, IBioTMLDocument document) throws BioTMLException{
 		@SuppressWarnings("rawtypes")
 		IBioTMLAssociation association = event.getAssociation();
-		if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAnnotation){
-			IBioTMLAnnotation annotationOne = (IBioTMLAnnotation) association.getEntryOne();
-			IBioTMLAnnotation annotationTwo = (IBioTMLAnnotation) association.getEntryTwo();
+		if(association.getEntryOne() instanceof IBioTMLEntity && association.getEntryTwo() instanceof IBioTMLEntity){
+			IBioTMLEntity annotationOne = (IBioTMLEntity) association.getEntryOne();
+			IBioTMLEntity annotationTwo = (IBioTMLEntity) association.getEntryTwo();
 
 			IEventProperties eventProperties = new EventPropertiesImpl();
-			eventProperties.setClassification(event.getEventType());
+			eventProperties.setClassification(event.getAnnotationType());
 			List<IEntityAnnotation> left = new ArrayList<>();
 			List<IEntityAnnotation> right = new ArrayList<>();
 
-			if(annotationOne.getAnnotType().equals(BioTMLConstants.trigger.toString()) && !annotationTwo.getAnnotType().equals(BioTMLConstants.trigger.toString())){
+			if(annotationOne.getAnnotationType().equals(BioTMLConstants.trigger.toString()) && !annotationTwo.getAnnotationType().equals(BioTMLConstants.trigger.toString())){
 				if(annotationOne.compareTo(annotationTwo) > 0)
 					left.add(convertBioTMLAnnotation(annotationTwo, document));
 				else
@@ -174,7 +174,7 @@ public class BioTMLConversionUtils {
 				String clueString = convertTokensToString(tokens);
 				return new EventAnnotationImpl(annotationOne.getStartOffset(), annotationOne.getEndOffset(), AnnotationType.re.name(), left, right, clueString, eventProperties, false); 
 
-			}else if(!annotationOne.getAnnotType().equals(BioTMLConstants.trigger.toString()) && annotationTwo.getAnnotType().equals(BioTMLConstants.trigger.toString())){
+			}else if(!annotationOne.getAnnotationType().equals(BioTMLConstants.trigger.toString()) && annotationTwo.getAnnotationType().equals(BioTMLConstants.trigger.toString())){
 				if(annotationTwo.compareTo(annotationOne)>0)
 					left.add(convertBioTMLAnnotation(annotationOne, document));
 				else
@@ -213,16 +213,16 @@ public class BioTMLConversionUtils {
 	public static IEventAnnotation convertBioTMLEventWithEntityAnnotations(IBioTMLEvent event, List<IEntityAnnotation> entities, IBioTMLDocument document) throws BioTMLException{
 		@SuppressWarnings("rawtypes")
 		IBioTMLAssociation association = event.getAssociation();
-		if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAnnotation){
-			IBioTMLAnnotation annotationOne = (IBioTMLAnnotation) association.getEntryOne();
-			IBioTMLAnnotation annotationTwo = (IBioTMLAnnotation) association.getEntryTwo();
+		if(association.getEntryOne() instanceof IBioTMLEntity && association.getEntryTwo() instanceof IBioTMLEntity){
+			IBioTMLEntity annotationOne = (IBioTMLEntity) association.getEntryOne();
+			IBioTMLEntity annotationTwo = (IBioTMLEntity) association.getEntryTwo();
 
 			IEventProperties eventProperties = new EventPropertiesImpl();
-			eventProperties.setClassification(event.getEventType());
+			eventProperties.setClassification(event.getAnnotationType());
 			List<IEntityAnnotation> left = new ArrayList<>();
 			List<IEntityAnnotation> right = new ArrayList<>();
 
-			if(annotationOne.getAnnotType().equals(BioTMLConstants.trigger.toString()) && !annotationTwo.getAnnotType().equals(BioTMLConstants.trigger.toString())){
+			if(annotationOne.getAnnotationType().equals(BioTMLConstants.trigger.toString()) && !annotationTwo.getAnnotationType().equals(BioTMLConstants.trigger.toString())){
 				if(annotationOne.compareTo(annotationTwo) > 0)
 					left.add(findBioTMLAnnotationInEntitesList(annotationTwo, document, entities));
 				else
@@ -232,7 +232,7 @@ public class BioTMLConversionUtils {
 				String clueString = convertTokensToString(tokens);
 				return new EventAnnotationImpl(annotationOne.getStartOffset(), annotationOne.getEndOffset(), AnnotationType.re.name(), left, right, clueString, eventProperties, false); 
 
-			}else if(!annotationOne.getAnnotType().equals(BioTMLConstants.trigger.toString()) && annotationTwo.getAnnotType().equals(BioTMLConstants.trigger.toString())){
+			}else if(!annotationOne.getAnnotationType().equals(BioTMLConstants.trigger.toString()) && annotationTwo.getAnnotationType().equals(BioTMLConstants.trigger.toString())){
 				if(annotationTwo.compareTo(annotationOne)>0)
 					left.add(findBioTMLAnnotationInEntitesList(annotationOne, document, entities));
 				else
@@ -257,7 +257,7 @@ public class BioTMLConversionUtils {
 		return null;
 	}
 
-	public static IEntityAnnotation findBioTMLAnnotationInEntitesList(IBioTMLAnnotation annotation, IBioTMLDocument document, List<IEntityAnnotation> entities) throws BioTMLException {
+	public static IEntityAnnotation findBioTMLAnnotationInEntitesList(IBioTMLEntity annotation, IBioTMLDocument document, List<IEntityAnnotation> entities) throws BioTMLException {
 
 		IEntityAnnotation entityAnnotation = convertBioTMLAnnotation(annotation, document);
 

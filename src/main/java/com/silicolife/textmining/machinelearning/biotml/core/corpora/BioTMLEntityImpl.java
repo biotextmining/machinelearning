@@ -1,8 +1,8 @@
 package com.silicolife.textmining.machinelearning.biotml.core.corpora;
 
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLOffsetsPair;
 
 /**
@@ -14,13 +14,13 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLO
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLAnnotationImpl implements IBioTMLAnnotation{
+public class BioTMLEntityImpl implements IBioTMLEntity{
 
 	private static final long serialVersionUID = 1L;
 	private long docID;
 	private IBioTMLOffsetsPair annotationOffsets;
-	private String annotType;
-	private double score;
+	private String annotationType;
+	private double annotationScore;
 
 	/**
 	 * 
@@ -31,7 +31,7 @@ public class BioTMLAnnotationImpl implements IBioTMLAnnotation{
 	 * @param startOffset - Annotation start offset in raw text.
 	 * @param endOffset - Annotation end offset in raw text.
 	 */
-	public BioTMLAnnotationImpl( long docID, String annotType, long startOffset, long endOffset ){
+	public BioTMLEntityImpl( long docID, String annotType, long startOffset, long endOffset ){
 		this(docID, annotType, startOffset, endOffset, 100000.0);
 	}
 
@@ -45,11 +45,11 @@ public class BioTMLAnnotationImpl implements IBioTMLAnnotation{
 	 * @param endOffset - Annotation end offset in raw text.
 	 * @param score - Score value from model evaluation.
 	 */
-	public BioTMLAnnotationImpl( long docID, String annotType, long startOffset, long endOffset, double score ){
+	public BioTMLEntityImpl( long docID, String annotType, long startOffset, long endOffset, double score ){
 		this.docID = docID;
 		this.annotationOffsets = new BioTMLOffsetsPairImpl(startOffset, endOffset);
-		this.annotType = annotType;
-		this.score = score;
+		this.annotationType = annotType;
+		this.annotationScore = score;
 	}
 
 	@Override
@@ -61,11 +61,17 @@ public class BioTMLAnnotationImpl implements IBioTMLAnnotation{
 	public IBioTMLOffsetsPair getAnnotationOffsets() {
 		return annotationOffsets;
 	}
+	
+	@Override
+	public String getAnnotationType() {
+		return annotationType;
+	}
 
 	@Override
-	public String getAnnotType() {
-		return annotType;
+	public Double getAnnotationScore() {
+		return annotationScore;
 	}
+
 
 	@Override
 	public long getStartOffset() {
@@ -77,21 +83,17 @@ public class BioTMLAnnotationImpl implements IBioTMLAnnotation{
 		return getAnnotationOffsets().getEndOffset();
 	}
 
-	@Override
-	public double getScore() {
-		return score;
-	}
 
 	@Override
 	public String toString(){
-		return "DocID: " + getDocID() + " Type: " + getAnnotType() + " ( " + getStartOffset() + " - " + getEndOffset() + " ) ";
+		return "DocID: " + getDocID() + " Type: " + getAnnotationType() + " ( " + getStartOffset() + " - " + getEndOffset() + " ) ";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((annotType == null) ? 0 : annotType.hashCode());
+		result = prime * result + ((annotationType == null) ? 0 : annotationType.hashCode());
 		result = prime * result + ((annotationOffsets == null) ? 0 : annotationOffsets.hashCode());
 		result = prime * result + (int) (docID ^ (docID >>> 32));
 		return result;
@@ -105,11 +107,11 @@ public class BioTMLAnnotationImpl implements IBioTMLAnnotation{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		BioTMLAnnotationImpl other = (BioTMLAnnotationImpl) obj;
-		if (annotType == null) {
-			if (other.annotType != null)
+		BioTMLEntityImpl other = (BioTMLEntityImpl) obj;
+		if (annotationType == null) {
+			if (other.annotationType != null)
 				return false;
-		} else if (!annotType.equals(other.annotType))
+		} else if (!annotationType.equals(other.annotationType))
 			return false;
 		if (annotationOffsets == null) {
 			if (other.annotationOffsets != null)
@@ -122,7 +124,7 @@ public class BioTMLAnnotationImpl implements IBioTMLAnnotation{
 	}
 
 	@Override
-	public int compareTo(IBioTMLAnnotation o) {
+	public int compareTo(IBioTMLEntity o) {
 		if(	this.equals(o)){
 			return 0;
 		}
@@ -150,6 +152,7 @@ public class BioTMLAnnotationImpl implements IBioTMLAnnotation{
 //		if(o.getScore()>this.getScore()){
 //			return -1;
 //		}
-		return o.getAnnotType().compareTo(this.getAnnotType());
+		return o.getAnnotationType().compareTo(this.getAnnotationType());
 	}
+
 }

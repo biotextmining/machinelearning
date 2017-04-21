@@ -21,29 +21,5 @@ public interface IBioTMLMultiEvaluation extends Serializable{
 	 * @return List of {@link IBioTMLEvaluation}.
 	 */
 	public Map<String, List<IBioTMLEvaluation>> getMultiEvaluations();
-	
-	/**
-	 * 
-	 * Method to get the precision Averange from all evaluations. 
-	 * 
-	 * @return Mean precision.
-	 */
-	public Map<String, Double> getAverangePrecision();
-	
-	/**
-	 * 
-	 * Method to get the recall Averange from all evaluations. 
-	 * 
-	 * @return Mean recall.
-	 */
-	public Map<String, Double> getAverangeRecall();
-	
-	/**
-	 * 
-	 * Method to get the f-score Averange from all evaluations. 
-	 * 
-	 * @return Mean f-score.
-	 */
-	public Map<String, Double> getAverangeFscore();
 
 }

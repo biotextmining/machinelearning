@@ -37,7 +37,7 @@ public interface IBioTMLModel {
 	 * @return {link IBioTMLModelEvaluationResults}.
 	 * @throws BioTMLException
 	 */
-	public IBioTMLModelEvaluationResults evaluate(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator configuration)  throws BioTMLException;
+	public IBioTMLMultiEvaluation evaluate(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator configuration)  throws BioTMLException;
 	
 	/**
 	 * 

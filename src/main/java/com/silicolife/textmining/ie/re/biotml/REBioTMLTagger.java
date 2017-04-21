@@ -29,7 +29,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMal
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeaturesManager;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
@@ -89,7 +89,7 @@ public class REBioTMLTagger implements IREProcess{
 					long startimeannotation = GregorianCalendar.getInstance().getTimeInMillis();
 					executeAnnotation(reProcess,reconfiguration,report, biotmlCorpus, submodelsFilename, startimeannotation);
 				}else{
-					List<IBioTMLAnnotation> clues = new ArrayList<>();
+					List<IBioTMLEntity> clues = new ArrayList<>();
 					Iterator<String> itModelFilename = submodelsFilename.iterator();
 					int i = 0;
 					while(itModelFilename.hasNext() && !foundCluesModel && !stop){
@@ -105,7 +105,7 @@ public class REBioTMLTagger implements IREProcess{
 						i++;
 					}
 					if(foundCluesModel && !submodelsFilename.isEmpty() && !stop){
-						List<IBioTMLAnnotation> allAnnotations = new ArrayList<>();
+						List<IBioTMLEntity> allAnnotations = new ArrayList<>();
 						allAnnotations.addAll(clues);
 						allAnnotations.addAll(biotmlCorpus.getAnnotations());
 						IBioTMLCorpus anotatedCorpus = new BioTMLCorpusImpl(biotmlCorpus.getDocuments(), allAnnotations, biotmlCorpus.toString());
@@ -144,8 +144,8 @@ public class REBioTMLTagger implements IREProcess{
 		return reProcess;
 	}
 
-	private List<IBioTMLAnnotation> getNERClues(IREBioTMLAnnotatorConfiguration configuration,IBioTMLCorpus biotmlCorpus, IBioTMLModel model) throws BioTMLException {
-		List<IBioTMLAnnotation> clues = new ArrayList<>();
+	private List<IBioTMLEntity> getNERClues(IREBioTMLAnnotatorConfiguration configuration,IBioTMLCorpus biotmlCorpus, IBioTMLModel model) throws BioTMLException {
+		List<IBioTMLEntity> clues = new ArrayList<>();
 		List<IBioTMLDocument> documents = biotmlCorpus.getDocuments();
 		Iterator<IBioTMLDocument> itDocuments = documents.iterator();
 		while(itDocuments.hasNext() && !stop){
@@ -179,7 +179,7 @@ public class REBioTMLTagger implements IREProcess{
 		Iterator<IBioTMLDocument> itDocuments = documents.iterator();
 		while(itDocuments.hasNext() && !stop){
 			List<IBioTMLDocument> documentsStep = getDocumentsInStep(itDocuments);
-			List<IBioTMLAnnotation> reAnnotationsStep = getNERAnnots(biotmlCorpus, documentsStep);
+			List<IBioTMLEntity> reAnnotationsStep = getNERAnnots(biotmlCorpus, documentsStep);
 			annotator = new BioTMLMalletAnnotatorImpl(new BioTMLCorpusImpl(documentsStep, reAnnotationsStep, new String()));
 			IBioTMLCorpus anotatedDocument = annotator.generateAnnotatedBioTMCorpus(submodel, configuration.getThreads());
 			getConverter().convertBioTMLCorpusToAnote(process,anotatedDocument, report);
@@ -201,8 +201,8 @@ public class REBioTMLTagger implements IREProcess{
 		}
 	}
 
-	private List<IBioTMLAnnotation> getNERAnnots(IBioTMLCorpus biotmlCorpus, List<IBioTMLDocument> documentsStep) {
-		List<IBioTMLAnnotation> nerAnnots = new ArrayList<>();
+	private List<IBioTMLEntity> getNERAnnots(IBioTMLCorpus biotmlCorpus, List<IBioTMLDocument> documentsStep) {
+		List<IBioTMLEntity> nerAnnots = new ArrayList<>();
 		Iterator<IBioTMLDocument> itDocNERAnnotated = documentsStep.iterator();
 		while(itDocNERAnnotated.hasNext() && !stop){
 			IBioTMLDocument docWithNERAnnots = itDocNERAnnotated.next();

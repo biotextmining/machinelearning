@@ -12,7 +12,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLC
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiModel;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfigurator;
-import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLMultiModel;
+import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLMultiModelImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLREModelTypes;
 
 public class CreateREModelFile {
@@ -40,7 +40,7 @@ public class CreateREModelFile {
 				cluesConfiguration.setUsedNLPSystem(configuration.getUsedNLPSystem());
 				configurations.add(cluesConfiguration);
 			}
-			IBioTMLMultiModel model = new BioTMLMultiModel(modelConfiguration.getBioTMLFeatureGeneratorConfigurator(), configurations);
+			IBioTMLMultiModel model = new BioTMLMultiModelImpl(modelConfiguration.getBioTMLFeatureGeneratorConfigurator(), configurations);
 			model.trainAndSaveFile(bioTMLCorpus, modelConfiguration.getFileModelPath());
 			System.gc();
 		}

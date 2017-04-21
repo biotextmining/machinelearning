@@ -6,7 +6,7 @@ import com.silicolife.textmining.ie.schemas.create.model.configuration.INERSchem
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiModel;
-import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLMultiModel;
+import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLMultiModelImpl;
 
 public class CreateNERModelFile {
 	
@@ -20,7 +20,7 @@ public class CreateNERModelFile {
 		BioTMLConverter converter = new BioTMLConverter(configuration.getBioTMLNLPSystemsEnum(), configuration.getNERSChema());
 		IBioTMLCorpus bioTMLCorpus = converter.convertToBioTMLCorpus();
 		if(bioTMLCorpus!= null){
-			IBioTMLMultiModel model = new BioTMLMultiModel(configuration.getFeaturesSet(), configuration.getModelConfigurations());
+			IBioTMLMultiModel model = new BioTMLMultiModelImpl(configuration.getFeaturesSet(), configuration.getModelConfigurations());
 			model.trainAndSaveFile(bioTMLCorpus, configuration.getFileModelPath());
 		}
 		System.gc();

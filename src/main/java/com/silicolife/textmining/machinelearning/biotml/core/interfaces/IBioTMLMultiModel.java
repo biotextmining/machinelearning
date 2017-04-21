@@ -39,7 +39,7 @@ public interface IBioTMLMultiModel {
 	 * @return Map of evaluations by submodel.
 	 * @throws BioTMLException
 	 */
-	public Map<String,IBioTMLModelEvaluationResults> evaluate(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator modelEvaluationConfiguration)  throws BioTMLException;
+	public Map<String, IBioTMLMultiEvaluation> evaluate(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator modelEvaluationConfiguration)  throws BioTMLException;
 	
 	/**
 	 * 

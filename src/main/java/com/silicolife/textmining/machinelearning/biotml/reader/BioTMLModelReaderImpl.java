@@ -17,13 +17,8 @@ import org.apache.commons.io.FileUtils;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
-import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
-import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.MalletClassifierModel;
-import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.MalletTransducerModel;
 
 import cc.mallet.classify.Classifier;
 import cc.mallet.fst.CRF;
@@ -98,24 +93,11 @@ public class BioTMLModelReaderImpl implements IBioTMLModelReader{
 	public synchronized IBioTMLModel loadModelFromGZFile(String modelFileName) throws BioTMLException{
 		if(validateBioTMLGZModel(modelFileName)){
 			ObjectInputStream ois = null;
-			List<?> modelresult = new ArrayList<>();
 			try {
 				ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(modelFileName)));
-				modelresult = (List<?>) ois.readObject();
-				IBioTMLFeatureGeneratorConfigurator features = (IBioTMLFeatureGeneratorConfigurator) modelresult.get(0);
-				IBioTMLModelConfigurator configuration = (IBioTMLModelConfigurator) modelresult.get(1);
-				if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString()) 
-						|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString())){
-					Transducer transducer = (Transducer) modelresult.get(2);
-					ois.close();
-					return new MalletTransducerModel(transducer, features, configuration);
-				}
-				if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletsvm.toString())){
-					ois.close();
-					Classifier classifier = (Classifier) modelresult.get(2);
-					return new MalletClassifierModel(classifier, features, configuration);
-				}
+				IBioTMLModel modelresult = (IBioTMLModel) ois.readObject();
 				ois.close();
+				return modelresult;
 			} catch (ClassNotFoundException ex) {
 				try {
 					ois.close();
@@ -156,28 +138,15 @@ public class BioTMLModelReaderImpl implements IBioTMLModelReader{
 	 * @param modelFileName The gz file that contains the model.
 	 * @throws BioTMLException Problem reading the input file.
 	 */
-	@SuppressWarnings("unchecked")
 	public synchronized IBioTMLModel loadConfigurationsModelFromGZFile(String modelFileName) throws BioTMLException{
 		if(validateBioTMLGZModel(modelFileName)){
 			ObjectInputStream ois = null;
-			List<Object> modelresult = new ArrayList<Object>();
 			try {
 				ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(modelFileName)));
-				modelresult = (List<Object>) ois.readObject();
-				IBioTMLFeatureGeneratorConfigurator features = (IBioTMLFeatureGeneratorConfigurator) modelresult.get(0);
-				IBioTMLModelConfigurator configuration = (IBioTMLModelConfigurator) modelresult.get(1);
-				if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletcrf.toString()) 
-						|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.mallethmm.toString())){
-					ois.close();
-					cleanMalletModelFromMemory(modelresult);
-					return new MalletTransducerModel(features, configuration);
-				}
-				if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletsvm.toString())){
-					ois.close();
-					cleanMalletModelFromMemory(modelresult);
-					return new MalletClassifierModel(features, configuration);
-				}
+				IBioTMLModel modelresult = (IBioTMLModel) ois.readObject();
 				ois.close();
+				cleanMalletModelFromMemory(modelresult);
+				return modelresult;
 			} catch (ClassNotFoundException ex) {
 				try {
 					ois.close();
@@ -269,34 +238,19 @@ public class BioTMLModelReaderImpl implements IBioTMLModelReader{
 	private boolean validateBioTMLGZModel(String modelFileName) {
 		try {
 			ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(modelFileName)));
-			List<?> modelresult = new ArrayList<>();
-			modelresult = (List<?>) ois.readObject();
-
-			if(!(modelresult.get(0) instanceof IBioTMLFeatureGeneratorConfigurator)){
-				ois.close();
-				return false;
-			}
-			if(!(modelresult.get(1) instanceof IBioTMLModelConfigurator)){
-				ois.close();
-				return false;
-			}
-			if(!(modelresult.get(2) instanceof Transducer) 
-					&& !(modelresult.get(2) instanceof Classifier)){
-				ois.close();
-				return false;
-			}
+			IBioTMLModel modelresult = (IBioTMLModel) ois.readObject();
 			ois.close();
 			cleanMalletModelFromMemory(modelresult);
-			return true;
+			return modelresult.isValid();
 		} catch (IOException | ClassNotFoundException e) {
 			return false;
 		}
 	}
 	
-	private void cleanMalletModelFromMemory(List<?> modelresult){
-		if(modelresult.size()>2){
-			if(modelresult.get(2) instanceof Transducer){
-				Transducer model = (Transducer) modelresult.get(2);
+	private void cleanMalletModelFromMemory(IBioTMLModel modelresult){
+		if(modelresult != null){
+			if(modelresult.getModel() instanceof Transducer){
+				Transducer model = (Transducer) modelresult.getModel();
 				if(model.getInputPipe() != null){
 					for(Alphabet alphabet : model.getInputPipe().getAlphabets()){
 						if(alphabet !=null){
@@ -327,8 +281,8 @@ public class BioTMLModelReaderImpl implements IBioTMLModelReader{
 					}
 				}
 			}
-			if(modelresult.get(2) instanceof Classifier){
-				Classifier model = (Classifier) modelresult.get(2);
+			if(modelresult.getModel() instanceof Classifier){
+				Classifier model = (Classifier) modelresult.getModel();
 				for(Alphabet alphabet : model.getAlphabets()){
 					if(alphabet !=null){
 						alphabet.cleanAlphabetFromMemory();

@@ -11,7 +11,7 @@ import java.util.TreeSet;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLOffsetsPairImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLFeatureColumns;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
@@ -123,9 +123,9 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 		features.setUIDhasMultiFeatureColumn("GETPOSITIVEWORDSOUTSIDEANNOTS");
 		features.setUIDhasMultiFeatureColumn("GETNEGATIVEWORDSOUTSIDEANNOTS");
 		for(IBioTMLAssociation association : associations){
-			if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAnnotation){
-				IBioTMLAnnotation annotationOne = (IBioTMLAnnotation) association.getEntryOne();
-				IBioTMLAnnotation annotationTwo = (IBioTMLAnnotation) association.getEntryTwo();
+			if(association.getEntryOne() instanceof IBioTMLEntity && association.getEntryTwo() instanceof IBioTMLEntity){
+				IBioTMLEntity annotationOne = (IBioTMLEntity) association.getEntryOne();
+				IBioTMLEntity annotationTwo = (IBioTMLEntity) association.getEntryTwo();
 
 				if(configuration.hasFeatureUID("GETPOSITIVEWORDSBETWEENANNOTS"))
 					features.addBioTMLObjectFeature(getTabbedTokensInDictForAnnots(annotationOne, annotationTwo, tokens, "GETPOSITIVEWORDSBETWEENANNOTS"), "GETPOSITIVEWORDSBETWEENANNOTS");
@@ -139,9 +139,9 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 				if(configuration.hasFeatureUID("GETNEGATIVEWORDSOUTSIDEANNOTS"))
 					features.addBioTMLObjectFeature(getTabbedTokensInDictForAnnots(annotationOne, annotationTwo, tokens, "GETNEGATIVEWORDSOUTSIDEANNOTS"), "GETNEGATIVEWORDSOUTSIDEANNOTS");
 
-			}else if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAssociation){
+			}else if(association.getEntryOne() instanceof IBioTMLEntity && association.getEntryTwo() instanceof IBioTMLAssociation){
 				//TODO
-			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAnnotation){
+			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLEntity){
 				//TODO
 			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAssociation){
 				//TODO
@@ -151,7 +151,7 @@ public class DictionariesFeature implements IBioTMLFeatureGenerator{
 		return features;
 	}
 
-	private String getTabbedTokensInDictForAnnots(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, String featureUID) throws BioTMLException{
+	private String getTabbedTokensInDictForAnnots(IBioTMLEntity annotationOne, IBioTMLEntity annotationTwo, List<IBioTMLToken> tokens, String featureUID) throws BioTMLException{
 		String result = new String();
 		try{
 			IBioTMLOffsetsPair annotationsOffsets = null;

@@ -7,6 +7,8 @@ import cc.mallet.classify.Classifier;
 import cc.mallet.classify.Trial;
 import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
+import cc.mallet.types.Label;
+import cc.mallet.types.Labeling;
 
 public class TrialBioTMLExtended extends Trial{
 
@@ -18,25 +20,23 @@ public class TrialBioTMLExtended extends Trial{
 
 	public IBioTMLConfusionMatrix<Instance> getConfusionMatrix(int labelIndex){
 		IBioTMLConfusionMatrix<Instance> confusionMatrix = new BioTMLConfusionMatrixImpl<>();
-		int trueLabel, classLabel;
+
 		for (int i = 0; i<this.size(); i++) {
-			trueLabel = this.get(i).getInstance().getLabeling().getBestIndex();
-			classLabel = this.get(i).getLabeling().getBestIndex();
-			if (classLabel == labelIndex) {
-				// predicted instance belongs to the index label. So is a Positive case
-				if(trueLabel == labelIndex)
-					confusionMatrix.addTruePositive(this.get(i).getInstance());
-				else
-					confusionMatrix.addFalsePositive(this.get(i).getInstance());
-				
-			}else{
-				// predicted instance don't belongs to the index label. So is a Negative case
-				if(trueLabel == labelIndex)
-					confusionMatrix.addFalseNegative(this.get(i).getInstance());
-				else
-					confusionMatrix.addTrueNegative(this.get(i).getInstance());		
-			}
+			Instance originalInstance = this.get(i).getInstance();
+			Labeling predictedLabeling = this.get(i).getLabeling();
+			Label correctLabel = originalInstance.getLabeling().getBestLabel();
+			Label predictionLabel = predictedLabeling.getBestLabel();
+			Instance predictedInstance = cloneInstance(originalInstance);
+			predictedInstance.setLabeling(predictedLabeling);
+			confusionMatrix.addPrediction(predictedInstance, predictionLabel.toString(), correctLabel.toString());
 		}
 		return confusionMatrix;
+	}
+	
+	@SuppressWarnings("deprecation")
+	private Instance cloneInstance(Instance instance){
+		Instance ret = new Instance (instance.getData(), instance.getTarget(), instance.getName(), instance.getSource());
+		ret.setPropertyList(instance.getProperties());
+		return ret;
 	}
 }

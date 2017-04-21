@@ -9,7 +9,7 @@ import java.util.TreeSet;
 
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLFeatureColumns;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
@@ -104,16 +104,16 @@ public class PorterStemmerFeature implements IBioTMLFeatureGenerator{
 			IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException {
 		IBioTMLFeatureColumns<IBioTMLAssociation> features = new BioTMLFeatureColumns<>(associations, getREFeatureIds(), configuration);
 		for(IBioTMLAssociation association : associations){
-			if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAnnotation){
-				IBioTMLAnnotation annotationOne = (IBioTMLAnnotation) association.getEntryOne();
-				IBioTMLAnnotation annotationTwo = (IBioTMLAnnotation) association.getEntryTwo();
+			if(association.getEntryOne() instanceof IBioTMLEntity && association.getEntryTwo() instanceof IBioTMLEntity){
+				IBioTMLEntity annotationOne = (IBioTMLEntity) association.getEntryOne();
+				IBioTMLEntity annotationTwo = (IBioTMLEntity) association.getEntryTwo();
 				
 				if(configuration.hasFeatureUID("PORTERSTEM"))
 					features.addBioTMLObjectFeature("PORTERSTEM="+getSteamsAssociated(annotationOne, annotationTwo, tokens), "PORTERSTEM");
 				
-			}else if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAssociation){
+			}else if(association.getEntryOne() instanceof IBioTMLEntity && association.getEntryTwo() instanceof IBioTMLAssociation){
 				//TODO
-			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAnnotation){
+			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLEntity){
 				//TODO
 			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAssociation){
 				//TODO
@@ -123,7 +123,7 @@ public class PorterStemmerFeature implements IBioTMLFeatureGenerator{
 		return features;
 	}
 	
-	private String getSteamsAssociated(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens){
+	private String getSteamsAssociated(IBioTMLEntity annotationOne, IBioTMLEntity annotationTwo, List<IBioTMLToken> tokens){
 		String result = new String();
 		Collections.sort(tokens);
 		for(IBioTMLToken token : tokens){

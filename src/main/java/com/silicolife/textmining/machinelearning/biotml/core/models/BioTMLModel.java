@@ -8,7 +8,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMal
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMalletREAnnotator;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
@@ -63,7 +63,7 @@ public abstract class BioTMLModel implements IBioTMLModel{
 			throw new BioTMLException("The model is not trained!");
 		if(getModelConfiguration().getIEType().equals(BioTMLConstants.ner.toString())){
 			BioTMLMalletNERAnnotator annotator = new BioTMLMalletNERAnnotator();
-			Set<IBioTMLAnnotation> annotations = annotator.generateAnnotations(corpus, this, getModelConfiguration().getNumThreads());
+			Set<IBioTMLEntity> annotations = annotator.generateAnnotations(corpus, this, getModelConfiguration().getNumThreads());
 			return new BioTMLCorpusImpl(corpus.getDocuments(), new ArrayList<>(annotations), "Corpus with predicted annotations");
 		}else if(getModelConfiguration().getIEType().equals(BioTMLConstants.re.toString())){
 			BioTMLMalletREAnnotator annotator = new BioTMLMalletREAnnotator();

@@ -10,7 +10,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusReader;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
@@ -48,11 +48,11 @@ public class JNLPBAWriter {
 				for(IBioTMLToken token : sentence.getTokens()){
 					toWrite = token.getToken();
 					try {
-						IBioTMLAnnotation annotation = corpus.getAnnotationFromDocAndOffsets(document.getID(), token.getStartOffset(), token.getEndOffset());
+						IBioTMLEntity annotation = corpus.getAnnotationFromDocAndOffsets(document.getID(), token.getStartOffset(), token.getEndOffset());
 						if(annotation.getStartOffset() == token.getStartOffset()){
-							toWrite = toWrite + "\tB-"+annotation.getAnnotType();
+							toWrite = toWrite + "\tB-"+annotation.getAnnotationType();
 						}else{
-							toWrite = toWrite + "\tI-"+annotation.getAnnotType();
+							toWrite = toWrite + "\tI-"+annotation.getAnnotationType();
 						}
 					} catch (BioTMLException e) {
 						toWrite = toWrite + "\tO";

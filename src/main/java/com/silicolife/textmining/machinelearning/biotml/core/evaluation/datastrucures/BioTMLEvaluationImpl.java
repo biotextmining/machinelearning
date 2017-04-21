@@ -16,25 +16,11 @@ public class BioTMLEvaluationImpl implements IBioTMLEvaluation{
 	private static final long serialVersionUID = 1L;
 	private IBioTMLConfusionMatrix<?> confusionMatrix;
 	private String evaluationDescription;
-	private double precision;
-	private double recall;
-	private double fscore;
 	
-	
-	/**
-	 * 
-	 * Initializes the scores of model evaluation.
-	 * 
-	 * @param precision - Precision score.
-	 * @param recall - Recall score.
-	 * @param fscore - F-score.
-	 */
-	
+
+
 	public BioTMLEvaluationImpl(IBioTMLConfusionMatrix<?> confusionMatrix){
 		this.confusionMatrix = confusionMatrix;
-		this.precision = calculatePrecision(confusionMatrix);
-		this.recall = calculateRecall(confusionMatrix);
-		this.fscore = calculateFScore(precision, recall);
 		this.evaluationDescription = new String();
 	}
 
@@ -49,43 +35,43 @@ public class BioTMLEvaluationImpl implements IBioTMLEvaluation{
 	}
 
 	@Override
-	public double getPrecision() {
-		return precision;
+	public double getPrecisionOfLabel(String label) {
+		return calculatePrecisionOfLabel(label);
 	}
 
 	@Override
-	public double getRecall() {
-		return recall;
+	public double getRecallOfLabel(String label) {
+		return calculateRecall(label);
 	}
 
 	@Override
-	public double getFscore() {
-		return fscore;
+	public double getFscoreOfLabel(String label) {
+		return calculateFScore(getPrecisionOfLabel(label), getRecallOfLabel(label));
 	}
 
 	@Override
 	public String getEvaluationDescription() {
 		return evaluationDescription;
 	}
-
+	
 	@Override
 	public String toString() {
-		return "BioTMLEvaluation [precision=" + precision + ", recall=" + recall + ", fscore=" + fscore
-				+ ", evaluationDescription=" + evaluationDescription + "]";
+		return "BioTMLEvaluationImpl [evaluationDescription=" + evaluationDescription + "]";
 	}
+
 	
-	private double calculatePrecision(IBioTMLConfusionMatrix<?> confusionMatrix){
-		double tp = (double)confusionMatrix.getTruePositives().size();
-		double fp = (double)confusionMatrix.getFalsePositives().size();
+	private double calculatePrecisionOfLabel(String label){
+		double tp = (double)getConfusionMatrix().getTruePositivesOfLabel(label).size();
+		double fp = (double)getConfusionMatrix().getFalsePositivesOfLabel(label).size();
 		if(tp == 0)
 			return 0;
 		return tp/(tp+fp);
 	}
 	
 	
-	private double calculateRecall(IBioTMLConfusionMatrix<?> confusionMatrix) {
-		double tp = (double)confusionMatrix.getTruePositives().size();
-		double fn = (double)confusionMatrix.getFalseNegatives().size();
+	private double calculateRecall(String label) {
+		double tp = (double)getConfusionMatrix().getTruePositivesOfLabel(label).size();
+		double fn = (double)getConfusionMatrix().getFalseNegativesOfLabel(label).size();
 		if(tp == 0)
 			return 0;
 		return tp/(tp+fn);

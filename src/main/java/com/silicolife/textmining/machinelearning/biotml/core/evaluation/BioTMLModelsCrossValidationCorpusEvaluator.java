@@ -14,11 +14,11 @@ import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastru
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLMultiEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.utils.BioTMLCrossValidationCorpusIterator;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLConfusionMatrix;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCrossValidationFold;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvaluation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
@@ -60,7 +60,7 @@ public class BioTMLModelsCrossValidationCorpusEvaluator {
 			throws BioTMLException {
 		IBioTMLCorpus trainingData = fold.getTrainingDataset();
 		IBioTMLCorpus testingData = fold.getTestingDataset();
-		Map<IBioTMLOffsetsPair, Set<IBioTMLAnnotation>> predictedAnnotations = new HashMap<>();
+		Map<IBioTMLOffsetsPair, Set<IBioTMLEntity>> predictedAnnotations = new HashMap<>();
 		Map<IBioTMLAssociation<?, ?>, IBioTMLEvent> predictedEvents = new HashMap<>();
 		Set<String> nerClassTypes = new HashSet<>();
 		Set<String> reEventTypes = new HashSet<>();
@@ -94,19 +94,19 @@ public class BioTMLModelsCrossValidationCorpusEvaluator {
 	private IBioTMLEvaluation getREEvaluation(int foldCount, IBioTMLCorpus testingData, Map<IBioTMLAssociation<?, ?>, IBioTMLEvent> predictedEvents, Set<String> reEventTypes) {
 		Collection<IBioTMLEvent> goldEvents = testingData.getEventsByEventTypes(reEventTypes);
 		Collection<IBioTMLEvent> toCompareEvents = predictedEvents.values();
-		BioTMLEventEvaluator eventsEvaluator = new BioTMLEventEvaluator();
+		BioTMLEvaluator<IBioTMLEvent> eventsEvaluator = new BioTMLEvaluator<>();
 		IBioTMLConfusionMatrix<IBioTMLEvent> confusionMatrix = eventsEvaluator.generateConfusionMatrix(goldEvents, toCompareEvents);
 		return new BioTMLEvaluationImpl(confusionMatrix, "Multi model event evaluation on fold: "+foldCount);
 	}
 
-	private IBioTMLEvaluation getNEREvaluation(int foldCount, IBioTMLCorpus testingData, Map<IBioTMLOffsetsPair, Set<IBioTMLAnnotation>> predictedAnnotations, Set<String> nerClassTypes) {
-		Collection<IBioTMLAnnotation> goldAnnotations = testingData.getAnnotationsByAnnotationTypes(nerClassTypes);
-		Collection<Set<IBioTMLAnnotation>> toCompareAnnotationSets = predictedAnnotations.values();
-		Collection<IBioTMLAnnotation> toCompareAnnotations = new HashSet<>();
-		for(Set<IBioTMLAnnotation> toCompareAnnotationSet : toCompareAnnotationSets)
+	private IBioTMLEvaluation getNEREvaluation(int foldCount, IBioTMLCorpus testingData, Map<IBioTMLOffsetsPair, Set<IBioTMLEntity>> predictedAnnotations, Set<String> nerClassTypes) {
+		Collection<IBioTMLEntity> goldAnnotations = testingData.getAnnotationsByAnnotationTypes(nerClassTypes);
+		Collection<Set<IBioTMLEntity>> toCompareAnnotationSets = predictedAnnotations.values();
+		Collection<IBioTMLEntity> toCompareAnnotations = new HashSet<>();
+		for(Set<IBioTMLEntity> toCompareAnnotationSet : toCompareAnnotationSets)
 			toCompareAnnotations.addAll(toCompareAnnotationSet);
-		BioTMLAnnotationEvaluator annotationsEvaluator = new BioTMLAnnotationEvaluator();
-		IBioTMLConfusionMatrix<IBioTMLAnnotation> confusionMatrix = annotationsEvaluator.generateConfusionMatrix(goldAnnotations, toCompareAnnotations);
+		BioTMLEvaluator<IBioTMLEntity> annotationsEvaluator = new BioTMLEvaluator<>();
+		IBioTMLConfusionMatrix<IBioTMLEntity> confusionMatrix = annotationsEvaluator.generateConfusionMatrix(goldAnnotations, toCompareAnnotations);
 		return new BioTMLEvaluationImpl(confusionMatrix, "Multi model annotation evaluation on fold: "+foldCount);
 	}
 
@@ -118,26 +118,26 @@ public class BioTMLModelsCrossValidationCorpusEvaluator {
 				predictedEvents.put(event.getAssociation(), event);
 			else{
 				IBioTMLEvent storedEvent = predictedEvents.get(event.getAssociation());
-				if(storedEvent.getScore()<event.getScore())
+				if(storedEvent.getAnnotationScore()<event.getAnnotationScore())
 					predictedEvents.put(event.getAssociation(), event);
 			}
 		}
 	}
 
-	private void addPredictedAnnotationsToMap(Map<IBioTMLOffsetsPair, Set<IBioTMLAnnotation>> predictedAnnotations, IBioTMLCorpus predictedCorpus) {
-		List<IBioTMLAnnotation> annotations = predictedCorpus.getAnnotations();
-		for(IBioTMLAnnotation annotation : annotations){
+	private void addPredictedAnnotationsToMap(Map<IBioTMLOffsetsPair, Set<IBioTMLEntity>> predictedAnnotations, IBioTMLCorpus predictedCorpus) {
+		List<IBioTMLEntity> annotations = predictedCorpus.getAnnotations();
+		for(IBioTMLEntity annotation : annotations){
 			
 			if(!predictedAnnotations.containsKey(annotation.getAnnotationOffsets())){
-				Set<IBioTMLAnnotation> annotationSet = new HashSet<>();
+				Set<IBioTMLEntity> annotationSet = new HashSet<>();
 				annotationSet.add(annotation);
 				predictedAnnotations.put(annotation.getAnnotationOffsets(), annotationSet);
 			}else{
-				Set<IBioTMLAnnotation> annotationSetToStore = new HashSet<>();
-				Set<IBioTMLAnnotation> storedAnnotations = predictedAnnotations.get(annotation.getAnnotationOffsets());
-				for(IBioTMLAnnotation storedAnnotation : storedAnnotations){
+				Set<IBioTMLEntity> annotationSetToStore = new HashSet<>();
+				Set<IBioTMLEntity> storedAnnotations = predictedAnnotations.get(annotation.getAnnotationOffsets());
+				for(IBioTMLEntity storedAnnotation : storedAnnotations){
 					if(storedAnnotation.getDocID() == annotation.getDocID()
-							&& storedAnnotation.getScore() < annotation.getScore())
+							&& storedAnnotation.getAnnotationScore() < annotation.getAnnotationScore())
 						annotationSetToStore.add(annotation);
 					else
 						annotationSetToStore.add(storedAnnotation);

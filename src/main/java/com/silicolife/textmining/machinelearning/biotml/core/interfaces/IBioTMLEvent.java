@@ -13,14 +13,14 @@ import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLExc
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public interface IBioTMLEvent extends Serializable {
+public interface IBioTMLEvent extends IBioTMLAnnotation, Serializable {
 	
 	@SuppressWarnings("rawtypes")
 	public IBioTMLAssociation getAssociation();
 	
-	public IBioTMLAnnotation getTrigger();
+	public IBioTMLEntity getTrigger();
 	
-	public IBioTMLAnnotation getEntity();
+	public IBioTMLEntity getEntity();
 	
 	/**
 	 * 
@@ -32,41 +32,24 @@ public interface IBioTMLEvent extends Serializable {
 	
 	/**
 	 * 
-	 * Method to get the Event type.
+	 * Method to find a {@link IBioTMLEntity} in the relation.
 	 * 
-	 * @return Event type string.
-	 */
-	public String getEventType();
-	
-	/**
-	 * 
-	 * Method to get the associated prediction score given to relation.
-	 * If is not defined, the score is 1.0 (range from 0.0 to 1.0). 
-	 * 
-	 * @return Relation prediction score.
-	 */
-	public double getScore();
-	
-	/**
-	 * 
-	 * Method to find a {@link IBioTMLAnnotation} in the relation.
-	 * 
-	 * @param annot Annotation to find {@link IBioTMLAnnotation}.
+	 * @param annot Annotation to find {@link IBioTMLEntity}.
 	 * @return Boolean if is or not present in this relation.
 	 */
-	public boolean findAnnotationInEvent(IBioTMLAnnotation annot);
+	public boolean findAnnotationInEvent(IBioTMLEntity annot);
 	
 	/**
 	 * 
-	 * Method to find a {@link IBioTMLAnnotation} in the relation using the annotation offsets.
+	 * Method to find a {@link IBioTMLEntity} in the relation using the annotation offsets.
 	 * 
 	 * @param startOffset Annotation start offset.
 	 * @param endOffset Annotation end offset.
-	 * @return {@link IBioTMLAnnotation} found.
+	 * @return {@link IBioTMLEntity} found.
 	 * @throws BioTMLException if is not found.
 	 */
-	public IBioTMLAnnotation getAnnotationInEventByOffsets(long startOffset, long endOffset) throws BioTMLException;
+	public IBioTMLEntity getAnnotationInEventByOffsets(long startOffset, long endOffset) throws BioTMLException;
 	
-	public Set<IBioTMLAnnotation> getAllAnnotationsFromEvent();
+	public Set<IBioTMLEntity> getAllAnnotationsFromEvent();
 
 }

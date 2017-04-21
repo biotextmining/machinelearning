@@ -1,122 +1,143 @@
 package com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLConfusionMatrix;
 
 public class BioTMLConfusionMatrixImpl<O> implements IBioTMLConfusionMatrix<O>{
 	
 	private static final long serialVersionUID = 1L;
-	private List<O> truePositives;
-	private List<O> trueNegatives;
-	private List<O> falsePositives;
-	private List<O> falseNegatives;
+	private List<String> labels;
+	private Map<BioTMLConfusionMatrixIndex, List<O>> confusionMatrixIndexesToPredictedObjects;
+	
 	
 	public BioTMLConfusionMatrixImpl(){
-		this.truePositives = new ArrayList<>();
-		this.trueNegatives = new ArrayList<>();
-		this.falsePositives = new ArrayList<>();
-		this.falseNegatives = new ArrayList<>();
-	}
-
-	public List<O> getTruePositives() {
-		return truePositives;
-	}
-
-	public List<O> getTrueNegatives() {
-		return trueNegatives;
-	}
-
-	public List<O> getFalsePositives() {
-		return falsePositives;
-	}
-
-	public List<O> getFalseNegatives() {
-		return falseNegatives;
+		this.labels = new ArrayList<>();
+		this.confusionMatrixIndexesToPredictedObjects = new HashMap<>();
 	}
 	
-	public void addTruePositive(O truePositive){
-		getTruePositives().add(truePositive);
-	}
-	
-	public void addAllTruePositives(Collection<O> truePositives){
-		getTruePositives().addAll(truePositives);
-	}
-	
-	public void addTrueNegative(O trueNegative){
-		getTrueNegatives().add(trueNegative);
-	}
-	
-	public void addAllTrueNegatives(Collection<O> truePositives){
-		getTrueNegatives().addAll(truePositives);
-	}
-	
-	public void addFalsePositive(O falsePositive){
-		getFalsePositives().add(falsePositive);
-	}
-	
-	public void addAllFalsePositives(Collection<O> falsePositives){
-		getFalsePositives().addAll(falsePositives);
-	}
-	
-	public void addFalseNegative(O falseNegative){
-		getFalseNegatives().add(falseNegative);
-	}
-	
-	public void addAllFalseNegatives(Collection<O> falseNegatives){
-		getFalseNegatives().addAll(falseNegatives);
-	}
-
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((falseNegatives == null) ? 0 : falseNegatives.hashCode());
-		result = prime * result + ((falsePositives == null) ? 0 : falsePositives.hashCode());
-		result = prime * result + ((trueNegatives == null) ? 0 : trueNegatives.hashCode());
-		result = prime * result + ((truePositives == null) ? 0 : truePositives.hashCode());
-		return result;
+	public List<String> getLabels(){
+		return labels;
 	}
-
+	
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		@SuppressWarnings("rawtypes")
-		BioTMLConfusionMatrixImpl other = (BioTMLConfusionMatrixImpl) obj;
-		if (falseNegatives == null) {
-			if (other.falseNegatives != null)
-				return false;
-		} else if (!falseNegatives.equals(other.falseNegatives))
-			return false;
-		if (falsePositives == null) {
-			if (other.falsePositives != null)
-				return false;
-		} else if (!falsePositives.equals(other.falsePositives))
-			return false;
-		if (trueNegatives == null) {
-			if (other.trueNegatives != null)
-				return false;
-		} else if (!trueNegatives.equals(other.trueNegatives))
-			return false;
-		if (truePositives == null) {
-			if (other.truePositives != null)
-				return false;
-		} else if (!truePositives.equals(other.truePositives))
-			return false;
-		return true;
+	public Map<BioTMLConfusionMatrixIndex, List<O>> getConfusionMatrixIndexesToPredictedObjects(){
+		return confusionMatrixIndexesToPredictedObjects;
+	}
+	
+	@Override
+	public void addPrediction(O predictionObject, String predictionLabel, String correctLabel){
+		
+		int predictedClassificationIndex = getLabelIndex(predictionLabel);
+		int correctClassificationIndex = getLabelIndex(correctLabel);
+		BioTMLConfusionMatrixIndex indexOnMatrix = new BioTMLConfusionMatrixIndex(predictedClassificationIndex, correctClassificationIndex);
+		
+		if(!getConfusionMatrixIndexesToPredictedObjects().containsKey(indexOnMatrix))
+			getConfusionMatrixIndexesToPredictedObjects().put(indexOnMatrix, new ArrayList<>());
+		
+		List<O> predictedObjects = getConfusionMatrixIndexesToPredictedObjects().get(indexOnMatrix);
+		predictedObjects.add(predictionObject);
+		getConfusionMatrixIndexesToPredictedObjects().put(indexOnMatrix, predictedObjects);
+	}
+	
+	@Override
+	public List<O> getTruePositivesOfLabel(String label){
+		int indexLabel = getLabelIndex(label);
+		BioTMLConfusionMatrixIndex indexLabelOnMatrix = new BioTMLConfusionMatrixIndex(indexLabel, indexLabel);
+		
+		if(!getConfusionMatrixIndexesToPredictedObjects().containsKey(indexLabelOnMatrix))
+			return new ArrayList<>();
+		return getConfusionMatrixIndexesToPredictedObjects().get(indexLabelOnMatrix);
+	}
+	
+	@Override
+	public List<O> getTrueNegativesOfLabel(String label){
+		int indexLabel = getLabelIndex(label);
+		
+		List<BioTMLConfusionMatrixIndex> trueNegativeIndexesOfMatrix = new ArrayList<>();
+		
+		for(int i=0; i<getLabels().size(); i++)
+			for(int j=0; j<getLabels().size(); j++)
+				if(!(i == indexLabel || j == indexLabel))
+					trueNegativeIndexesOfMatrix.add(new BioTMLConfusionMatrixIndex(i,j));
+		
+		return getPredictionObjectsFromMatrixIndexes(trueNegativeIndexesOfMatrix);
+	}
+	
+	@Override
+	public List<O> getFalsePositivesOfLabel(String label){
+		int predictedIndexLabel = getLabelIndex(label);
+		
+		List<BioTMLConfusionMatrixIndex> falsePositiveIndexesOfMatrix = new ArrayList<>();
+		
+		for(int correctIndexLabel=0; correctIndexLabel<getLabels().size(); correctIndexLabel++)
+			if(correctIndexLabel != predictedIndexLabel)
+				falsePositiveIndexesOfMatrix.add(new BioTMLConfusionMatrixIndex(predictedIndexLabel, correctIndexLabel));
+		
+		return getPredictionObjectsFromMatrixIndexes(falsePositiveIndexesOfMatrix);
+	}
+	
+	@Override
+	public List<O> getFalseNegativesOfLabel(String label){
+		int correctIndexLabel = getLabelIndex(label);
+		
+		List<BioTMLConfusionMatrixIndex> falseNegativesIndexesOfMatrix = new ArrayList<>();
+		
+		for(int predictionIndexLabel=0; predictionIndexLabel<getLabels().size(); predictionIndexLabel++)
+			if(predictionIndexLabel != correctIndexLabel)
+				falseNegativesIndexesOfMatrix.add(new BioTMLConfusionMatrixIndex(predictionIndexLabel, correctIndexLabel));
+		
+		return getPredictionObjectsFromMatrixIndexes(falseNegativesIndexesOfMatrix);
+	}
+	
+	public int[][] getConfusionMatrixCounting(){
+		int[][] matrixCounting = new int[getLabels().size()][getLabels().size()];
+		
+		for(BioTMLConfusionMatrixIndex key : getConfusionMatrixIndexesToPredictedObjects().keySet())
+			matrixCounting[key.getCorrectClassificationIndex()][key.getPredictedClassificationIndex()] = getConfusionMatrixIndexesToPredictedObjects().get(key).size();
+		return matrixCounting;
+	}
+	
+	private int getLabelIndex(String label){
+		if(!getLabels().contains(label)){
+			getLabels().add(label);
+			return getLabels().size() - 1;
+		}
+		return getLabels().indexOf(label);
+	}
+	
+	private List<O> getPredictionObjectsFromMatrixIndexes(List<BioTMLConfusionMatrixIndex> matrixIndexes){
+		List<O> storedPredictionObjects = new ArrayList<>();
+		
+		for(BioTMLConfusionMatrixIndex matrixIndex : matrixIndexes)
+			if(getConfusionMatrixIndexesToPredictedObjects().containsKey(matrixIndex))
+				storedPredictionObjects.addAll(getConfusionMatrixIndexesToPredictedObjects().get(matrixIndex));
+		
+		return storedPredictionObjects;
 	}
 
 	@Override
 	public String toString() {
-		return "BioTMLConfusionMatrixImpl [truePositives=" + truePositives + ", trueNegatives=" + trueNegatives
-				+ ", falsePositives=" + falsePositives + ", falseNegatives=" + falseNegatives + "]";
+		int[][] matrixCounting = getConfusionMatrixCounting();
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("Columns are predictions! Rows are correct labels!\n\t\t");
+		for(String label : getLabels())
+			sb.append( label+"\t");
+		sb.append("\n");
+		
+		for(int i=0; i<getLabels().size(); i++){
+			sb.append(getLabels().get(i)+"\t");
+			for(int j=0; j<getLabels().size(); j++)
+				sb.append(matrixCounting[i][j]+"\t");
+			sb.append("\n");
+		}
+		
+		return sb.toString();
 	}
 
 }

@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
@@ -56,11 +55,7 @@ public class BioTMLModelWriterImpl implements IBioTMLModelWriter {
 		}
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(getFileName())));
-			List<Object> modelresult = new ArrayList<Object>();
-			modelresult.add(model.getFeatureConfiguration());
-			modelresult.add(model.getModelConfiguration());
-			modelresult.add(model.getModel());
-			oos.writeObject(modelresult);
+			oos.writeObject(model);
 			oos.close();
 			model.cleanAlphabetMemory();
 			model.cleanPipeMemory();

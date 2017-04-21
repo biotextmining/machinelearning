@@ -7,7 +7,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentIDs;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLObjectWithFeaturesAndLabels;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusToInstancesThreadCreator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
@@ -30,7 +30,7 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 		return corpus;
 	}
 
-	private String getAnnotType() {
+	private String getAnnotationType() {
 		return annotType;
 	}
 
@@ -81,13 +81,13 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 	}
 	
 	private BioTMLConstants getTokenLabel(long docID, IBioTMLToken token){
-		List<IBioTMLAnnotation> docAnnotations = getCorpus().getDocAnnotations(docID);
+		List<IBioTMLEntity> docAnnotations = getCorpus().getDocAnnotations(docID);
 		if(!docAnnotations.isEmpty()){
-			for(IBioTMLAnnotation annotation : docAnnotations){
+			for(IBioTMLEntity annotation : docAnnotations){
 				if(token.getEndOffset()<annotation.getStartOffset()){
 					return BioTMLConstants.o;
 				}
-				if(annotation.getAnnotType().equals(getAnnotType())){
+				if(annotation.getAnnotationType().equals(getAnnotationType())){
 					if(annotation.getStartOffset() == token.getStartOffset()){
 						return BioTMLConstants.b;
 					}

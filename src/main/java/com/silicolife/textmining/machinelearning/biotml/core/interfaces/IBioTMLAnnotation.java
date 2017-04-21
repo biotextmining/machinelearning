@@ -4,62 +4,27 @@ import java.io.Serializable;
 
 /**
  * 
- * BioTML annotation interface.
+ * Represents Annotation interface.
  * 
  * @since 1.0.0
- * @version 1.0.2
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
-
-public interface IBioTMLAnnotation extends Comparable<IBioTMLAnnotation>, Serializable {
+public interface IBioTMLAnnotation extends Serializable{
 	
 	/**
 	 * 
-	 * Method to get the document ID associated with the annotation.
-	 * 
-	 * @return Document ID.
-	 */
-	public long getDocID();
-	
-
-	/**
-	 * 
-	 * Method to get the annotation offsets pair.
-	 * 
-	 * @return {@link IBioTMLOffsetsPair}
-	 */
-	public IBioTMLOffsetsPair getAnnotationOffsets();
-	
-	/**
-	 * 
-	 * Method to get the annotation type (e.g. gene, protein).
+	 * Method to get the annotation type.
 	 * 
 	 * @return Annotation type string.
 	 */
-	public String getAnnotType();
+	public String getAnnotationType();
 	
 	/**
 	 * 
-	 * Method to get the annotation start offset.
+	 * Method to get the annotation score.
 	 * 
-	 * @return Start annotation offset.
+	 * @return Annotation score.
 	 */
-	public long getStartOffset();
-	
-	/**
-	 * 
-	 * Method to get the annotation end offset.
-	 * 
-	 * @return End annotation offset.
-	 */
-	public long getEndOffset();
-	
-	/**
-	 * 
-	 * Method to get the annotation score value.
-	 * 
-	 * @return score.
-	 */
-	public double getScore();
+	public Double getAnnotationScore();
 
 }

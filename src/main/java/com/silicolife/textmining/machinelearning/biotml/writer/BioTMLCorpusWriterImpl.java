@@ -10,7 +10,7 @@ import java.util.zip.GZIPOutputStream;
 
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusWriter;
@@ -83,7 +83,7 @@ public class BioTMLCorpusWriterImpl implements IBioTMLCorpusWriter{
 	}
 	
 	private void createCorpusFromDocuments(List<IBioTMLDocument> documents, String dirnamepath, String corpusName) throws BioTMLException{
-		List<IBioTMLAnnotation> annotations = new ArrayList<>();
+		List<IBioTMLEntity> annotations = new ArrayList<>();
 		List<IBioTMLEvent> events = new ArrayList<>();
 		for(IBioTMLDocument doc : documents){
 			annotations.addAll(getCorpus().getDocAnnotations(doc.getID()));

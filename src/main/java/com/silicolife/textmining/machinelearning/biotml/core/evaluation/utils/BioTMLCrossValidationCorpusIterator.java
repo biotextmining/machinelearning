@@ -21,7 +21,7 @@ import java.util.Set;
 
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLCrossValidationFoldImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCrossValidationFold;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
@@ -101,10 +101,10 @@ public class BioTMLCrossValidationCorpusIterator implements Iterator<IBioTMLCros
 		return corpusFolds;
 	}
 	
-	private List<IBioTMLAnnotation> getAnnotationsByDocList(List<IBioTMLDocument> documentFold){
-		List<IBioTMLAnnotation> annotations = new ArrayList<IBioTMLAnnotation>();
+	private List<IBioTMLEntity> getAnnotationsByDocList(List<IBioTMLDocument> documentFold){
+		List<IBioTMLEntity> annotations = new ArrayList<IBioTMLEntity>();
 		for(IBioTMLDocument doc : documentFold){
-			List<IBioTMLAnnotation> docAnnot = getCorpus().getDocAnnotations(doc.getID());
+			List<IBioTMLEntity> docAnnot = getCorpus().getDocAnnotations(doc.getID());
 			annotations.addAll(docAnnot);
 		}
 		return annotations;

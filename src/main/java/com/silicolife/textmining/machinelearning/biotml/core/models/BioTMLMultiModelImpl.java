@@ -14,7 +14,6 @@ import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMalletAnnotatorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.BioTMLModelsCrossValidationCorpusEvaluator;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLModelEvaluationConfiguratorImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLModelEvaluationResultsImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
@@ -22,7 +21,6 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLF
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationConfigurator;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationResults;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelWriter;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiEvaluation;
@@ -41,7 +39,7 @@ import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLModelWriter
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLMultiModel implements IBioTMLMultiModel{
+public class BioTMLMultiModelImpl implements IBioTMLMultiModel{
 
 	private Map<IBioTMLFeatureGeneratorConfigurator, List<IBioTMLModelConfigurator>> modelFeaturesAndConfigurations;
 	private List<IBioTMLModel> models;
@@ -54,7 +52,7 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 	 * @param file - Multi-model file absolute path string.
 	 * @throws BioTMLException
 	 */
-	public BioTMLMultiModel(String file) throws BioTMLException{
+	public BioTMLMultiModelImpl(String file) throws BioTMLException{
 		IBioTMLModelReader reader = new BioTMLModelReaderImpl();
 
 		this.models = reader.loadModelFromZipFile(file);
@@ -80,14 +78,14 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 	 * @param featureConfiguration {@link IBioTMLFeatureGeneratorConfigurator} to generate the model training features. 
 	 * @param modelConfigurations {@link IBioTMLModelConfigurator} model configurations.
 	 */
-	public BioTMLMultiModel(
+	public BioTMLMultiModelImpl(
 			IBioTMLFeatureGeneratorConfigurator featureConfiguration,  
 			List<IBioTMLModelConfigurator> modelConfigurations){
 		this.modelFeaturesAndConfigurations = new HashMap<>();
 		this.modelFeaturesAndConfigurations.put(featureConfiguration, modelConfigurations);
 	}
 	
-	public BioTMLMultiModel(Map<IBioTMLFeatureGeneratorConfigurator, List<IBioTMLModelConfigurator>> modelFeaturesAndConfigurations){
+	public BioTMLMultiModelImpl(Map<IBioTMLFeatureGeneratorConfigurator, List<IBioTMLModelConfigurator>> modelFeaturesAndConfigurations){
 		this.modelFeaturesAndConfigurations = modelFeaturesAndConfigurations;
 	}
 
@@ -135,14 +133,12 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 		return modelFeaturesAndConfigurations;
 	}
 
-	public Map<String, IBioTMLModelEvaluationResults> evaluate(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator modelEvaluationConfiguration) throws BioTMLException {
-		Map<String, IBioTMLModelEvaluationResults> evaluationByTypes = new HashMap<>();
+	public Map<String, IBioTMLMultiEvaluation> evaluate(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator modelEvaluationConfiguration) throws BioTMLException {
+		Map<String, IBioTMLMultiEvaluation> evaluationByTypes = new HashMap<>();
 		if(modelEvaluationConfiguration.isUseMultipleModelsToEvaluate()){
 			BioTMLModelsCrossValidationCorpusEvaluator cvEvaluator = new BioTMLModelsCrossValidationCorpusEvaluator(getModels(), modelEvaluationConfiguration);
 			IBioTMLMultiEvaluation result = cvEvaluator.evaluate(corpus);
-			Map<String, IBioTMLMultiEvaluation> evaluationResultscv = new HashMap<>();
-			evaluationResultscv.put("", result);
-			evaluationByTypes.put("General", new BioTMLModelEvaluationResultsImpl(evaluationResultscv));
+			evaluationByTypes.put("General", result);
 		}else
 			for(IBioTMLModel model : getModels())
 				evaluationByTypes.put(model.getModelConfiguration().getClassType(), model.evaluate(corpus, modelEvaluationConfiguration));
@@ -194,7 +190,6 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 			fos = new FileOutputStream(readme);
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 			IBioTMLModelEvaluationConfigurator evaluationConfiguration = new BioTMLModelEvaluationConfiguratorImpl();
-			String evaluation = (this.usedEvaluation) ? " * Evaluation scores: " + "\n\n"+foldTypesString(evaluationConfiguration) + processEvaluationbyTypes(new HashMap<>()): "";
 			bw.write("\n###################### README ########################\n\n"+
 					"The multi-model file was trained with:\n\n"+
 					" * Corpus name: " + corpus.toString()+"\n\n"+
@@ -204,35 +199,13 @@ public class BioTMLMultiModel implements IBioTMLMultiModel{
 				bw.write(
 					" * Used NLP System: " + model.getModelConfiguration().getUsedNLPSystem() + "\n\n"+
 					" * Machine learning algorithm used: " + model.getModelConfiguration().getAlgorithmType() + "\n\n"+
-					" * Features used:\n\t\t\t\t\t" + model.getFeatureConfiguration().getFeaturesUIDs().toString().substring(1, model.getFeatureConfiguration().getFeaturesUIDs().toString().length()-1).replace(", ", "\n\t\t\t\t\t")+"\n\n"+
-					evaluation);
+					" * Features used:\n\t\t\t\t\t" + model.getFeatureConfiguration().getFeaturesUIDs().toString().substring(1, model.getFeatureConfiguration().getFeaturesUIDs().toString().length()-1).replace(", ", "\n\t\t\t\t\t")+"\n\n");
 			}
 			bw.close();
 		} catch ( IOException e) {
 			e.printStackTrace();
 		}
 		return readme;
-	}
-
-	private String foldTypesString(IBioTMLModelEvaluationConfigurator evaluationConfiguration){
-		String res = new String();
-		if(evaluationConfiguration.isUseCrossValidationByDocuments())
-			res = res + "\tNumber of folds used in corpus documents for cross-validation is " + String.valueOf(evaluationConfiguration.getCVFoldsByDocuments())+"\n";
-
-		if(evaluationConfiguration.isUseCrossValidationBySentences())
-			res = res + "\tNumber of folds used in corpus sentences for cross-validation is " + String.valueOf(evaluationConfiguration.getCVFoldsBySentences())+"\n";
-
-		return res;
-	}
-
-	private String processEvaluationbyTypes(Map<String, IBioTMLModelEvaluationResults> evaluationByTypes){
-		String result = new String();
-		for(String key : evaluationByTypes.keySet()){
-			result = result + "\n\n\tModel Type: " + key +"\n";
-			IBioTMLModelEvaluationResults evalresuts = evaluationByTypes.get(key);
-			result = result + evalresuts.printResults();
-		}
-		return result;
 	}
 
 }

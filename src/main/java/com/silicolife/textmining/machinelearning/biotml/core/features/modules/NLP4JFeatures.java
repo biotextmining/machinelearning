@@ -14,7 +14,7 @@ import java.util.TreeSet;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLOffsetsPairImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLFeatureColumns;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
@@ -36,7 +36,7 @@ import edu.emory.mathcs.nlp.component.template.node.NLPNode;
 public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 
 	private String[] keywordsEssentiality = {"cell", "growth", "viability", "protein", "gene", "familiy", 
-			"proliferation", "biosynthesis", "mitochondria", "ribossome"};
+			"proliferation", "biosynthesis", "mitochondria", "ribossome", "life"};
 	
 	/**
 	 * 
@@ -92,7 +92,6 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		uids.add("NLP4JLEMMASAFTERFOR");
 		uids.add("NLP4JLEMMASAFTERROLE");
 		uids.add("NLP4JLEMMASAFTERIN");
-		uids.add("NLP4JGETKEYWORDSAFTERFOR");
 		uids.add("NLP4JBETWEENVERB");
 		uids.add("NLP4JOUTSIDEVERB");
 		uids.add("NLP4JLASTVERBBEFOREANNOTS");
@@ -100,6 +99,8 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		uids.add("NLP4JPOSREPRESENTATIVE");
 		uids.add("NLP4JDEPENDECYREPRESENTATIVE");
 		uids.add("NLP4JDEPENDECYDISTANCE");
+		uids.add("NLP4JGETKEYWORDSAFTERFOR");
+		uids.add("NLP4JGETKEYWORDSBETWEENANNOTS");
 		return uids;
 	}
 
@@ -122,6 +123,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		infoMap.put("NLP4JDEPENDECYREPRESENTATIVE", "The NLP4J dependency parsing system is used to create a feature that associates the dependecy label representative of each annotation in event.");
 		infoMap.put("NLP4JDEPENDECYDISTANCE", "The NLP4J dependency parsing system is used to create a feature that calculates the distance of annotations in dependency tree.");
 		infoMap.put("NLP4JGETKEYWORDSAFTERFOR", "");
+		infoMap.put("NLP4JGETKEYWORDSBETWEENANNOTS", "");
 		return infoMap;
 	}
 
@@ -233,9 +235,9 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 			dependencyLabels.add(dependencyNodes[i].getDependencyLabel());
 		
 		for(IBioTMLAssociation association : associations){
-			if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAnnotation){
-				IBioTMLAnnotation annotationOne = (IBioTMLAnnotation) association.getEntryOne();
-				IBioTMLAnnotation annotationTwo = (IBioTMLAnnotation) association.getEntryTwo();
+			if(association.getEntryOne() instanceof IBioTMLEntity && association.getEntryTwo() instanceof IBioTMLEntity){
+				IBioTMLEntity annotationOne = (IBioTMLEntity) association.getEntryOne();
+				IBioTMLEntity annotationTwo = (IBioTMLEntity) association.getEntryTwo();
 				
 				if(configuration.hasFeatureUID("NLP4JLEMMA"))
 					features.addBioTMLObjectFeature("NLP4JLEMMA="+addAssociatedFeature(annotationOne, annotationTwo, tokens, lemmas), "NLP4JLEMMA");
@@ -307,11 +309,24 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 							result = result + "NLP4JGETKEYWORDSAFTERFOR="+keyword;
 						}
 					}
-					features.addBioTMLObjectFeature("NLP4JGETKEYWORDSAFTERFOR="+result, "NLP4JGETKEYWORDSAFTERFOR");
+					features.addBioTMLObjectFeature(result, "NLP4JGETKEYWORDSAFTERFOR");
 				}
-			}else if(association.getEntryOne() instanceof IBioTMLAnnotation && association.getEntryTwo() instanceof IBioTMLAssociation){
+				
+				if(configuration.hasFeatureUID("NLP4JGETKEYWORDSBETWEENANNOTS")){
+					String result = new String();
+					List<String> listLemmas = getLemmasBetweenAnnotations(annotationOne, annotationTwo, tokens, lemmas);
+					for(String keyword : keywordsEssentiality){
+						if(listLemmas.contains(keyword)){
+							if(!result.isEmpty())
+								result = result + "\t";
+							result = result + "NLP4JGETKEYWORDSBETWEENANNOTS="+keyword;
+						}
+					}
+					features.addBioTMLObjectFeature(result, "NLP4JGETKEYWORDSBETWEENANNOTS");
+				}
+			}else if(association.getEntryOne() instanceof IBioTMLEntity && association.getEntryTwo() instanceof IBioTMLAssociation){
 				//TODO
-			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAnnotation){
+			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLEntity){
 				//TODO
 			}else if(association.getEntryOne() instanceof IBioTMLAssociation && association.getEntryTwo() instanceof IBioTMLAssociation){
 				//TODO
@@ -321,7 +336,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		return features;
 	}
 	
-	private String addAssociatedFeature(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, List<String> features) {
+	private String addAssociatedFeature(IBioTMLEntity annotationOne, IBioTMLEntity annotationTwo, List<IBioTMLToken> tokens, List<String> features) {
 		String result = new String();
 		for(int i=0; i<tokens.size(); i++){
 			if(annotationOne.getAnnotationOffsets().offsetsOverlap(tokens.get(i).getTokenOffsetsPair())){
@@ -338,7 +353,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		return result;
 	}
 	
-	private Boolean containsFeature(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, List<String> lemmas, String contains){
+	private Boolean containsFeature(IBioTMLEntity annotationOne, IBioTMLEntity annotationTwo, List<IBioTMLToken> tokens, List<String> lemmas, String contains){
 		IBioTMLOffsetsPair offsetspair = null;
 		if(annotationOne.compareTo(annotationTwo)<0){
 			offsetspair = new BioTMLOffsetsPairImpl(annotationOne.getStartOffset(), annotationTwo.getEndOffset());
@@ -354,7 +369,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 
 	}
 	
-	private String verbBetween(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, List<String> pos, List<String> lemmas){
+	private String verbBetween(IBioTMLEntity annotationOne, IBioTMLEntity annotationTwo, List<IBioTMLToken> tokens, List<String> pos, List<String> lemmas){
 		String verbString = new String();
 		IBioTMLOffsetsPair offsetspair = null;
 		if(annotationOne.compareTo(annotationTwo)<0)
@@ -373,7 +388,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 
 	}
 	
-	private String lastverbBeforeAnnotations(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, List<String> pos, List<String> lemmas){
+	private String lastverbBeforeAnnotations(IBioTMLEntity annotationOne, IBioTMLEntity annotationTwo, List<IBioTMLToken> tokens, List<String> pos, List<String> lemmas){
 		String verbString = new String();
 		IBioTMLOffsetsPair offsetspair = null;
 		if(annotationOne.compareTo(annotationTwo)<0)
@@ -399,7 +414,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 
 	}
 	
-	private String verbOutside(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, List<String> pos, List<String> lemmas){
+	private String verbOutside(IBioTMLEntity annotationOne, IBioTMLEntity annotationTwo, List<IBioTMLToken> tokens, List<String> pos, List<String> lemmas){
 		String verbString = new String();
 		IBioTMLOffsetsPair offsetspair = null;
 		if(annotationOne.compareTo(annotationTwo)<0)
@@ -418,7 +433,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 
 	}
 	
-	private String associationFeaturesUsingLCATokensAnnotation(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, List<IBioTMLToken> tokens, NLPNode[] dependencyNodes, String featureType ){
+	private String associationFeaturesUsingLCATokensAnnotation(IBioTMLEntity annotationOne, IBioTMLEntity annotationTwo, List<IBioTMLToken> tokens, NLPNode[] dependencyNodes, String featureType ){
 		String result = new String();
 		NLPNode commonNLPNodeAnnotationOne = getCommonAnnotationsTokensNLPNode(annotationOne, dependencyNodes, tokens);
 		NLPNode commonNLPNodeAnnotationTwo = getCommonAnnotationsTokensNLPNode(annotationTwo, dependencyNodes, tokens);
@@ -429,7 +444,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		return result;
 	}
 	
-	private NLPNode getCommonAnnotationsTokensNLPNode(IBioTMLAnnotation annotation, NLPNode[] dependencyNodes, List<IBioTMLToken> tokens){
+	private NLPNode getCommonAnnotationsTokensNLPNode(IBioTMLEntity annotation, NLPNode[] dependencyNodes, List<IBioTMLToken> tokens){
 		Set<NLPNode> annotationNodes = new HashSet<>();
 		for(int i=0; i<tokens.size(); i++){
 			if(annotation.getAnnotationOffsets().offsetsOverlap(tokens.get(i).getTokenOffsetsPair()))
@@ -451,7 +466,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		return ascenstor;
 	}
 	
-	private String getTokensAfterLastAnnotationsAndTokenLemma(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo, 
+	private String getTokensAfterLastAnnotationsAndTokenLemma(IBioTMLEntity annotationOne, IBioTMLEntity annotationTwo, 
 			List<IBioTMLToken> tokens, List<String> lemmas, String lemmatofind){
 		String result = new String();
 		List<String> resultList = getLemmasAfterLemaPoint(annotationOne, annotationTwo, tokens, lemmas, lemmatofind);
@@ -463,7 +478,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		return result;
 	}
 
-	private List<String> getLemmasAfterLemaPoint(IBioTMLAnnotation annotationOne, IBioTMLAnnotation annotationTwo,
+	private List<String> getLemmasAfterLemaPoint(IBioTMLEntity annotationOne, IBioTMLEntity annotationTwo,
 			List<IBioTMLToken> tokens, List<String> lemmas, String lemmatofind) {
 		List<String> resultList = new ArrayList<>();
 		IBioTMLOffsetsPair offsetspair = null;
@@ -472,7 +487,7 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 		else
 			offsetspair = new BioTMLOffsetsPairImpl(annotationTwo.getStartOffset(), annotationOne.getEndOffset());
 		
-		String[] finisherLemmas = {".", ",", "because", "that", "who", "which", "by", "for", "from"};
+		String[] finisherLemmas = {".", ",", "because", "that", "who", "which", "by", "for", "from", "but"};
 		List<String> finisherLemmasList = Arrays.asList(finisherLemmas);
 		
 		boolean found = false;
@@ -487,6 +502,23 @@ public class NLP4JFeatures implements IBioTMLFeatureGenerator{
 				}
 				if(lemmas.get(i).equals(lemmatofind))
 					found = true;
+			}
+		}
+		return resultList;
+	}
+	
+	private List<String> getLemmasBetweenAnnotations(IBioTMLEntity annotationOne, IBioTMLEntity annotationTwo,
+			List<IBioTMLToken> tokens, List<String> lemmas){
+		List<String> resultList = new ArrayList<>();
+		IBioTMLOffsetsPair offsetspair = null;
+		if(annotationOne.compareTo(annotationTwo)<0)
+			offsetspair = new BioTMLOffsetsPairImpl(annotationOne.getStartOffset(), annotationTwo.getEndOffset());
+		else
+			offsetspair = new BioTMLOffsetsPairImpl(annotationTwo.getStartOffset(), annotationOne.getEndOffset());
+		
+		for(int i=0; i<tokens.size(); i++){
+			if(offsetspair.offsetsOverlap(tokens.get(i).getTokenOffsetsPair())){
+				resultList.add(lemmas.get(i));
 			}
 		}
 		return resultList;

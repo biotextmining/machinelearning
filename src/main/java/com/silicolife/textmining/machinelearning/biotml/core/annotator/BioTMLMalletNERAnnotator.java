@@ -9,7 +9,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.annotator.processor
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.processors.BioTMLMalletTransducerAnnotatorProcessor;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentIDs;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
@@ -45,12 +45,12 @@ public class BioTMLMalletNERAnnotator {
 		return classifierProcessor;
 	}
 
-	public Set<IBioTMLAnnotation> generateAnnotations(IBioTMLCorpus corpus, IBioTMLModel model, int threads) throws BioTMLException{
+	public Set<IBioTMLEntity> generateAnnotations(IBioTMLCorpus corpus, IBioTMLModel model, int threads) throws BioTMLException{
 		
 		if(!validateModel(model))
 			throw new BioTMLException(5);
 		
-		Set<IBioTMLAnnotation> annotations = new HashSet<>();
+		Set<IBioTMLEntity> annotations = new HashSet<>();
 		if(model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletcrf)
 				|| model.getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.mallethmm))
 		{
@@ -68,7 +68,7 @@ public class BioTMLMalletNERAnnotator {
 	}
 
 	private void predictAnnotationsUsingTransducerProcessor(IBioTMLCorpus corpus, IBioTMLModel model, int threads,
-			Set<IBioTMLAnnotation> annotations) throws BioTMLException {
+			Set<IBioTMLEntity> annotations) throws BioTMLException {
 		
 		transducerProcessor = new BioTMLMalletTransducerAnnotatorProcessor(corpus, model, threads);
 		InstanceList predictionMatrix = getTransducerProcessor().generatePredictionMatrix();
@@ -88,7 +88,7 @@ public class BioTMLMalletNERAnnotator {
 	}
 
 	private void predictAnnotationsUsingClassifierProcessor(IBioTMLCorpus corpus, 
-			IBioTMLModel model, int threads, Set<IBioTMLAnnotation> annotations) throws BioTMLException {
+			IBioTMLModel model, int threads, Set<IBioTMLEntity> annotations) throws BioTMLException {
 		
 		classifierProcessor = new BioTMLMalletClassifierAnnotatorProcessor(corpus, model, threads);
 		InstanceList predictionMatrix = getClassifierProcessor().generatePredictionMatrix();

@@ -9,22 +9,23 @@ import java.util.TreeSet;
 import org.junit.Test;
 
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMalletAnnotatorImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLEntityImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLModelEvaluationConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeatureGeneratorConfiguratorImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationConfigurator;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationResults;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelWriter;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiEvaluation;
+import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.MalletClassifierModel;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j.BioTMLNLP4J;
@@ -53,71 +54,71 @@ public class TestPipelineClassifier {
 		return docs;
 	}
 	
-	private List<IBioTMLAnnotation> loadAnnotations(){
-		List<IBioTMLAnnotation> annotations = new ArrayList<IBioTMLAnnotation>();
-		annotations.add(new BioTMLAnnotationImpl((long)0, "Gene", (long)0, (long)12));
-		annotations.add(new BioTMLAnnotationImpl((long)0, "Gene", (long)15, (long)64));
-		annotations.add(new BioTMLAnnotationImpl((long)0, "Gene", (long)212, (long)224));
-		annotations.add(new BioTMLAnnotationImpl((long)0, "Gene", (long)393, (long)405));
-		annotations.add(new BioTMLAnnotationImpl((long)0, "Gene", (long)502, (long)514));
-		annotations.add(new BioTMLAnnotationImpl((long)0, "Gene", (long)589, (long)601));
-		annotations.add(new BioTMLAnnotationImpl((long)1, "RNA", (long)884, (long)896));
-		annotations.add(new BioTMLAnnotationImpl((long)1, "RNA", (long)1040, (long)1052));
-		annotations.add(new BioTMLAnnotationImpl((long)1, "RNA", (long)1220, (long)1244));
-		annotations.add(new BioTMLAnnotationImpl((long)1, "RNA", (long)1245, (long)1257));
-		annotations.add(new BioTMLAnnotationImpl((long)1, "RNA", (long)199, (long)202));
-		annotations.add(new BioTMLAnnotationImpl((long)2, "Gene", (long)68, (long)74));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)0, (long)35));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)55, (long)67));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)147, (long)182));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)580, (long)597));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)602, (long)619));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)726, (long)743));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)895, (long)907));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)939, (long)949));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)997, (long)1014));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)1116, (long)1128));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)1188, (long)1205));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)1288, (long)1298));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)1340, (long)1352));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)1445, (long)1469));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)1552, (long)1555));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)1612, (long)1647));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)1787, (long)1799));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)1863, (long)1898));
-		annotations.add(new BioTMLAnnotationImpl((long)3, "protein", (long)1918, (long)1930));
-		annotations.add(new BioTMLAnnotationImpl((long)4, "protein", (long)166, (long)174));
-		annotations.add(new BioTMLAnnotationImpl((long)4, "protein", (long)190, (long)193));
-		annotations.add(new BioTMLAnnotationImpl((long)4, "protein", (long)348, (long)351));
-		annotations.add(new BioTMLAnnotationImpl((long)4, "protein", (long)762, (long)765));
-		annotations.add(new BioTMLAnnotationImpl((long)4, "protein", (long)900, (long)903));
-		annotations.add(new BioTMLAnnotationImpl((long)4, "protein", (long)923, (long)926));
-		annotations.add(new BioTMLAnnotationImpl((long)4, "protein", (long)1011, (long)1014));
-		annotations.add(new BioTMLAnnotationImpl((long)4, "protein", (long)1203, (long)1206));
-		annotations.add(new BioTMLAnnotationImpl((long)4, "protein", (long)1348, (long)1351));
-		annotations.add(new BioTMLAnnotationImpl((long)4, "protein", (long)1467, (long)1470));
-		annotations.add(new BioTMLAnnotationImpl((long)4, "protein", (long)1560, (long)1563));
-		annotations.add(new BioTMLAnnotationImpl((long)5, "protein", (long)57, (long)68));
-		annotations.add(new BioTMLAnnotationImpl((long)5, "protein", (long)104, (long)108));
-		annotations.add(new BioTMLAnnotationImpl((long)5, "protein", (long)358, (long)362));
-		annotations.add(new BioTMLAnnotationImpl((long)5, "protein", (long)481, (long)485));
-		annotations.add(new BioTMLAnnotationImpl((long)5, "protein", (long)558, (long)562));
-		annotations.add(new BioTMLAnnotationImpl((long)5, "protein", (long)568, (long)572));
-		annotations.add(new BioTMLAnnotationImpl((long)5, "protein", (long)677, (long)681));
-		annotations.add(new BioTMLAnnotationImpl((long)5, "protein", (long)737, (long)741));
-		annotations.add(new BioTMLAnnotationImpl((long)5, "protein", (long)857, (long)860));
-		annotations.add(new BioTMLAnnotationImpl((long)5, "protein", (long)998, (long)1002));
-		annotations.add(new BioTMLAnnotationImpl((long)5, "protein", (long)1101, (long)1112));
-		annotations.add(new BioTMLAnnotationImpl((long)6, "protein", (long)44, (long)66));
-		annotations.add(new BioTMLAnnotationImpl((long)6, "protein", (long)151, (long)173));
-		annotations.add(new BioTMLAnnotationImpl((long)6, "protein", (long)176, (long)180));
-		annotations.add(new BioTMLAnnotationImpl((long)6, "protein", (long)1288, (long)1310));
-		annotations.add(new BioTMLAnnotationImpl((long)7, "protein", (long)925, (long)934));
-		annotations.add(new BioTMLAnnotationImpl((long)8, "protein", (long)175, (long)178));
-		annotations.add(new BioTMLAnnotationImpl((long)8, "protein", (long)248, (long)251));
-		annotations.add(new BioTMLAnnotationImpl((long)8, "protein", (long)370, (long)373));
-		annotations.add(new BioTMLAnnotationImpl((long)8, "protein", (long)426, (long)429));
-		annotations.add(new BioTMLAnnotationImpl((long)8, "protein", (long)844, (long)847));
+	private List<IBioTMLEntity> loadAnnotations(){
+		List<IBioTMLEntity> annotations = new ArrayList<IBioTMLEntity>();
+		annotations.add(new BioTMLEntityImpl((long)0, "Gene", (long)0, (long)12));
+		annotations.add(new BioTMLEntityImpl((long)0, "Gene", (long)15, (long)64));
+		annotations.add(new BioTMLEntityImpl((long)0, "Gene", (long)212, (long)224));
+		annotations.add(new BioTMLEntityImpl((long)0, "Gene", (long)393, (long)405));
+		annotations.add(new BioTMLEntityImpl((long)0, "Gene", (long)502, (long)514));
+		annotations.add(new BioTMLEntityImpl((long)0, "Gene", (long)589, (long)601));
+		annotations.add(new BioTMLEntityImpl((long)1, "RNA", (long)884, (long)896));
+		annotations.add(new BioTMLEntityImpl((long)1, "RNA", (long)1040, (long)1052));
+		annotations.add(new BioTMLEntityImpl((long)1, "RNA", (long)1220, (long)1244));
+		annotations.add(new BioTMLEntityImpl((long)1, "RNA", (long)1245, (long)1257));
+		annotations.add(new BioTMLEntityImpl((long)1, "RNA", (long)199, (long)202));
+		annotations.add(new BioTMLEntityImpl((long)2, "Gene", (long)68, (long)74));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)0, (long)35));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)55, (long)67));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)147, (long)182));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)580, (long)597));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)602, (long)619));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)726, (long)743));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)895, (long)907));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)939, (long)949));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)997, (long)1014));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)1116, (long)1128));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)1188, (long)1205));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)1288, (long)1298));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)1340, (long)1352));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)1445, (long)1469));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)1552, (long)1555));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)1612, (long)1647));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)1787, (long)1799));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)1863, (long)1898));
+		annotations.add(new BioTMLEntityImpl((long)3, "protein", (long)1918, (long)1930));
+		annotations.add(new BioTMLEntityImpl((long)4, "protein", (long)166, (long)174));
+		annotations.add(new BioTMLEntityImpl((long)4, "protein", (long)190, (long)193));
+		annotations.add(new BioTMLEntityImpl((long)4, "protein", (long)348, (long)351));
+		annotations.add(new BioTMLEntityImpl((long)4, "protein", (long)762, (long)765));
+		annotations.add(new BioTMLEntityImpl((long)4, "protein", (long)900, (long)903));
+		annotations.add(new BioTMLEntityImpl((long)4, "protein", (long)923, (long)926));
+		annotations.add(new BioTMLEntityImpl((long)4, "protein", (long)1011, (long)1014));
+		annotations.add(new BioTMLEntityImpl((long)4, "protein", (long)1203, (long)1206));
+		annotations.add(new BioTMLEntityImpl((long)4, "protein", (long)1348, (long)1351));
+		annotations.add(new BioTMLEntityImpl((long)4, "protein", (long)1467, (long)1470));
+		annotations.add(new BioTMLEntityImpl((long)4, "protein", (long)1560, (long)1563));
+		annotations.add(new BioTMLEntityImpl((long)5, "protein", (long)57, (long)68));
+		annotations.add(new BioTMLEntityImpl((long)5, "protein", (long)104, (long)108));
+		annotations.add(new BioTMLEntityImpl((long)5, "protein", (long)358, (long)362));
+		annotations.add(new BioTMLEntityImpl((long)5, "protein", (long)481, (long)485));
+		annotations.add(new BioTMLEntityImpl((long)5, "protein", (long)558, (long)562));
+		annotations.add(new BioTMLEntityImpl((long)5, "protein", (long)568, (long)572));
+		annotations.add(new BioTMLEntityImpl((long)5, "protein", (long)677, (long)681));
+		annotations.add(new BioTMLEntityImpl((long)5, "protein", (long)737, (long)741));
+		annotations.add(new BioTMLEntityImpl((long)5, "protein", (long)857, (long)860));
+		annotations.add(new BioTMLEntityImpl((long)5, "protein", (long)998, (long)1002));
+		annotations.add(new BioTMLEntityImpl((long)5, "protein", (long)1101, (long)1112));
+		annotations.add(new BioTMLEntityImpl((long)6, "protein", (long)44, (long)66));
+		annotations.add(new BioTMLEntityImpl((long)6, "protein", (long)151, (long)173));
+		annotations.add(new BioTMLEntityImpl((long)6, "protein", (long)176, (long)180));
+		annotations.add(new BioTMLEntityImpl((long)6, "protein", (long)1288, (long)1310));
+		annotations.add(new BioTMLEntityImpl((long)7, "protein", (long)925, (long)934));
+		annotations.add(new BioTMLEntityImpl((long)8, "protein", (long)175, (long)178));
+		annotations.add(new BioTMLEntityImpl((long)8, "protein", (long)248, (long)251));
+		annotations.add(new BioTMLEntityImpl((long)8, "protein", (long)370, (long)373));
+		annotations.add(new BioTMLEntityImpl((long)8, "protein", (long)426, (long)429));
+		annotations.add(new BioTMLEntityImpl((long)8, "protein", (long)844, (long)847));
 		return annotations;
 	}
 	
@@ -128,11 +129,6 @@ public class TestPipelineClassifier {
 		features.add("NUMDIGITS");
 		features.add("LENGTH");
 		features.add("LENGTHGROUP");
-		features.add("CLEARNLPPOS");
-		features.add("CLEARNLPLEMMA");
-		features.add("CLEARNLPDEPENDECY");
-		features.add("CONJUCTCLEARNLPLEMMA");
-		features.add("WINDOWCLEARNLPLEMMA");
 		features.add("PORTERSTEM");
 		features.add("INITCAPS");
 		features.add("ENDCAPS");
@@ -175,7 +171,9 @@ public class TestPipelineClassifier {
 	}
 	
 	private IBioTMLModelConfigurator defaultConfiguration(String modelClassType, String modelIEType){
-		return new BioTMLModelConfigurator(modelClassType, modelIEType);
+		BioTMLModelConfigurator configuration = new BioTMLModelConfigurator(modelClassType, modelIEType);
+		configuration.setAlgorithmType(BioTMLAlgorithm.malletsvm);
+		return configuration;
 	}
 	
 	private IBioTMLModelEvaluationConfigurator defaultEvaluationConfiguration(){
@@ -188,8 +186,8 @@ public class TestPipelineClassifier {
 	private void testTrainAndSavingModel() throws BioTMLException, IOException{
 		IBioTMLCorpus corpus = new BioTMLCorpusImpl(loadDocuments(), loadAnnotations(),"");
 		IBioTMLModel svm = new MalletClassifierModel(loadfeatures(), defaultConfiguration("protein","NER"));
-		IBioTMLModelEvaluationResults res = svm.evaluate(corpus, defaultEvaluationConfiguration());
-		System.out.println(res.printResults());
+		IBioTMLMultiEvaluation res = svm.evaluate(corpus, defaultEvaluationConfiguration());
+		System.out.println(res);
 		svm.train(corpus);
 		IBioTMLModelWriter writer = new BioTMLModelWriterImpl("C:/Users/RRodrigues/Desktop/corpora/model_SVM.gz");
 		writer.writeGZModelFile(svm);
@@ -203,7 +201,7 @@ public class TestPipelineClassifier {
 		IBioTMLModel svm = modelReader.loadModelFromGZFile("C:/Users/RRodrigues/Desktop/corpora/model_SVM.gz");
 		IBioTMLAnnotator annotator = new BioTMLMalletAnnotatorImpl(corpus);
 		IBioTMLCorpus annotatedCorpus = annotator.generateAnnotatedBioTMCorpus(svm,8);
-		List<IBioTMLAnnotation> annotationsTest = annotatedCorpus.getAnnotations();
+		List<IBioTMLEntity> annotationsTest = annotatedCorpus.getAnnotations();
 		System.out.println(annotationsTest.get(0).toString());
 	}
 }

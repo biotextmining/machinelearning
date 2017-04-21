@@ -10,10 +10,10 @@ import java.util.Map;
 import java.util.Set;
 
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
@@ -31,7 +31,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 
 	private static final long serialVersionUID = 1L;
 	private List<IBioTMLDocument> documents;
-	private List<IBioTMLAnnotation> annotations;
+	private List<IBioTMLEntity> annotations;
 	private List<IBioTMLEvent> events;
 	private String name;
 
@@ -52,11 +52,11 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	 * Initializes a corpus with annotations
 	 * 
 	 * @param documents - List of {@link IBioTMLDocument} tokenized.
-	 * @param annotations - List of {@link IBioTMLAnnotation} with offsets and class types.
+	 * @param annotations - List of {@link IBioTMLEntity} with offsets and class types.
 	 * @param name - Corpus name.
 	 */
 
-	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, List<IBioTMLAnnotation> annotations, String name){
+	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, List<IBioTMLEntity> annotations, String name){
 		this(documents, annotations, new ArrayList<>(), name);
 	}
 
@@ -65,11 +65,11 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	 * Initializes a corpus with annotations and annotations relation
 	 * 
 	 * @param documents - List of {@link IBioTMLDocument} tokenized.
-	 * @param annotations - List of {@link IBioTMLAnnotation} with offsets and class types.
+	 * @param annotations - List of {@link IBioTMLEntity} with offsets and class types.
 	 * @param name - Corpus name.
 	 */
 
-	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, List<IBioTMLAnnotation> annotations, List<IBioTMLEvent> events, String name){
+	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, List<IBioTMLEntity> annotations, List<IBioTMLEvent> events, String name){
 		this.documents = documents;
 		this.annotations = addMissingAnnotationsFromEvents(annotations, events);
 		this.events = events;
@@ -80,7 +80,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return documents;
 	}
 
-	public List<IBioTMLAnnotation> getAnnotations(){
+	public List<IBioTMLEntity> getAnnotations(){
 		return annotations;
 	}
 
@@ -98,9 +98,9 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 			return subdocuments;
 		}
 		for(IBioTMLDocument doc : getDocuments()){
-			List<IBioTMLAnnotation> annots = getAllDocAnnotations(doc.getID());
+			List<IBioTMLEntity> annots = getAllDocAnnotations(doc.getID());
 			List<IBioTMLToken> tokens = new ArrayList<IBioTMLToken>();
-			for(IBioTMLAnnotation annot: annots){
+			for(IBioTMLEntity annot: annots){
 				tokens.addAll(doc.getTokens(annot.getStartOffset(), annot.getEndOffset()));
 			}
 			subdocuments.add(new BioTMLDocumentImpl(doc.getID(), doc.getTitle(), doc.getSentencesOfTokens(tokens)));
@@ -128,13 +128,13 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		throw new BioTMLException(0);
 	}
 	
-	public List<IBioTMLAnnotation> getDocAnnotations(long docID){
+	public List<IBioTMLEntity> getDocAnnotations(long docID){
 		return retrieveAnnotationsWithBestScore(docID);
 	}
 
-	public List<IBioTMLAnnotation> getAllDocAnnotations(long docID){
-		List<IBioTMLAnnotation> docAnnotations = new ArrayList<IBioTMLAnnotation>();
-		for( IBioTMLAnnotation annotation : getAnnotations()){
+	public List<IBioTMLEntity> getAllDocAnnotations(long docID){
+		List<IBioTMLEntity> docAnnotations = new ArrayList<IBioTMLEntity>();
+		for( IBioTMLEntity annotation : getAnnotations()){
 			if(annotation.getDocID() == docID){
 				docAnnotations.add(annotation);
 			}
@@ -152,22 +152,22 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return docAnnotationRelations;
 	}
 
-	private List<IBioTMLAnnotation> retrieveAnnotationsWithBestScore(long docID){
-		List<IBioTMLAnnotation> annotations = getAllDocAnnotations(docID);
-		List<IBioTMLAnnotation> finalAnnotations = new ArrayList<IBioTMLAnnotation>();
+	private List<IBioTMLEntity> retrieveAnnotationsWithBestScore(long docID){
+		List<IBioTMLEntity> annotations = getAllDocAnnotations(docID);
+		List<IBioTMLEntity> finalAnnotations = new ArrayList<IBioTMLEntity>();
 		if(!annotations.isEmpty()){
 			Collections.sort(annotations);
-			Iterator<IBioTMLAnnotation> itAnnot = annotations.iterator();
-			IBioTMLAnnotation prevAnnot = null;
+			Iterator<IBioTMLEntity> itAnnot = annotations.iterator();
+			IBioTMLEntity prevAnnot = null;
 			while(itAnnot.hasNext()){
 				if(prevAnnot == null){
 					prevAnnot = itAnnot.next();
 					finalAnnotations.add(prevAnnot);
 				}else{
-					IBioTMLAnnotation currentAnnot = itAnnot.next();
+					IBioTMLEntity currentAnnot = itAnnot.next();
 					if((prevAnnot.getStartOffset() == currentAnnot.getStartOffset()) 
 							&& (prevAnnot.getEndOffset()== currentAnnot.getEndOffset())){
-						if(!(prevAnnot.getScore()>=currentAnnot.getScore())){
+						if(!(prevAnnot.getAnnotationScore()>=currentAnnot.getAnnotationScore())){
 							finalAnnotations.set(finalAnnotations.size()-1, currentAnnot);
 						}
 					}
@@ -178,9 +178,9 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return finalAnnotations;
 	}
 
-	public List<IBioTMLAnnotation> getAnnotationsFromEvents(List<IBioTMLEvent> relations){
-		List<IBioTMLAnnotation> annotsres = new ArrayList<IBioTMLAnnotation>();
-		Set<IBioTMLAnnotation> annots = new HashSet<IBioTMLAnnotation>();
+	public List<IBioTMLEntity> getAnnotationsFromEvents(List<IBioTMLEvent> relations){
+		List<IBioTMLEntity> annotsres = new ArrayList<IBioTMLEntity>();
+		Set<IBioTMLEntity> annots = new HashSet<IBioTMLEntity>();
 		for(IBioTMLEvent relation: relations){
 			if(relation.getTrigger() != null)
 				annots.add(relation.getTrigger());
@@ -191,9 +191,9 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return annotsres;
 	}
 
-	public IBioTMLAnnotation getAnnotationFromDocAndOffsets(long docID, long startOffset, long endOffset) throws BioTMLException{
-		List<IBioTMLAnnotation> annots = getAllDocAnnotations(docID);
-		for(IBioTMLAnnotation annot : annots){
+	public IBioTMLEntity getAnnotationFromDocAndOffsets(long docID, long startOffset, long endOffset) throws BioTMLException{
+		List<IBioTMLEntity> annots = getAllDocAnnotations(docID);
+		for(IBioTMLEntity annot : annots){
 			if(annot.getAnnotationOffsets().offsetsOverlap(startOffset, endOffset)){
 				return annot;
 			}
@@ -202,10 +202,10 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	}
 	
 	@Override
-	public Set<IBioTMLAnnotation> getAnnotationsFromDocAndOffsets(long docID, long startOffset, long endOffset){
-		Set<IBioTMLAnnotation> resultAnnotations = new HashSet<>();
-		List<IBioTMLAnnotation> annots = getAllDocAnnotations(docID);
-		for(IBioTMLAnnotation annot : annots){
+	public Set<IBioTMLEntity> getAnnotationsFromDocAndOffsets(long docID, long startOffset, long endOffset){
+		Set<IBioTMLEntity> resultAnnotations = new HashSet<>();
+		List<IBioTMLEntity> annots = getAllDocAnnotations(docID);
+		for(IBioTMLEntity annot : annots){
 			if(annot.getAnnotationOffsets().offsetsOverlap(startOffset, endOffset)){
 				resultAnnotations.add(annot);
 			}
@@ -214,19 +214,19 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	}
 	
 	@Override
-	public Set<IBioTMLAnnotation> getAnnotationsFromSentenceInDocumentId(long docID, IBioTMLSentence sentence){
-		Set<IBioTMLAnnotation> annotations = new HashSet<>();
+	public Set<IBioTMLEntity> getAnnotationsFromSentenceInDocumentId(long docID, IBioTMLSentence sentence){
+		Set<IBioTMLEntity> annotations = new HashSet<>();
 		IBioTMLDocument document;
 		try {
 			document = getDocumentByID(docID);
 		} catch (BioTMLException e) {
 			return annotations;
 		}
-		List<IBioTMLAnnotation> documentAnnotations = getDocAnnotations(docID);
+		List<IBioTMLEntity> documentAnnotations = getDocAnnotations(docID);
 		if(!documentAnnotations.isEmpty() && document.getSentences().contains(sentence)){
-			Iterator<IBioTMLAnnotation> itAnnot = documentAnnotations.iterator();
+			Iterator<IBioTMLEntity> itAnnot = documentAnnotations.iterator();
 			while(itAnnot.hasNext()){
-				IBioTMLAnnotation annotation = itAnnot.next();
+				IBioTMLEntity annotation = itAnnot.next();
 				if(sentence.getSentenceOffsetsPair().containsInside(annotation.getAnnotationOffsets())){
 					annotations.add(annotation);
 				}
@@ -236,9 +236,9 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	}
 	
 	@Override
-	public Set<IBioTMLAnnotation> getAnnotationsFromSentenceInDocumentIdAndTokenIndex(long docId,
+	public Set<IBioTMLEntity> getAnnotationsFromSentenceInDocumentIdAndTokenIndex(long docId,
 			IBioTMLSentence sentence, int annotationTokenIndex) throws BioTMLException {
-		Set<IBioTMLAnnotation> sentenceAnnotations = getAnnotationsFromSentenceInDocumentId(docId, sentence);
+		Set<IBioTMLEntity> sentenceAnnotations = getAnnotationsFromSentenceInDocumentId(docId, sentence);
 		if(!sentenceAnnotations.isEmpty()){
 			int index = 0;
 			for(IBioTMLToken token :sentence.getTokens()){
@@ -254,8 +254,8 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	}
 	
 	@Override
-	public boolean isTokenInAnnotations(Set<IBioTMLAnnotation> annotations, IBioTMLToken token){
-		for(IBioTMLAnnotation annotation : annotations){
+	public boolean isTokenInAnnotations(Set<IBioTMLEntity> annotations, IBioTMLToken token){
+		for(IBioTMLEntity annotation : annotations){
 			if(annotation.getAnnotationOffsets().offsetsOverlap(token.getTokenOffsetsPair())){
 				return true;
 			}
@@ -278,17 +278,17 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 				map.put(event.getAssociation(), event);
 			}
 			IBioTMLEvent storedEvent = map.get(event.getAssociation());
-			if(event.getScore() > storedEvent.getScore())
+			if(event.getAnnotationScore() > storedEvent.getAnnotationScore())
 				map.put(event.getAssociation(), event);
 		}
 		result.addAll(map.values());
 		return result;
 	}
 	
-	private List<IBioTMLAnnotation> addMissingAnnotationsFromEvents(List<IBioTMLAnnotation> annotations, List<IBioTMLEvent> events){
+	private List<IBioTMLEntity> addMissingAnnotationsFromEvents(List<IBioTMLEntity> annotations, List<IBioTMLEvent> events){
 		for(IBioTMLEvent event : events){
-			Set<IBioTMLAnnotation> annotationsInEvent = event.getAllAnnotationsFromEvent();
-			for(IBioTMLAnnotation annotationInEvent : annotationsInEvent)
+			Set<IBioTMLEntity> annotationsInEvent = event.getAllAnnotationsFromEvent();
+			for(IBioTMLEntity annotationInEvent : annotationsInEvent)
 				if(!annotations.contains(annotationInEvent))
 					annotations.add(annotationInEvent);
 		}
@@ -296,11 +296,11 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	}
 
 	@Override
-	public List<IBioTMLAnnotation> getAnnotationsByAnnotationTypes(Set<String> annotationTypes) {
-		List<IBioTMLAnnotation> annotationsResult = new ArrayList<>();
+	public List<IBioTMLEntity> getAnnotationsByAnnotationTypes(Set<String> annotationTypes) {
+		List<IBioTMLEntity> annotationsResult = new ArrayList<>();
 		
-		for(IBioTMLAnnotation annotation : getAnnotations())
-			if(annotationTypes.contains(annotation.getAnnotType()))
+		for(IBioTMLEntity annotation : getAnnotations())
+			if(annotationTypes.contains(annotation.getAnnotationType()))
 				annotationsResult.add(annotation);
 
 		return annotationsResult;
@@ -311,7 +311,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		List<IBioTMLEvent> eventsResult = new ArrayList<>();
 		
 		for(IBioTMLEvent event : getEvents())
-			if(eventTypes.contains(event.getEventType()))
+			if(eventTypes.contains(event.getAnnotationType()))
 				eventsResult.add(event);
 		
 		return eventsResult;

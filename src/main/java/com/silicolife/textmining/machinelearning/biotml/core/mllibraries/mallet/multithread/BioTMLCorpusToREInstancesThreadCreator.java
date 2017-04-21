@@ -13,11 +13,11 @@ import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAssoc
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentIDs;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLObjectWithFeaturesAndLabels;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusToInstancesThreadCreator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
@@ -45,7 +45,7 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		return reMethodology;
 	}
 	
-	private String getEventType(){
+	private String getAnnotationType(){
 		return eventType;
 	}
 	
@@ -54,7 +54,7 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		for(IBioTMLDocument document : getCorpus().getDocuments()){
 			int sentID = 0;
 			for(IBioTMLSentence sentence : document.getSentences()){
-				Set<IBioTMLAnnotation> annotations = getCorpus().getAnnotationsFromSentenceInDocumentId(document.getID(), sentence);
+				Set<IBioTMLEntity> annotations = getCorpus().getAnnotationsFromSentenceInDocumentId(document.getID(), sentence);
 				if(getREMethodology().equals(BioTMLREModelTypes.alltokenscoocurrencewithtriggers.toString())
 						|| getREMethodology().equals(BioTMLREModelTypes.annotationtokenscoocurrencewithtriggers.toString())){
 					generateInstanceForREWithTriggers(executor, configuration, instances, document.getID(), sentID, sentence, annotations);
@@ -76,9 +76,9 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 	@SuppressWarnings("rawtypes")
 	private void generateInstanceForREEvents(ExecutorService executor,
 			IBioTMLFeatureGeneratorConfigurator configuration, InstanceListExtended instances, long docID, int sentID,
-			IBioTMLSentence sentence, Set<IBioTMLAnnotation> annotations) {
+			IBioTMLSentence sentence, Set<IBioTMLEntity> annotations) {
 		
-		Set<IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation>> associations = generatePossibleAssociationsInSentence(annotations);
+		Set<IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity>> associations = generatePossibleAssociationsInSentence(annotations);
 		
 		BioTMLObjectWithFeaturesAndLabels<IBioTMLAssociation> associationsWithLabels = fillAssociationsWithLabels(docID, sentence, associations);
 		
@@ -93,10 +93,10 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 
 	@SuppressWarnings("rawtypes")
 	private BioTMLObjectWithFeaturesAndLabels<IBioTMLAssociation> fillAssociationsWithLabels(long docID,
-			IBioTMLSentence sentence, Set<IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation>> associations) {
+			IBioTMLSentence sentence, Set<IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity>> associations) {
 		Set<IBioTMLEvent> events = getCorpus().getDocAnnotationEvents(docID);
 		BioTMLObjectWithFeaturesAndLabels<IBioTMLAssociation> associationsWithLabels = new BioTMLObjectWithFeaturesAndLabels<>(IBioTMLAssociation.class);
-		for(IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation> association : associations){
+		for(IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity> association : associations){
 			if(getCorpus().getEvents() != null){
 				if(!getCorpus().getEvents().isEmpty()){
 					BioTMLConstants label = getAssociationLabel(association, events);
@@ -115,21 +115,21 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		return associationsWithLabels;
 	}
 
-	private Set<IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation>> generatePossibleAssociationsInSentence(
-			Set<IBioTMLAnnotation> annotations) {
-		List<IBioTMLAnnotation> annotationsList = Arrays.asList(annotations.toArray(new IBioTMLAnnotation[0]));
+	private Set<IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity>> generatePossibleAssociationsInSentence(
+			Set<IBioTMLEntity> annotations) {
+		List<IBioTMLEntity> annotationsList = Arrays.asList(annotations.toArray(new IBioTMLEntity[0]));
 		Collections.sort(annotationsList);
-		Set<IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation>> associations = new LinkedHashSet<>();
+		Set<IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity>> associations = new LinkedHashSet<>();
 		for(int i=0; i<annotationsList.size(); i++)
 			for(int j=i+1; j<annotationsList.size(); j++)
-				associations.add(new BioTMLAssociationImpl<IBioTMLAnnotation, IBioTMLAnnotation>(annotationsList.get(i), annotationsList.get(j)));
+				associations.add(new BioTMLAssociationImpl<IBioTMLEntity, IBioTMLEntity>(annotationsList.get(i), annotationsList.get(j)));
 		
 		return associations;
 	}
 
 	private BioTMLConstants getAssociationLabel(IBioTMLAssociation<?,?> association, Set<IBioTMLEvent> events) {
 		for(IBioTMLEvent event : events){
-			if(event.getEventType().equals(getEventType()) && event.getAssociation().equals(association))
+			if(event.getAnnotationType().equals(getAnnotationType()) && event.getAssociation().equals(association))
 				return BioTMLConstants.b;
 		}
 		return BioTMLConstants.o;
@@ -137,8 +137,8 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 
 	private void generateInstanceForREWithEntityEntity(ExecutorService executor, IBioTMLFeatureGeneratorConfigurator configuration,
 			InstanceListExtended instances, long docID, int sentID, 
-			IBioTMLSentence sentence, Set<IBioTMLAnnotation> annotations) throws BioTMLException{
-		for(IBioTMLAnnotation annotation :annotations){
+			IBioTMLSentence sentence, Set<IBioTMLEntity> annotations) throws BioTMLException{
+		for(IBioTMLEntity annotation :annotations){
 			BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> sentenceText = null;
 			boolean onlyannotations = false;
 			if(getREMethodology().equals(BioTMLREModelTypes.annotationtokenscoocureencewithentities.toString())){
@@ -162,9 +162,9 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 	
 	private void generateInstanceForREWithTriggers(ExecutorService executor, IBioTMLFeatureGeneratorConfigurator configuration,
 			InstanceListExtended instances, long docID, int sentID, 
-			IBioTMLSentence sentence, Set<IBioTMLAnnotation> annotations) throws BioTMLException{
-		Set<IBioTMLAnnotation> triggers = getTriggerAnnotations(annotations);
-		for(IBioTMLAnnotation trigger : triggers){
+			IBioTMLSentence sentence, Set<IBioTMLEntity> annotations) throws BioTMLException{
+		Set<IBioTMLEntity> triggers = getTriggerAnnotations(annotations);
+		for(IBioTMLEntity trigger : triggers){
 			BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> sentenceText = null;
 			boolean onlyannotations = false;
 			if(getREMethodology().equals(BioTMLREModelTypes.annotationtokenscoocurrencewithtriggers.toString())){
@@ -192,10 +192,10 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		this.stop = true;
 	}
 	
-	private Set<IBioTMLAnnotation> getTriggerAnnotations(Set<IBioTMLAnnotation> annotations){
-		Set<IBioTMLAnnotation> triggers = new HashSet<>();
-		for(IBioTMLAnnotation annotation : annotations){
-			if(annotation.getAnnotType().equals(BioTMLConstants.trigger.toString())){
+	private Set<IBioTMLEntity> getTriggerAnnotations(Set<IBioTMLEntity> annotations){
+		Set<IBioTMLEntity> triggers = new HashSet<>();
+		for(IBioTMLEntity annotation : annotations){
+			if(annotation.getAnnotationType().equals(BioTMLConstants.trigger.toString())){
 				triggers.add(annotation);
 			}
 			if(stop)
@@ -204,7 +204,7 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		return triggers;
 	}
 	
-	private BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> sentenceToExportForRE(long docID, IBioTMLSentence sentence, IBioTMLAnnotation annotation) throws BioTMLException{
+	private BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> sentenceToExportForRE(long docID, IBioTMLSentence sentence, IBioTMLEntity annotation) throws BioTMLException{
 		BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> tokensWithLabels = new BioTMLObjectWithFeaturesAndLabels<>(IBioTMLToken.class);
 		for(IBioTMLToken token : sentence.getTokens()){
 			if(getCorpus().getEvents() != null){
@@ -227,7 +227,7 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		return tokensWithLabels;
 	}
 	
-	private BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> sentenceToExportForREOnlyAnnotations(long docID, IBioTMLSentence sentence, IBioTMLAnnotation annotation, Set<IBioTMLAnnotation> annotations) throws BioTMLException{
+	private BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> sentenceToExportForREOnlyAnnotations(long docID, IBioTMLSentence sentence, IBioTMLEntity annotation, Set<IBioTMLEntity> annotations) throws BioTMLException{
 		BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> tokensWithLabels = new BioTMLObjectWithFeaturesAndLabels<>(IBioTMLToken.class);
 		for(IBioTMLToken token : sentence.getTokens()){
 			BioTMLConstants isTokeninAnnots = null;
@@ -255,14 +255,14 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		return tokensWithLabels;
 	}
 
-	private BioTMLConstants getTokenLabelEvent(long docID, IBioTMLToken token, IBioTMLAnnotation annotation){
+	private BioTMLConstants getTokenLabelEvent(long docID, IBioTMLToken token, IBioTMLEntity annotation){
 		Set<IBioTMLEvent> docEvents = getCorpus().getDocAnnotationEvents(docID);
 		if( !docEvents.isEmpty()){
 			for(IBioTMLEvent event : docEvents){
-				if(event.getEventType().equals(getEventType()) && event.findAnnotationInEvent(annotation)){
+				if(event.getAnnotationType().equals(getAnnotationType()) && event.findAnnotationInEvent(annotation)){
 					try {
-						IBioTMLAnnotation tokenBelongsToAnAnnotation = event.getAnnotationInEventByOffsets(token.getStartOffset(), token.getEndOffset());
-						if(!tokenBelongsToAnAnnotation.getAnnotType().equals(BioTMLConstants.trigger.toString())
+						IBioTMLEntity tokenBelongsToAnAnnotation = event.getAnnotationInEventByOffsets(token.getStartOffset(), token.getEndOffset());
+						if(!tokenBelongsToAnAnnotation.getAnnotationType().equals(BioTMLConstants.trigger.toString())
 								&& !tokenBelongsToAnAnnotation.equals(annotation)){
 							if(tokenBelongsToAnAnnotation.getStartOffset()==token.getStartOffset()){
 								return BioTMLConstants.b;

@@ -31,7 +31,7 @@ import com.silicolife.textmining.ie.utils.BioTMLConversionUtils;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
@@ -81,7 +81,7 @@ public class BioTMLConverter {
 	private IBioTMLCorpus convertAnoteCorpusWithProcess(IIEProcess baseProcess, String nlpSystem) throws ANoteException, BioTMLException {
 		
 		List<IBioTMLDocument> listDocuments = new ArrayList<IBioTMLDocument>();
-		List<IBioTMLAnnotation> listAnnotations = new ArrayList<IBioTMLAnnotation>();
+		List<IBioTMLEntity> listAnnotations = new ArrayList<IBioTMLEntity>();
 		List<IBioTMLEvent> listEvents = new ArrayList<IBioTMLEvent>();
 		
 		IDocumentSet docs = baseProcess.getCorpus().getArticlesCorpus();
@@ -93,7 +93,7 @@ public class BioTMLConverter {
 			IBioTMLDocument biotlmDoc = BioTMLConversionUtils.convertPublication(annotDoc, nlpSystem);
 			listDocuments.add(biotlmDoc);
 			
-			List<IBioTMLAnnotation> bioTMLAnnotations = BioTMLConversionUtils.convertEntityAnnotations(annotDoc.getEntitiesAnnotations(), doc.getId());
+			List<IBioTMLEntity> bioTMLAnnotations = BioTMLConversionUtils.convertEntityAnnotations(annotDoc.getEntitiesAnnotations(), doc.getId());
 			validateAnnotations(biotlmDoc, bioTMLAnnotations);
 			listAnnotations.addAll(bioTMLAnnotations);
 
@@ -104,10 +104,10 @@ public class BioTMLConverter {
 		return new BioTMLCorpusImpl(listDocuments, listAnnotations, listEvents, baseProcess.getCorpus().toString());
 	}
 
-	private void validateAnnotations(IBioTMLDocument biotlmDoc, List<IBioTMLAnnotation> bioTMLAnnotations)
+	private void validateAnnotations(IBioTMLDocument biotlmDoc, List<IBioTMLEntity> bioTMLAnnotations)
 			throws BioTMLException {
 		long lastIndex = biotlmDoc.getSentences().get(biotlmDoc.getSentences().size()-1).getEndSentenceOffset();
-		for(IBioTMLAnnotation biotmlAnnotation : bioTMLAnnotations){
+		for(IBioTMLEntity biotmlAnnotation : bioTMLAnnotations){
 			if(biotmlAnnotation.getStartOffset()>lastIndex|| biotmlAnnotation.getEndOffset()>lastIndex){
 				throw new BioTMLException("The annotation offsets are bigger than the document size!");
 			}
@@ -157,7 +157,7 @@ public class BioTMLConverter {
 	private List<IEntityAnnotation> loadAllDocEntities(IBioTMLCorpus annotatedCorpus, IBioTMLDocument doc, boolean loadTriggersAsEntities) throws BioTMLException {
 		AnnotationPositions positions = new AnnotationPositions();
 		
-		List<IBioTMLAnnotation> biotmlannotations = annotatedCorpus.getDocAnnotations(doc.getID());
+		List<IBioTMLEntity> biotmlannotations = annotatedCorpus.getDocAnnotations(doc.getID());
 		List<IEntityAnnotation> annotations = BioTMLConversionUtils.convertBioTMLAnnotations(biotmlannotations, doc);
 		
 		for(IEntityAnnotation annotation : annotations){

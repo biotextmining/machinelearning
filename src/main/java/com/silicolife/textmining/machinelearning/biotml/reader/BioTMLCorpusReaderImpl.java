@@ -15,11 +15,11 @@ import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.FilenameUtils;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLEntityImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusReader;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
@@ -117,7 +117,7 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 	
 	private IBioTMLCorpus readAnnotationsFromBioCFile(IBioTMLCorpus documentCorpus, File corpusAnnotationsFile) throws BioTMLException{
 		try {
-		List<IBioTMLAnnotation> annotations = new ArrayList<IBioTMLAnnotation>();
+		List<IBioTMLEntity> annotations = new ArrayList<IBioTMLEntity>();
 		BufferedReader reader = new BufferedReader(new FileReader(corpusAnnotationsFile));
 		String line;
 		while((line = reader.readLine())!=null){
@@ -140,7 +140,7 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 					startOffset = startOffset + textSize;
 					endOffset = endOffset + textSize;
 				}
-				annotations.add(new BioTMLAnnotationImpl(document.getID(), annoation[5], startOffset, endOffset));
+				annotations.add(new BioTMLEntityImpl(document.getID(), annoation[5], startOffset, endOffset));
 			}
 		}
 		reader.close();
@@ -187,7 +187,7 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 	private IBioTMLCorpus readCorpusFolderWithNLPSystem(File corpusFolder, String nlpSystem) throws BioTMLException{
 		try {
 			List<IBioTMLDocument> documents = new ArrayList<IBioTMLDocument>();
-			List<IBioTMLAnnotation> annotations = new ArrayList<IBioTMLAnnotation>();
+			List<IBioTMLEntity> annotations = new ArrayList<IBioTMLEntity>();
 			for(File docFile : corpusFolder.listFiles()){
 				if(FilenameUtils.getBaseName(docFile.getName()).startsWith("annotations")){
 					annotations = readAnnotations(docFile);
@@ -228,9 +228,9 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 		}
 	}
 	
-	private List<IBioTMLAnnotation> readAnnotations(File annotationFile) throws BioTMLException{
+	private List<IBioTMLEntity> readAnnotations(File annotationFile) throws BioTMLException{
 		try {
-			List<IBioTMLAnnotation> annotations = new ArrayList<IBioTMLAnnotation>();
+			List<IBioTMLEntity> annotations = new ArrayList<IBioTMLEntity>();
 			BufferedReader reader = new BufferedReader(new FileReader(annotationFile));
 			String line;
 			while((line = reader.readLine())!=null){
@@ -238,7 +238,7 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 				if(!getMapDocNameToDocID().containsKey(annotationLine[0])){
 					getMapDocNameToDocID().put(annotationLine[0], getLastDocID()+1);
 				}
-				annotations.add(new BioTMLAnnotationImpl(getMapDocNameToDocID().get(annotationLine[0]), annotationLine[1], Long.valueOf(annotationLine[2]), Long.valueOf(annotationLine[3])));
+				annotations.add(new BioTMLEntityImpl(getMapDocNameToDocID().get(annotationLine[0]), annotationLine[1], Long.valueOf(annotationLine[2]), Long.valueOf(annotationLine[3])));
 			}
 			reader.close();
 			return annotations;

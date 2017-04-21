@@ -1,33 +1,25 @@
 package com.silicolife.textmining.machinelearning.biotml.core.interfaces;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLConfusionMatrixIndex;
 
 public interface IBioTMLConfusionMatrix<O> extends Serializable{
 
-	public List<O> getTruePositives();
+	public List<String> getLabels();
 	
-	public List<O> getTrueNegatives();
+	public Map<BioTMLConfusionMatrixIndex, List<O>> getConfusionMatrixIndexesToPredictedObjects();
 	
-	public List<O> getFalsePositives();
-	
-	public List<O> getFalseNegatives();
-	
-	public void addTruePositive(O truePositive);
-	
-	public void addAllTruePositives(Collection<O> truePositives);
-	
-	public void addTrueNegative(O trueNegative);
-	
-	public void addAllTrueNegatives(Collection<O> truePositives);
-	
-	public void addFalsePositive(O falsePositive);
-	
-	public void addAllFalsePositives(Collection<O> falsePositives);
-	
-	public void addFalseNegative(O falseNegative);
-	
-	public void addAllFalseNegatives(Collection<O> falseNegatives);
-	
+	public void addPrediction(O predictionObject, String predictionLabel, String correctLabel);
+
+	public List<O> getTruePositivesOfLabel(String label);
+
+	public List<O> getTrueNegativesOfLabel(String label);
+
+	public List<O> getFalsePositivesOfLabel(String label);
+
+	public List<O> getFalseNegativesOfLabel(String label);
+
 }

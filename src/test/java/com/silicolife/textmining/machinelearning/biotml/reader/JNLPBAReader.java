@@ -9,13 +9,13 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLEntityImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLSentenceImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLTokenImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusWriter;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
@@ -40,7 +40,7 @@ public class JNLPBAReader {
 		List<IBioTMLDocument> documents = new ArrayList<IBioTMLDocument>();
 		List<IBioTMLSentence> documentSentences = new ArrayList<IBioTMLSentence>();
 		List<IBioTMLToken> sentenceTokens = new ArrayList<IBioTMLToken>();
-		List<IBioTMLAnnotation> annotations = new ArrayList<IBioTMLAnnotation>();
+		List<IBioTMLEntity> annotations = new ArrayList<IBioTMLEntity>();
 		while((line = reader.readLine())!= null)
 		{
 			if(line.startsWith("###MEDLINE")){
@@ -58,11 +58,11 @@ public class JNLPBAReader {
 					sentenceTokens.add(new BioTMLTokenImpl(tokenAndTag[0], startOffset, endOffset));
 					if(tokenAndTag.length>1){
 						if(tokenAndTag[tokenAndTag.length-1].startsWith("B-") ){
-							annotations.add(new BioTMLAnnotationImpl(documentID, tokenAndTag[tokenAndTag.length-1].substring(2), startOffset, endOffset));
+							annotations.add(new BioTMLEntityImpl(documentID, tokenAndTag[tokenAndTag.length-1].substring(2), startOffset, endOffset));
 						}else if(tokenAndTag[tokenAndTag.length-1].startsWith("I-")){
 							int prevAnnotID= annotations.size()-1;
-							IBioTMLAnnotation previousAnnotation = annotations.get(prevAnnotID);
-							annotations.set(prevAnnotID, new BioTMLAnnotationImpl(documentID, tokenAndTag[tokenAndTag.length-1].substring(2), previousAnnotation.getStartOffset(), endOffset));
+							IBioTMLEntity previousAnnotation = annotations.get(prevAnnotID);
+							annotations.set(prevAnnotID, new BioTMLEntityImpl(documentID, tokenAndTag[tokenAndTag.length-1].substring(2), previousAnnotation.getStartOffset(), endOffset));
 						}
 					}
 					startOffset = endOffset + 1;
