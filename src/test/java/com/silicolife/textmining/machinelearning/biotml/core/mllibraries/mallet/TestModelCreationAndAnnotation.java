@@ -9,16 +9,16 @@ import java.util.TreeSet;
 import org.junit.Test;
 
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMalletAnnotatorImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLEntityImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLEntityImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLModelEvaluationConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeatureGeneratorConfiguratorImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationConfigurator;
@@ -182,7 +182,7 @@ public class TestModelCreationAndAnnotation {
 		String matrixFilename = "C:/Users/RRodrigues/Desktop/corpora/model_CRF_test.txt";
 		String modelClassType = "protein";
 		String modelIEType = "NER";
-		String modelDir = "C:\\Users\\RRodrigues\\Desktop\\corpora\\test.gz";
+		String modelDir = "C:\\Users\\RRodrigues\\Desktop\\test.gz";
 		IBioTMLCorpus corpus = new BioTMLCorpusImpl(loadDocumentsInJava(), loadAnnotationsInJava(),"");
 		IBioTMLModel model = new MalletTransducerModel(loadFeatures(),defaultConfiguration(modelClassType, modelIEType));
 //		IBioTMLModelEvaluationResults res = model.evaluate(corpus, defaultEvaluationConfiguration());
@@ -194,13 +194,13 @@ public class TestModelCreationAndAnnotation {
 	
 //	@Test
 	public void testLoadAndAnnotateWithModel() throws BioTMLException, IOException{
-		String modelDir = "C:\\Users\\RRodrigues\\Desktop\\corpora\\test.gz";
+		String modelDir = "C:\\Users\\RRodrigues\\Desktop\\test.gz";
 		IBioTMLCorpus corpus = new BioTMLCorpusImpl(loadDocumentsInJava(),"");
 		IBioTMLModelReader modelreader = new BioTMLModelReaderImpl();
 		IBioTMLModel model = modelreader.loadModelFromGZFile(modelDir);
 		IBioTMLAnnotator annotator = new BioTMLMalletAnnotatorImpl(corpus);
 		IBioTMLCorpus annotatedCorpus = annotator.generateAnnotatedBioTMCorpus(model, model.getModelConfiguration().getNumThreads());
-		List<IBioTMLEntity> annotationsTest = annotatedCorpus.getAnnotations();
+		List<IBioTMLEntity> annotationsTest = annotatedCorpus.getEntities();
 		System.out.println(annotationsTest.size());
 		System.out.println(annotationsTest.get(0).toString());
 	}

@@ -8,8 +8,8 @@ import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMal
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMalletREAnnotator;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
@@ -26,6 +26,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 
 public abstract class BioTMLModel implements IBioTMLModel{
 
+	private static final long serialVersionUID = 1L;
 	protected IBioTMLFeatureGeneratorConfigurator featureConfiguration;
 	protected IBioTMLModelConfigurator modelConfiguration;
 
@@ -63,12 +64,12 @@ public abstract class BioTMLModel implements IBioTMLModel{
 			throw new BioTMLException("The model is not trained!");
 		if(getModelConfiguration().getIEType().equals(BioTMLConstants.ner.toString())){
 			BioTMLMalletNERAnnotator annotator = new BioTMLMalletNERAnnotator();
-			Set<IBioTMLEntity> annotations = annotator.generateAnnotations(corpus, this, getModelConfiguration().getNumThreads());
+			Set<IBioTMLEntity> annotations = annotator.generateEntities(corpus, this, getModelConfiguration().getNumThreads());
 			return new BioTMLCorpusImpl(corpus.getDocuments(), new ArrayList<>(annotations), "Corpus with predicted annotations");
 		}else if(getModelConfiguration().getIEType().equals(BioTMLConstants.re.toString())){
 			BioTMLMalletREAnnotator annotator = new BioTMLMalletREAnnotator();
 			Set<IBioTMLEvent> events = annotator.generateEvents(corpus, this, getModelConfiguration().getNumThreads());
-			return new BioTMLCorpusImpl(corpus.getDocuments(), corpus.getAnnotations(), new ArrayList<>(events), "Corpus with predicted events");
+			return new BioTMLCorpusImpl(corpus.getDocuments(), corpus.getEntities(), new ArrayList<>(events), "Corpus with predicted events");
 		}
 		return null;
 	}

@@ -1,11 +1,7 @@
 package com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.multithread;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.evaluation.datastrucures.BioTMLEvaluationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLConfusionMatrix;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvaluation;
@@ -36,7 +32,7 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 	private InstanceList trainingData;
 	private InstanceList testingData;
 	private Pipe pipe;
-	private Map<String, List<IBioTMLEvaluation>> multiEvaluations;
+	private List<IBioTMLEvaluation> multiEvaluations;
 	private IBioTMLModelConfigurator modelConfiguration;
 	private String foldDescription;
 
@@ -46,11 +42,11 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 	 * 
 	 * @param trainingData - Mallet instance list of training data.
 	 * @param testingData - Mallet instance list of testing data.
-	 * @param multiEvaluations - Set of fold evaluations to be populated in multi-threading process.
+	 * @param multiEvaluations - List of fold evaluations to be populated in multi-threading process.
 	 * @param iBioTMLModelConfigurator - Mallet algorithm type.
 	 */
 	public MalletClassifierFoldProcessedInThread(InstanceList trainingData, InstanceList testingData, Pipe pipe,
-			Map<String, List<IBioTMLEvaluation>> multiEvaluations, IBioTMLModelConfigurator iBioTMLModelConfigurator, String foldDescription){
+			List<IBioTMLEvaluation> multiEvaluations, IBioTMLModelConfigurator iBioTMLModelConfigurator, String foldDescription){
 		this.trainingData = trainingData;
 		this.testingData = testingData;
 		this.pipe = pipe;
@@ -87,9 +83,9 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 	 * 
 	 * Method to get the set of cross-validation evaluations.
 	 * 
-	 * @return Set of evaluations ({@link IBioTMLEvaluation}).
+	 * @return List of evaluations ({@link IBioTMLEvaluation}).
 	 */
-	public Map<String, List<IBioTMLEvaluation>> getMultiEvaluations() {
+	public List<IBioTMLEvaluation> getMultiEvaluations() {
 		return multiEvaluations;
 	}
 	
@@ -134,11 +130,8 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 		return modelTraining;
 	}
 	
-	private synchronized void addToMultiEvaluations(String classificationLabel, IBioTMLEvaluation evaluation){
-		if(!getMultiEvaluations().containsKey(classificationLabel))
-			getMultiEvaluations().put(classificationLabel, new ArrayList<IBioTMLEvaluation>());
-		List<IBioTMLEvaluation> evaluations = getMultiEvaluations().get(classificationLabel);
-		evaluations.add(evaluation);
+	private synchronized void addToMultiEvaluations(IBioTMLEvaluation evaluation){
+		getMultiEvaluations().add(evaluation);
 	}
 	
 	/**
@@ -151,13 +144,8 @@ public class MalletClassifierFoldProcessedInThread implements Runnable{
 		ClassifierTrainer evaluationModelTraining = train(getTrainingData());
 		if(evaluationModelTraining !=null){
 			TrialBioTMLExtended trial = new TrialBioTMLExtended(evaluationModelTraining.getClassifier(), getTestingData());
-			int size = getTestingData().getTargetAlphabet().size();
-
-			for(int i=0; i<size; i++){
-				Object label = getTestingData().getTargetAlphabet().lookupObject(i);
-				IBioTMLConfusionMatrix<Instance> confusionMatrix = trial.getConfusionMatrix(i);
-				addToMultiEvaluations(label.toString(), new BioTMLEvaluationImpl(confusionMatrix, getFoldDescription()));
-			}
+			IBioTMLConfusionMatrix<Instance> confusionMatrix = trial.getConfusionMatrix();
+			addToMultiEvaluations(new BioTMLEvaluationImpl(confusionMatrix, getFoldDescription()));
 		}
 	}
 

@@ -140,7 +140,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
     public String toString(){
     	StringBuilder sb = new StringBuilder();
     	sb.append("ML Algorithm: " + getAlgorithmType( )+ System.lineSeparator());
-    	if(!getAlgorithmType().equals(BioTMLAlgorithm.malletsvm.toString())){
+    	if(getAlgorithmType().equals(BioTMLAlgorithm.malletcrf) || getAlgorithmType().equals(BioTMLAlgorithm.mallethmm)){
     		sb.append("Model Order: " + String.valueOf(getModelOrder())+System.lineSeparator());
     		return sb.toString();
     	}else{

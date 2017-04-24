@@ -76,6 +76,7 @@ public interface IBioTMLFeatureGenerator {
 	public IBioTMLFeatureColumns<IBioTMLToken> getFeatureColumns(List<IBioTMLToken> tokens, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException;
 	
 	
+	@SuppressWarnings("rawtypes")
 	public IBioTMLFeatureColumns<IBioTMLAssociation> getEventFeatureColumns(List<IBioTMLToken> tokens, List<IBioTMLAssociation> associations, IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException;
 	/**
 	 * 

@@ -10,10 +10,10 @@ import java.util.List;
 import org.junit.Test;
 
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusReader;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReaderImpl;
@@ -34,7 +34,7 @@ public class JNLPBAWriter {
 		} catch (BioTMLException e) {
 			e.printStackTrace();
 		}
-		System.out.println(corpus.getAnnotations());
+		System.out.println(corpus.getEntities());
 		List<IBioTMLDocument> docs = corpus.getDocuments();
 		Iterator<IBioTMLDocument> itDocs = docs.iterator();
 		String toWrite = new String();
@@ -48,11 +48,11 @@ public class JNLPBAWriter {
 				for(IBioTMLToken token : sentence.getTokens()){
 					toWrite = token.getToken();
 					try {
-						IBioTMLEntity annotation = corpus.getAnnotationFromDocAndOffsets(document.getID(), token.getStartOffset(), token.getEndOffset());
-						if(annotation.getStartOffset() == token.getStartOffset()){
-							toWrite = toWrite + "\tB-"+annotation.getAnnotationType();
+						IBioTMLEntity entity = corpus.getEntityFromDocAndOffsets(document.getID(), token.getStartOffset(), token.getEndOffset());
+						if(entity.getStartOffset() == token.getStartOffset()){
+							toWrite = toWrite + "\tB-"+entity.getAnnotationType();
 						}else{
-							toWrite = toWrite + "\tI-"+annotation.getAnnotationType();
+							toWrite = toWrite + "\tI-"+entity.getAnnotationType();
 						}
 					} catch (BioTMLException e) {
 						toWrite = toWrite + "\tO";

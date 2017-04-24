@@ -31,9 +31,9 @@ import com.silicolife.textmining.ie.utils.BioTMLConversionUtils;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 
 public class BioTMLConverter {
@@ -157,10 +157,10 @@ public class BioTMLConverter {
 	private List<IEntityAnnotation> loadAllDocEntities(IBioTMLCorpus annotatedCorpus, IBioTMLDocument doc, boolean loadTriggersAsEntities) throws BioTMLException {
 		AnnotationPositions positions = new AnnotationPositions();
 		
-		List<IBioTMLEntity> biotmlannotations = annotatedCorpus.getDocAnnotations(doc.getID());
-		List<IEntityAnnotation> annotations = BioTMLConversionUtils.convertBioTMLAnnotations(biotmlannotations, doc);
+		List<IBioTMLEntity> biotmlentities = annotatedCorpus.getDocEntities(doc.getID());
+		List<IEntityAnnotation> entities = BioTMLConversionUtils.convertBioTMLEntities(biotmlentities, doc);
 		
-		for(IEntityAnnotation annotation : annotations){
+		for(IEntityAnnotation annotation : entities){
 			if(!annotation.getAnnotationType().equals(BioTMLConstants.trigger.toString()))
 				positions.addAnnotationWhitConflitsAndReplaceIfRangeIsMore(new AnnotationPosition((int)annotation.getStartOffset(), (int)annotation.getEndOffset()), annotation);
 			else if(loadTriggersAsEntities && annotation.getAnnotationType().equals(BioTMLConstants.trigger.toString()))

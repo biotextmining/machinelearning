@@ -128,12 +128,12 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 * @param annotationIndex - Pair of integers that indicates the index of the first and last token offsets.
 	 * @return Annotation {@link IBioTMLEntity}.
 	 */
-	public IBioTMLEntity getAnnotation(IBioTMLCorpus corpus, IBioTMLDocument doc, int sentIndex, int startTokenIndex, int endTokenIndex){
+	public IBioTMLEntity getEntity(IBioTMLCorpus corpus, IBioTMLDocument doc, int sentIndex, int startTokenIndex, int endTokenIndex){
 		IBioTMLToken firstTokenAnnotation = doc.getSentence(sentIndex).getToken(startTokenIndex);
 		IBioTMLToken lastTokenAnnotation = doc.getSentence(sentIndex).getToken(endTokenIndex);
 		IBioTMLEntity annotation = null;
 		try {
-			annotation = corpus.getAnnotationFromDocAndOffsets(doc.getID(),firstTokenAnnotation.getStartOffset(), lastTokenAnnotation.getEndOffset());
+			annotation = corpus.getEntityFromDocAndOffsets(doc.getID(),firstTokenAnnotation.getStartOffset(), lastTokenAnnotation.getEndOffset());
 		} catch (BioTMLException e) {}
 		return annotation;
 	}
@@ -171,7 +171,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 			IBioTMLToken token = sentence.getToken(tokenOrAnnotationIndex);
 			IBioTMLEntity annotationToAssociate = null;
 			try {
-				annotationToAssociate = corpus.getAnnotationFromDocAndOffsets(doc.getID(), token.getStartOffset(), token.getEndOffset());
+				annotationToAssociate = corpus.getEntityFromDocAndOffsets(doc.getID(), token.getStartOffset(), token.getEndOffset());
 			} catch (BioTMLException e) {
 				return events;
 //				if(!reMethodology.equals(BioTMLREModelTypes.entitycluegenerateentity.toString())
@@ -190,7 +190,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 				events = addEvent(events, annotationToAssociate, trigger, tokenClass, predictionScore);
 			}
 		}else{
-			Set<IBioTMLEntity> annotationsToAssociate = corpus.getAnnotationsFromSentenceInDocumentIdAndTokenIndex(doc.getID(), sentence, tokenOrAnnotationIndex);
+			Set<IBioTMLEntity> annotationsToAssociate = corpus.getEntitiesFromSentenceInDocumentIdAndTokenIndex(doc.getID(), sentence, tokenOrAnnotationIndex);
 			if(prediction.equals(BioTMLConstants.b.toString())){
 				for(IBioTMLEntity annotationToAssociate : annotationsToAssociate){
 					events = addEvent(events, annotationToAssociate, trigger, tokenClass, predictionScore);

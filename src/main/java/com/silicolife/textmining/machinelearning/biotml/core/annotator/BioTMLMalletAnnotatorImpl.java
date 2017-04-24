@@ -7,15 +7,11 @@ import java.util.Set;
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
-import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
-
-import cc.mallet.classify.Classifier;
-import cc.mallet.fst.Transducer;
 
 /**
  * 
@@ -54,7 +50,7 @@ public class BioTMLMalletAnnotatorImpl implements IBioTMLAnnotator{
 			throw new BioTMLException(5);
 		}
 
-		List<IBioTMLEntity> annotations = getBasedBioTMCorpus().getAnnotations();
+		List<IBioTMLEntity> annotations = getBasedBioTMCorpus().getEntities();
 		List<IBioTMLEvent> events = getBasedBioTMCorpus().getEvents();
 
 		generateNewAnnotationsOrEvents(model, threads, annotations, events);
@@ -89,7 +85,7 @@ public class BioTMLMalletAnnotatorImpl implements IBioTMLAnnotator{
 			throw new BioTMLException(5);
 		}
 
-		List<IBioTMLEntity> annotations = getBasedBioTMCorpus().getAnnotations();
+		List<IBioTMLEntity> annotations = getBasedBioTMCorpus().getEntities();
 		List<IBioTMLEvent> relations = getBasedBioTMCorpus().getEvents();
 		Iterator<IBioTMLModel> itModels = models.iterator();
 		while(itModels.hasNext() && !stop){
@@ -111,7 +107,7 @@ public class BioTMLMalletAnnotatorImpl implements IBioTMLAnnotator{
 
 	private Set<IBioTMLEntity> executeNERAnnotation(IBioTMLModel model, int threads) throws BioTMLException {
 		nerAnnotator = new BioTMLMalletNERAnnotator();
-		return nerAnnotator.generateAnnotations(getBasedBioTMCorpus(), model, threads);
+		return nerAnnotator.generateEntities(getBasedBioTMCorpus(), model, threads);
 	}
 
 

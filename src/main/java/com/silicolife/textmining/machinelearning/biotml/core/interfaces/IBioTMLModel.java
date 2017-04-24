@@ -1,5 +1,7 @@
 package com.silicolife.textmining.machinelearning.biotml.core.interfaces;
 
+import java.io.Serializable;
+
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 
 /**
@@ -10,7 +12,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLExc
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public interface IBioTMLModel {
+public interface IBioTMLModel extends Serializable{
 	
 	/**
 	 * 

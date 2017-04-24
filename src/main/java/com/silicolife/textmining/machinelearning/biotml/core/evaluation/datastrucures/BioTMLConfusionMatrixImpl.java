@@ -125,7 +125,7 @@ public class BioTMLConfusionMatrixImpl<O> implements IBioTMLConfusionMatrix<O>{
 		int[][] matrixCounting = getConfusionMatrixCounting();
 		
 		StringBuilder sb = new StringBuilder();
-		sb.append("Columns are predictions! Rows are correct labels!\n\t\t");
+		sb.append("Columns are predictions! Rows are correct labels!\n \t");
 		for(String label : getLabels())
 			sb.append( label+"\t");
 		sb.append("\n");

@@ -31,7 +31,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 
 	private static final long serialVersionUID = 1L;
 	private List<IBioTMLDocument> documents;
-	private List<IBioTMLEntity> annotations;
+	private List<IBioTMLEntity> entities;
 	private List<IBioTMLEvent> events;
 	private String name;
 
@@ -52,12 +52,12 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	 * Initializes a corpus with annotations
 	 * 
 	 * @param documents - List of {@link IBioTMLDocument} tokenized.
-	 * @param annotations - List of {@link IBioTMLEntity} with offsets and class types.
+	 * @param entities - List of {@link IBioTMLEntity} with offsets and class types.
 	 * @param name - Corpus name.
 	 */
 
-	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, List<IBioTMLEntity> annotations, String name){
-		this(documents, annotations, new ArrayList<>(), name);
+	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, List<IBioTMLEntity> entities, String name){
+		this(documents, entities, new ArrayList<>(), name);
 	}
 
 	/**
@@ -65,40 +65,45 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	 * Initializes a corpus with annotations and annotations relation
 	 * 
 	 * @param documents - List of {@link IBioTMLDocument} tokenized.
-	 * @param annotations - List of {@link IBioTMLEntity} with offsets and class types.
+	 * @param entities - List of {@link IBioTMLEntity} with offsets and class types.
 	 * @param name - Corpus name.
 	 */
 
-	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, List<IBioTMLEntity> annotations, List<IBioTMLEvent> events, String name){
+	public BioTMLCorpusImpl(List<IBioTMLDocument> documents, List<IBioTMLEntity> entities, List<IBioTMLEvent> events, String name){
 		this.documents = documents;
-		this.annotations = addMissingAnnotationsFromEvents(annotations, events);
+		this.entities = addMissingEntitiesFromEvents(entities, events);
 		this.events = events;
 		this.name = name;
 	}
 
+	@Override
 	public List<IBioTMLDocument> getDocuments() {
 		return documents;
 	}
 
-	public List<IBioTMLEntity> getAnnotations(){
-		return annotations;
+	@Override
+	public List<IBioTMLEntity> getEntities(){
+		return entities;
 	}
 
+	@Override
 	public List<IBioTMLEvent> getEvents(){
 		return events;
 	}
 
+	@Override
 	public IBioTMLDocument getDocument(int index){
 		return getDocuments().get(index);
 	}
 
-	public List<IBioTMLDocument> getSubDocumentsWithAnnotations() throws BioTMLException{
+	@Override
+	public List<IBioTMLDocument> getSubDocumentsWithEntities() throws BioTMLException{
 		List<IBioTMLDocument> subdocuments = new ArrayList<IBioTMLDocument>();
-		if(getAnnotations().isEmpty()){
+		if(getEntities().isEmpty())
 			return subdocuments;
-		}
+		
 		for(IBioTMLDocument doc : getDocuments()){
-			List<IBioTMLEntity> annots = getAllDocAnnotations(doc.getID());
+			List<IBioTMLEntity> annots = getAllDocEntities(doc.getID());
 			List<IBioTMLToken> tokens = new ArrayList<IBioTMLToken>();
 			for(IBioTMLEntity annot: annots){
 				tokens.addAll(doc.getTokens(annot.getStartOffset(), annot.getEndOffset()));
@@ -108,6 +113,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return subdocuments;
 	}
 
+	@Override
 	public IBioTMLDocument getDocumentByID(long docID) throws BioTMLException{
 		Iterator<IBioTMLDocument> intDoc = getDocuments().iterator();
 		while(intDoc.hasNext()){
@@ -119,6 +125,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		throw new BioTMLException(0);
 	}
 	
+	@Override
 	public IBioTMLDocument getDocumentByExternalID(String externalID) throws BioTMLException{
 		for(IBioTMLDocument document : getDocuments()){
 			if(document.getExternalID().equals(externalID)){
@@ -128,21 +135,22 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		throw new BioTMLException(0);
 	}
 	
-	public List<IBioTMLEntity> getDocAnnotations(long docID){
-		return retrieveAnnotationsWithBestScore(docID);
+	@Override
+	public List<IBioTMLEntity> getDocEntities(long docID){
+		return retrieveEntitiesWithBestScore(docID);
 	}
 
-	public List<IBioTMLEntity> getAllDocAnnotations(long docID){
+	public List<IBioTMLEntity> getAllDocEntities(long docID){
 		List<IBioTMLEntity> docAnnotations = new ArrayList<IBioTMLEntity>();
-		for( IBioTMLEntity annotation : getAnnotations()){
-			if(annotation.getDocID() == docID){
-				docAnnotations.add(annotation);
-			}
+		for( IBioTMLEntity entities : getEntities()){
+			if(entities.getDocID() == docID)
+				docAnnotations.add(entities);
 		}
 		return docAnnotations;
 	}
 
-	public Set<IBioTMLEvent> getDocAnnotationEvents(long docID){
+	@Override
+	public Set<IBioTMLEvent> getDocEvents(long docID){
 		Set<IBioTMLEvent> docAnnotationRelations = new HashSet<IBioTMLEvent>();
 		for( IBioTMLEvent relation : getEvents()){
 			if(relation.getDocID() == docID){
@@ -152,8 +160,8 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return docAnnotationRelations;
 	}
 
-	private List<IBioTMLEntity> retrieveAnnotationsWithBestScore(long docID){
-		List<IBioTMLEntity> annotations = getAllDocAnnotations(docID);
+	private List<IBioTMLEntity> retrieveEntitiesWithBestScore(long docID){
+		List<IBioTMLEntity> annotations = getAllDocEntities(docID);
 		List<IBioTMLEntity> finalAnnotations = new ArrayList<IBioTMLEntity>();
 		if(!annotations.isEmpty()){
 			Collections.sort(annotations);
@@ -178,7 +186,8 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return finalAnnotations;
 	}
 
-	public List<IBioTMLEntity> getAnnotationsFromEvents(List<IBioTMLEvent> relations){
+	@Override
+	public List<IBioTMLEntity> getEntitiesFromEvents(List<IBioTMLEvent> relations){
 		List<IBioTMLEntity> annotsres = new ArrayList<IBioTMLEntity>();
 		Set<IBioTMLEntity> annots = new HashSet<IBioTMLEntity>();
 		for(IBioTMLEvent relation: relations){
@@ -191,8 +200,9 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return annotsres;
 	}
 
-	public IBioTMLEntity getAnnotationFromDocAndOffsets(long docID, long startOffset, long endOffset) throws BioTMLException{
-		List<IBioTMLEntity> annots = getAllDocAnnotations(docID);
+	@Override
+	public IBioTMLEntity getEntityFromDocAndOffsets(long docID, long startOffset, long endOffset) throws BioTMLException{
+		List<IBioTMLEntity> annots = getAllDocEntities(docID);
 		for(IBioTMLEntity annot : annots){
 			if(annot.getAnnotationOffsets().offsetsOverlap(startOffset, endOffset)){
 				return annot;
@@ -202,9 +212,9 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	}
 	
 	@Override
-	public Set<IBioTMLEntity> getAnnotationsFromDocAndOffsets(long docID, long startOffset, long endOffset){
+	public Set<IBioTMLEntity> getEntitiesFromDocAndOffsets(long docID, long startOffset, long endOffset){
 		Set<IBioTMLEntity> resultAnnotations = new HashSet<>();
-		List<IBioTMLEntity> annots = getAllDocAnnotations(docID);
+		List<IBioTMLEntity> annots = getAllDocEntities(docID);
 		for(IBioTMLEntity annot : annots){
 			if(annot.getAnnotationOffsets().offsetsOverlap(startOffset, endOffset)){
 				resultAnnotations.add(annot);
@@ -214,7 +224,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	}
 	
 	@Override
-	public Set<IBioTMLEntity> getAnnotationsFromSentenceInDocumentId(long docID, IBioTMLSentence sentence){
+	public Set<IBioTMLEntity> getEntitiesFromSentenceInDocumentId(long docID, IBioTMLSentence sentence){
 		Set<IBioTMLEntity> annotations = new HashSet<>();
 		IBioTMLDocument document;
 		try {
@@ -222,7 +232,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		} catch (BioTMLException e) {
 			return annotations;
 		}
-		List<IBioTMLEntity> documentAnnotations = getDocAnnotations(docID);
+		List<IBioTMLEntity> documentAnnotations = getDocEntities(docID);
 		if(!documentAnnotations.isEmpty() && document.getSentences().contains(sentence)){
 			Iterator<IBioTMLEntity> itAnnot = documentAnnotations.iterator();
 			while(itAnnot.hasNext()){
@@ -236,15 +246,15 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	}
 	
 	@Override
-	public Set<IBioTMLEntity> getAnnotationsFromSentenceInDocumentIdAndTokenIndex(long docId,
+	public Set<IBioTMLEntity> getEntitiesFromSentenceInDocumentIdAndTokenIndex(long docId,
 			IBioTMLSentence sentence, int annotationTokenIndex) throws BioTMLException {
-		Set<IBioTMLEntity> sentenceAnnotations = getAnnotationsFromSentenceInDocumentId(docId, sentence);
+		Set<IBioTMLEntity> sentenceAnnotations = getEntitiesFromSentenceInDocumentId(docId, sentence);
 		if(!sentenceAnnotations.isEmpty()){
 			int index = 0;
 			for(IBioTMLToken token :sentence.getTokens()){
-				if(isTokenInAnnotations(sentenceAnnotations, token)){
+				if(isTokenInEntities(sentenceAnnotations, token)){
 					if(index == annotationTokenIndex){
-						return getAnnotationsFromDocAndOffsets(docId, token.getStartOffset(), token.getEndOffset());
+						return getEntitiesFromDocAndOffsets(docId, token.getStartOffset(), token.getEndOffset());
 					}
 					index++;
 				}
@@ -254,7 +264,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	}
 	
 	@Override
-	public boolean isTokenInAnnotations(Set<IBioTMLEntity> annotations, IBioTMLToken token){
+	public boolean isTokenInEntities(Set<IBioTMLEntity> annotations, IBioTMLToken token){
 		for(IBioTMLEntity annotation : annotations){
 			if(annotation.getAnnotationOffsets().offsetsOverlap(token.getTokenOffsetsPair())){
 				return true;
@@ -263,6 +273,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return false;
 	}
 
+	@Override
 	public String toString() {
 		return name;
 	}
@@ -272,7 +283,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		Set<IBioTMLEvent> result = new HashSet<>();
 		@SuppressWarnings("rawtypes")
 		Map<IBioTMLAssociation, IBioTMLEvent> map = new HashMap<>();
-		Set<IBioTMLEvent> resultevents = getDocAnnotationEvents(docID);
+		Set<IBioTMLEvent> resultevents = getDocEvents(docID);
 		for(IBioTMLEvent event : resultevents){
 			if(!map.containsKey(event.getAssociation())){
 				map.put(event.getAssociation(), event);
@@ -285,7 +296,7 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return result;
 	}
 	
-	private List<IBioTMLEntity> addMissingAnnotationsFromEvents(List<IBioTMLEntity> annotations, List<IBioTMLEvent> events){
+	private List<IBioTMLEntity> addMissingEntitiesFromEvents(List<IBioTMLEntity> annotations, List<IBioTMLEvent> events){
 		for(IBioTMLEvent event : events){
 			Set<IBioTMLEntity> annotationsInEvent = event.getAllAnnotationsFromEvent();
 			for(IBioTMLEntity annotationInEvent : annotationsInEvent)
@@ -296,10 +307,10 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 	}
 
 	@Override
-	public List<IBioTMLEntity> getAnnotationsByAnnotationTypes(Set<String> annotationTypes) {
+	public List<IBioTMLEntity> getEntitiesByAnnotationTypes(Set<String> annotationTypes) {
 		List<IBioTMLEntity> annotationsResult = new ArrayList<>();
 		
-		for(IBioTMLEntity annotation : getAnnotations())
+		for(IBioTMLEntity annotation : getEntities())
 			if(annotationTypes.contains(annotation.getAnnotationType()))
 				annotationsResult.add(annotation);
 

@@ -62,6 +62,7 @@ import cc.mallet.types.InstanceList;
 
 public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 
+	private static final long serialVersionUID = 1L;
 	private Classifier classifierModel;
 	private Pipe pipe;
 	private InstanceList trainingdataset;
@@ -157,8 +158,8 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 		return modelTraining;
 	}
 
-	private Map<String, List<IBioTMLEvaluation>> evaluateByDocumentCrossValidation(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator configuration) throws BioTMLException{
-		Map<String, List<IBioTMLEvaluation>> multiEvaluations = new HashMap<>();
+	private List<IBioTMLEvaluation> evaluateByDocumentCrossValidation(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator configuration) throws BioTMLException{
+		List<IBioTMLEvaluation> multiEvaluations = new ArrayList<>();
 		ExecutorService executor = Executors.newFixedThreadPool(getModelConfiguration().getNumThreads());
 		Iterator<IBioTMLCrossValidationFold<IBioTMLCorpus>> itCross = new BioTMLCrossValidationCorpusIterator(corpus, 
 				configuration.getCVFoldsByDocuments(), configuration.isSuffleDataBeforeCV());
@@ -183,8 +184,8 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 		return multiEvaluations;
 	}
 
-	private Map<String, List<IBioTMLEvaluation>> evaluateBySentenceCrossValidation(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator configuration) throws BioTMLException{
-		Map<String, List<IBioTMLEvaluation>> multiEvaluations = new HashMap<>();
+	private List<IBioTMLEvaluation> evaluateBySentenceCrossValidation(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator configuration) throws BioTMLException{
+		List<IBioTMLEvaluation> multiEvaluations = new ArrayList<>();
 		ExecutorService executor = Executors.newFixedThreadPool(getModelConfiguration().getNumThreads());
 		InstanceList datasetToEvaluate = loadCorpus(corpus, getModelConfiguration().getNumThreads());
 		Iterator<InstanceList[]> itCross = datasetToEvaluate.crossValidationIterator(configuration.getCVFoldsBySentences());
@@ -212,29 +213,17 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 	public IBioTMLMultiEvaluation evaluate(IBioTMLCorpus corpus, IBioTMLModelEvaluationConfigurator configuration) throws BioTMLException{
 		if(corpus == null)
 			throw new BioTMLException(21);
+		if(!isValid())
+			throw new BioTMLException("MalletClassifierModel: The model configuration inputed is not valid!\n" + getModelConfiguration());
 		
 		Map<String, List<IBioTMLEvaluation>> evaluationResults = new HashMap<>();
 		if(configuration.isUseCrossValidationByDocuments()){
-			Map<String, List<IBioTMLEvaluation>> evaluationsDocCV = evaluateByDocumentCrossValidation(corpus, configuration);
-			for(String evaluationkey : evaluationsDocCV.keySet()){
-				String evaluationkeyString = "CVbyDOC:\t"+evaluationkey;
-				if(!evaluationResults.containsKey(evaluationkeyString))
-					evaluationResults.put(evaluationkeyString, new ArrayList<>());
-				List<IBioTMLEvaluation> evaluations = evaluationResults.get(evaluationkeyString);
-				evaluations.addAll(evaluationsDocCV.get(evaluationkey));
-				evaluationResults.put(evaluationkeyString, evaluations);
-			}
+			List<IBioTMLEvaluation> evaluationsDocCV = evaluateByDocumentCrossValidation(corpus, configuration);
+			evaluationResults.put("CVbyDOC", evaluationsDocCV);
 		}
 		if(configuration.isUseCrossValidationBySentences()){
-			Map<String, List<IBioTMLEvaluation>> evaluationsSentCV = evaluateBySentenceCrossValidation(corpus, configuration);
-			for(String evaluationkey : evaluationsSentCV.keySet()){
-				String evaluationkeyString = "CVbySENT:\t"+evaluationkey;
-				if(!evaluationResults.containsKey(evaluationkeyString))
-					evaluationResults.put(evaluationkeyString, new ArrayList<>());
-				List<IBioTMLEvaluation> evaluations = evaluationResults.get(evaluationkeyString);
-				evaluations.addAll(evaluationsSentCV.get(evaluationkey));
-				evaluationResults.put(evaluationkeyString, evaluations);
-			}
+			List<IBioTMLEvaluation> evaluationsSentCV = evaluateBySentenceCrossValidation(corpus, configuration);
+			evaluationResults.put("CVbySENT", evaluationsSentCV);
 		}
 		return new BioTMLMultiEvaluationImpl(evaluationResults);
 	}
@@ -246,6 +235,8 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 	public void train(IBioTMLCorpus corpus) throws BioTMLException {
 		if(corpus == null)
 			throw new BioTMLException(21);
+		if(!isValid())
+			throw new BioTMLException("MalletClassifierModel: The model configuration inputed is not valid!\n" + getModelConfiguration());
 		trainingdataset = loadCorpus(corpus, getModelConfiguration().getNumThreads());
 		trainingdataset = loadFeaturesSelection(trainingdataset, getFeatureConfiguration().getFeatureSelectionConfiguration());
 		BioTMLFeaturesManager.getInstance().cleanMemoryFeaturesClass();
@@ -308,7 +299,8 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 				|| getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletnaivebayes)
 				|| getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletdecisiontree)
 				|| getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletmaxent)
-				|| getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletc45)) && getModel() instanceof Classifier)
+				|| getModelConfiguration().getAlgorithmType().equals(BioTMLAlgorithm.malletc45)) 
+					&& (getModel() == null || getModel() instanceof Classifier))
 				return true;
 		}
 		return false;

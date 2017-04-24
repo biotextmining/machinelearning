@@ -8,6 +8,7 @@ import java.util.TreeSet;
 
 import org.junit.Test;
 
+import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMalletAnnotatorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
@@ -185,11 +186,11 @@ public class TestPipelineClassifier {
 	
 	private void testTrainAndSavingModel() throws BioTMLException, IOException{
 		IBioTMLCorpus corpus = new BioTMLCorpusImpl(loadDocuments(), loadAnnotations(),"");
-		IBioTMLModel svm = new MalletClassifierModel(loadfeatures(), defaultConfiguration("protein","NER"));
+		IBioTMLModel svm = new MalletClassifierModel(loadfeatures(), defaultConfiguration("protein", BioTMLConstants.ner.toString()));
 		IBioTMLMultiEvaluation res = svm.evaluate(corpus, defaultEvaluationConfiguration());
 		System.out.println(res);
 		svm.train(corpus);
-		IBioTMLModelWriter writer = new BioTMLModelWriterImpl("C:/Users/RRodrigues/Desktop/corpora/model_SVM.gz");
+		IBioTMLModelWriter writer = new BioTMLModelWriterImpl("C:/Users/RRodrigues/Desktop/model_SVM.gz");
 		writer.writeGZModelFile(svm);
 	}
 	
@@ -198,10 +199,10 @@ public class TestPipelineClassifier {
 		testTrainAndSavingModel();
 		IBioTMLCorpus corpus = new BioTMLCorpusImpl(loadDocuments(),"");
 		IBioTMLModelReader modelReader = new BioTMLModelReaderImpl();
-		IBioTMLModel svm = modelReader.loadModelFromGZFile("C:/Users/RRodrigues/Desktop/corpora/model_SVM.gz");
+		IBioTMLModel svm = modelReader.loadModelFromGZFile("C:/Users/RRodrigues/Desktop/model_SVM.gz");
 		IBioTMLAnnotator annotator = new BioTMLMalletAnnotatorImpl(corpus);
 		IBioTMLCorpus annotatedCorpus = annotator.generateAnnotatedBioTMCorpus(svm,8);
-		List<IBioTMLEntity> annotationsTest = annotatedCorpus.getAnnotations();
+		List<IBioTMLEntity> annotationsTest = annotatedCorpus.getEntities();
 		System.out.println(annotationsTest.get(0).toString());
 	}
 }

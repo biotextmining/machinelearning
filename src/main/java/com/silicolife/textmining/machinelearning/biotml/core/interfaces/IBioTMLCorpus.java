@@ -27,13 +27,13 @@ public interface IBioTMLCorpus extends Serializable {
 	
 	/**
 	 * 
-	 * Method to get all annotations in all documents.
+	 * Method to get all entities in all documents.
 	 * 
 	 * @return List of {@link IBioTMLEntity}.
 	 */
-	public List<IBioTMLEntity> getAnnotations();
+	public List<IBioTMLEntity> getEntities();
 	
-	public List<IBioTMLEntity> getAnnotationsByAnnotationTypes(Set<String> annotationTypes);
+	public List<IBioTMLEntity> getEntitiesByAnnotationTypes(Set<String> annotationTypes);
 	
 	/**
 	 * 
@@ -52,7 +52,7 @@ public interface IBioTMLCorpus extends Serializable {
 	 * @return - List of {@link IBioTMLDocument} with only sentences that contains annotations.
 	 * @throws {@link BioTMLException}.
 	 */
-	public List<IBioTMLDocument> getSubDocumentsWithAnnotations() throws BioTMLException;
+	public List<IBioTMLDocument> getSubDocumentsWithEntities() throws BioTMLException;
 	
 	/**
 	 * 
@@ -90,7 +90,7 @@ public interface IBioTMLCorpus extends Serializable {
 	 * @param docID - {@link IBioTMLDocument} ID.
 	 * @return List of {@link IBioTMLDocument}.
 	 */
-	public List<IBioTMLEntity> getDocAnnotations(long docID);
+	public List<IBioTMLEntity> getDocEntities(long docID);
 	
 	/**
 	 * 
@@ -99,7 +99,7 @@ public interface IBioTMLCorpus extends Serializable {
 	 * @param docID - {@link IBioTMLDocument} ID.
 	 * @return Set of {@link IBioTMLEvent}.
 	 */
-	public Set<IBioTMLEvent> getDocAnnotationEvents(long docID);
+	public Set<IBioTMLEvent> getDocEvents(long docID);
 	
 	/**
 	 * 
@@ -108,7 +108,7 @@ public interface IBioTMLCorpus extends Serializable {
 	 * @param relations - List of {@link IBioTMLEvent}.
 	 * @return List of {@link IBioTMLEntity}.
 	 */
-	public List<IBioTMLEntity> getAnnotationsFromEvents(List<IBioTMLEvent> relations);
+	public List<IBioTMLEntity> getEntitiesFromEvents(List<IBioTMLEvent> relations);
 	
 	/**
 	 * 
@@ -118,7 +118,7 @@ public interface IBioTMLCorpus extends Serializable {
 	 * @return if found an {@link IBioTMLEntity}.
 	 * @throws {@link BioTMLException}.
 	 */
-	public IBioTMLEntity getAnnotationFromDocAndOffsets(long docID, long startOffset, long endOffset) throws BioTMLException;
+	public IBioTMLEntity getEntityFromDocAndOffsets(long docID, long startOffset, long endOffset) throws BioTMLException;
 
 	/**
 	 * 
@@ -128,7 +128,7 @@ public interface IBioTMLCorpus extends Serializable {
 	 * @param sentence
 	 * @return
 	 */
-	public Set<IBioTMLEntity> getAnnotationsFromSentenceInDocumentId(long docID, IBioTMLSentence sentence);
+	public Set<IBioTMLEntity> getEntitiesFromSentenceInDocumentId(long docID, IBioTMLSentence sentence);
 	
 	/**
 	 * 
@@ -141,7 +141,7 @@ public interface IBioTMLCorpus extends Serializable {
 	 * @return
 	 * @throws BioTMLException
 	 */
-	public Set<IBioTMLEntity> getAnnotationsFromSentenceInDocumentIdAndTokenIndex(long docId, IBioTMLSentence sentence, int annotationTokenIndex) throws BioTMLException;
+	public Set<IBioTMLEntity> getEntitiesFromSentenceInDocumentIdAndTokenIndex(long docId, IBioTMLSentence sentence, int annotationTokenIndex) throws BioTMLException;
 
 	/**
 	 * 
@@ -151,7 +151,7 @@ public interface IBioTMLCorpus extends Serializable {
 	 * @param token
 	 * @return
 	 */
-	public boolean isTokenInAnnotations(Set<IBioTMLEntity> annotations, IBioTMLToken token);
+	public boolean isTokenInEntities(Set<IBioTMLEntity> annotations, IBioTMLToken token);
 
 	/**
 	 * 
@@ -162,7 +162,7 @@ public interface IBioTMLCorpus extends Serializable {
 	 * @param endOffset
 	 * @return
 	 */
-	public Set<IBioTMLEntity> getAnnotationsFromDocAndOffsets(long docID, long startOffset, long endOffset);
+	public Set<IBioTMLEntity> getEntitiesFromDocAndOffsets(long docID, long startOffset, long endOffset);
 	
 	public Set<IBioTMLEvent> getDocEventsWithBestScore(long docID);
 }

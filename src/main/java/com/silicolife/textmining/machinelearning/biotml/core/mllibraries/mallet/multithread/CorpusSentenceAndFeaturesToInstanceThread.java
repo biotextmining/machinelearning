@@ -77,6 +77,7 @@ public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 	 * Thread safe process to add the sentence into Mallet instances.
 	 * 
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void run() {
 		List<String> visitedUID = new ArrayList<String>();
 		List<IBioTMLFeatureColumns<?>> allColumns = new ArrayList<>();

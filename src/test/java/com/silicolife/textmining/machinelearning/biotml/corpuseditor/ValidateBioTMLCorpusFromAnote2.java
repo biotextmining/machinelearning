@@ -62,7 +62,7 @@ public class ValidateBioTMLCorpusFromAnote2 {
 		String bioTMLCorpusFileName = "C:/Users/RRodrigues/Desktop/Syngenta_Models/corpus/syn_old_corpus.gz";
 		BioTMLCorpusReaderImpl reader = new BioTMLCorpusReaderImpl();
 		IBioTMLCorpus corpus = reader.readBioTMLCorpusFromFile(bioTMLCorpusFileName);
-		System.out.println(corpus.getAnnotations());
+		System.out.println(corpus.getEntities());
 		System.out.println(corpus.getEvents());
 //		Set<String> results = new HashSet<>();
 //		for(IBioTMLAnnotationsRelation relations :corpus.getRelations()){

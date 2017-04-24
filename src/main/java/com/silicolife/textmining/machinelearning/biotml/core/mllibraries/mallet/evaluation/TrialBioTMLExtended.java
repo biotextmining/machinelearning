@@ -18,7 +18,7 @@ public class TrialBioTMLExtended extends Trial{
 		super(c, ilist);
 	}
 
-	public IBioTMLConfusionMatrix<Instance> getConfusionMatrix(int labelIndex){
+	public IBioTMLConfusionMatrix<Instance> getConfusionMatrix(){
 		IBioTMLConfusionMatrix<Instance> confusionMatrix = new BioTMLConfusionMatrixImpl<>();
 
 		for (int i = 0; i<this.size(); i++) {

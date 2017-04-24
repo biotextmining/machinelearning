@@ -7,10 +7,10 @@ import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentIDs;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLObjectWithFeaturesAndLabels;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusToInstancesThreadCreator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
@@ -61,8 +61,8 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 	private BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> sentenceToExportForNER(long docID, IBioTMLSentence sentence) throws BioTMLException{
 		BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> tokensWithLabels = new BioTMLObjectWithFeaturesAndLabels<>(IBioTMLToken.class);
 		for(IBioTMLToken token : sentence.getTokens()){
-			if(getCorpus().getAnnotations()!= null){
-				if(!getCorpus().getAnnotations().isEmpty()){
+			if(getCorpus().getEntities()!= null){
+				if(!getCorpus().getEntities().isEmpty()){
 					BioTMLConstants tokenLabel = getTokenLabel(docID, token);
 					tokensWithLabels.addBioTMLObjectForModel(token, tokenLabel);
 					tokensWithLabels.addToken(token);
@@ -81,7 +81,7 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 	}
 	
 	private BioTMLConstants getTokenLabel(long docID, IBioTMLToken token){
-		List<IBioTMLEntity> docAnnotations = getCorpus().getDocAnnotations(docID);
+		List<IBioTMLEntity> docAnnotations = getCorpus().getDocEntities(docID);
 		if(!docAnnotations.isEmpty()){
 			for(IBioTMLEntity annotation : docAnnotations){
 				if(token.getEndOffset()<annotation.getStartOffset()){

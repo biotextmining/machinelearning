@@ -100,7 +100,7 @@ public class BioTMLModelsCrossValidationCorpusEvaluator {
 	}
 
 	private IBioTMLEvaluation getNEREvaluation(int foldCount, IBioTMLCorpus testingData, Map<IBioTMLOffsetsPair, Set<IBioTMLEntity>> predictedAnnotations, Set<String> nerClassTypes) {
-		Collection<IBioTMLEntity> goldAnnotations = testingData.getAnnotationsByAnnotationTypes(nerClassTypes);
+		Collection<IBioTMLEntity> goldAnnotations = testingData.getEntitiesByAnnotationTypes(nerClassTypes);
 		Collection<Set<IBioTMLEntity>> toCompareAnnotationSets = predictedAnnotations.values();
 		Collection<IBioTMLEntity> toCompareAnnotations = new HashSet<>();
 		for(Set<IBioTMLEntity> toCompareAnnotationSet : toCompareAnnotationSets)
@@ -125,7 +125,7 @@ public class BioTMLModelsCrossValidationCorpusEvaluator {
 	}
 
 	private void addPredictedAnnotationsToMap(Map<IBioTMLOffsetsPair, Set<IBioTMLEntity>> predictedAnnotations, IBioTMLCorpus predictedCorpus) {
-		List<IBioTMLEntity> annotations = predictedCorpus.getAnnotations();
+		List<IBioTMLEntity> annotations = predictedCorpus.getEntities();
 		for(IBioTMLEntity annotation : annotations){
 			
 			if(!predictedAnnotations.containsKey(annotation.getAnnotationOffsets())){

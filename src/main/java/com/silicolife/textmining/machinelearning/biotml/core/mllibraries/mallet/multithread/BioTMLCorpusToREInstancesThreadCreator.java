@@ -54,7 +54,7 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		for(IBioTMLDocument document : getCorpus().getDocuments()){
 			int sentID = 0;
 			for(IBioTMLSentence sentence : document.getSentences()){
-				Set<IBioTMLEntity> annotations = getCorpus().getAnnotationsFromSentenceInDocumentId(document.getID(), sentence);
+				Set<IBioTMLEntity> annotations = getCorpus().getEntitiesFromSentenceInDocumentId(document.getID(), sentence);
 				if(getREMethodology().equals(BioTMLREModelTypes.alltokenscoocurrencewithtriggers.toString())
 						|| getREMethodology().equals(BioTMLREModelTypes.annotationtokenscoocurrencewithtriggers.toString())){
 					generateInstanceForREWithTriggers(executor, configuration, instances, document.getID(), sentID, sentence, annotations);
@@ -94,7 +94,7 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 	@SuppressWarnings("rawtypes")
 	private BioTMLObjectWithFeaturesAndLabels<IBioTMLAssociation> fillAssociationsWithLabels(long docID,
 			IBioTMLSentence sentence, Set<IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity>> associations) {
-		Set<IBioTMLEvent> events = getCorpus().getDocAnnotationEvents(docID);
+		Set<IBioTMLEvent> events = getCorpus().getDocEvents(docID);
 		BioTMLObjectWithFeaturesAndLabels<IBioTMLAssociation> associationsWithLabels = new BioTMLObjectWithFeaturesAndLabels<>(IBioTMLAssociation.class);
 		for(IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity> association : associations){
 			if(getCorpus().getEvents() != null){
@@ -231,7 +231,7 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 		BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> tokensWithLabels = new BioTMLObjectWithFeaturesAndLabels<>(IBioTMLToken.class);
 		for(IBioTMLToken token : sentence.getTokens()){
 			BioTMLConstants isTokeninAnnots = null;
-			if(getCorpus().isTokenInAnnotations(annotations, token)){
+			if(getCorpus().isTokenInEntities(annotations, token)){
 				isTokeninAnnots = BioTMLConstants.isAnnotation;
 			}else{
 				isTokeninAnnots = BioTMLConstants.isNotAnnotation;
@@ -256,7 +256,7 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 	}
 
 	private BioTMLConstants getTokenLabelEvent(long docID, IBioTMLToken token, IBioTMLEntity annotation){
-		Set<IBioTMLEvent> docEvents = getCorpus().getDocAnnotationEvents(docID);
+		Set<IBioTMLEvent> docEvents = getCorpus().getDocEvents(docID);
 		if( !docEvents.isEmpty()){
 			for(IBioTMLEvent event : docEvents){
 				if(event.getAnnotationType().equals(getAnnotationType()) && event.findAnnotationInEvent(annotation)){

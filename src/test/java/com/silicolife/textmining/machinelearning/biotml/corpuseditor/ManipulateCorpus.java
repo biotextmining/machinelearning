@@ -6,12 +6,12 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLEntityImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLEntityImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReaderImpl;
 import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLCorpusWriterImpl;
 
@@ -33,7 +33,7 @@ public class ManipulateCorpus {
 			while(itUnnAnnoted.hasNext() && !found){
 				IBioTMLDocument unnanotatedDocument = itUnnAnnoted.next();
 				if(annotateddocument.equals(unnanotatedDocument)){
-					List<IBioTMLEntity> annotations = annotatedcorpus.getDocAnnotations(annotateddocument.getID());
+					List<IBioTMLEntity> annotations = annotatedcorpus.getDocEntities(annotateddocument.getID());
 //					List<IBioTMLAnnotation> cluesInAnnotated = getClueAnnotations(annotations);
 					AllAnnotations.addAll(setAnnotationsToDocument(annotations, unnanotatedDocument));
 					found = true;

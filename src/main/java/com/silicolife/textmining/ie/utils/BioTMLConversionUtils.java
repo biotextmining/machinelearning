@@ -116,19 +116,19 @@ public class BioTMLConversionUtils {
 		return events;
 	}
 
-	public static IEntityAnnotation convertBioTMLAnnotation(IBioTMLEntity annotation, IBioTMLDocument document) throws BioTMLException{
-		IAnoteClass anoteClass = new AnoteClass(annotation.getAnnotationType());
-		List<IBioTMLToken> tokens = document.getTokens(annotation.getStartOffset(), annotation.getEndOffset());
+	public static IEntityAnnotation convertBioTMLEntity(IBioTMLEntity entity, IBioTMLDocument document) throws BioTMLException{
+		IAnoteClass anoteClass = new AnoteClass(entity.getAnnotationType());
+		List<IBioTMLToken> tokens = document.getTokens(entity.getStartOffset(), entity.getEndOffset());
 		String annotationString = convertTokensToString(tokens);
 
-		return new EntityAnnotationImpl(annotation.getStartOffset(), annotation.getEndOffset(), anoteClass, null, annotationString, false, false, new Properties());
+		return new EntityAnnotationImpl(entity.getStartOffset(), entity.getEndOffset(), anoteClass, null, annotationString, false, false, new Properties());
 	}
 
-	public static List<IEntityAnnotation> convertBioTMLAnnotations(List<IBioTMLEntity> annotations, IBioTMLDocument document) throws BioTMLException{
+	public static List<IEntityAnnotation> convertBioTMLEntities(List<IBioTMLEntity> annotations, IBioTMLDocument document) throws BioTMLException{
 		List<IEntityAnnotation> entities = new ArrayList<>();
 
 		for(IBioTMLEntity annotation : annotations)
-			entities.add(convertBioTMLAnnotation(annotation, document));
+			entities.add(convertBioTMLEntity(annotation, document));
 
 		return entities;
 	}
@@ -166,9 +166,9 @@ public class BioTMLConversionUtils {
 
 			if(annotationOne.getAnnotationType().equals(BioTMLConstants.trigger.toString()) && !annotationTwo.getAnnotationType().equals(BioTMLConstants.trigger.toString())){
 				if(annotationOne.compareTo(annotationTwo) > 0)
-					left.add(convertBioTMLAnnotation(annotationTwo, document));
+					left.add(convertBioTMLEntity(annotationTwo, document));
 				else
-					right.add(convertBioTMLAnnotation(annotationTwo, document));
+					right.add(convertBioTMLEntity(annotationTwo, document));
 
 				List<IBioTMLToken> tokens = document.getTokens(annotationOne.getStartOffset(), annotationOne.getEndOffset());
 				String clueString = convertTokensToString(tokens);
@@ -176,9 +176,9 @@ public class BioTMLConversionUtils {
 
 			}else if(!annotationOne.getAnnotationType().equals(BioTMLConstants.trigger.toString()) && annotationTwo.getAnnotationType().equals(BioTMLConstants.trigger.toString())){
 				if(annotationTwo.compareTo(annotationOne)>0)
-					left.add(convertBioTMLAnnotation(annotationOne, document));
+					left.add(convertBioTMLEntity(annotationOne, document));
 				else
-					right.add(convertBioTMLAnnotation(annotationOne, document));
+					right.add(convertBioTMLEntity(annotationOne, document));
 
 				List<IBioTMLToken> tokens = document.getTokens(annotationTwo.getStartOffset(), annotationTwo.getEndOffset());
 				String clueString = convertTokensToString(tokens);
@@ -187,11 +187,11 @@ public class BioTMLConversionUtils {
 			}else{
 
 				if(annotationOne.compareTo(annotationTwo) <0){
-					left.add(convertBioTMLAnnotation(annotationOne, document));
-					right.add(convertBioTMLAnnotation(annotationTwo, document));
+					left.add(convertBioTMLEntity(annotationOne, document));
+					right.add(convertBioTMLEntity(annotationTwo, document));
 				}else{
-					left.add(convertBioTMLAnnotation(annotationTwo, document));
-					right.add(convertBioTMLAnnotation(annotationOne, document));
+					left.add(convertBioTMLEntity(annotationTwo, document));
+					right.add(convertBioTMLEntity(annotationOne, document));
 				}
 				return new EventAnnotationImpl(-1, -1, AnnotationType.re.name(), left, right, new String(), eventProperties, false);
 			}
@@ -259,7 +259,7 @@ public class BioTMLConversionUtils {
 
 	public static IEntityAnnotation findBioTMLAnnotationInEntitesList(IBioTMLEntity annotation, IBioTMLDocument document, List<IEntityAnnotation> entities) throws BioTMLException {
 
-		IEntityAnnotation entityAnnotation = convertBioTMLAnnotation(annotation, document);
+		IEntityAnnotation entityAnnotation = convertBioTMLEntity(annotation, document);
 
 		for(IEntityAnnotation entity : entities)
 			if(entityAnnotation.getStartOffset() == entity.getStartOffset() 

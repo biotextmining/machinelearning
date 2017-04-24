@@ -45,7 +45,7 @@ public class BioTMLMalletNERAnnotator {
 		return classifierProcessor;
 	}
 
-	public Set<IBioTMLEntity> generateAnnotations(IBioTMLCorpus corpus, IBioTMLModel model, int threads) throws BioTMLException{
+	public Set<IBioTMLEntity> generateEntities(IBioTMLCorpus corpus, IBioTMLModel model, int threads) throws BioTMLException{
 		
 		if(!validateModel(model))
 			throw new BioTMLException(5);
