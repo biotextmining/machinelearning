@@ -15,7 +15,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLE
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReaderImpl;
 import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLCorpusWriterImpl;
 
-public class ManipulateCorpus {
+public class ManipulateCorpusTest {
 
 	@Test
 	public void copyCluesFromOneCorpusToOtherCorpus() throws BioTMLException {

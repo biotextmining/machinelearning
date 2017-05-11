@@ -11,7 +11,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLS
 import edu.emory.mathcs.nlp.component.template.feature.Field;
 import edu.emory.mathcs.nlp.component.template.node.NLPNode;
 
-public class TestNLP4JSingleton {
+public class TestNLP4JSingletonTest {
 
 	public String document(){
 		return "Background\n"+

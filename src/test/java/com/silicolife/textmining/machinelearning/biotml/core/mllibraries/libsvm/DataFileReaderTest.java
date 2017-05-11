@@ -10,7 +10,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.libsvm.
 import libsvm.svm_node;
 
 
-public class DataFileReader {
+public class DataFileReaderTest {
     
     public static SVMInstance[] readDataFile(String fileName) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(fileName));        

@@ -14,7 +14,7 @@ import edu.emory.mathcs.nlp.component.tokenizer.Tokenizer;
 import edu.emory.mathcs.nlp.component.tokenizer.token.Token;
 import edu.emory.mathcs.nlp.decode.NLPDecoder;
 
-public class TestNLP4J {
+public class TestNLP4JTest {
 
 //	@Test
 	public void testClearNLP() throws Exception{

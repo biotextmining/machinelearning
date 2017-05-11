@@ -14,7 +14,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.libsvm.
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.libsvm.SVMPredictor;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.libsvm.SVMTrainer;
 
-public class TestLibSVM {
+public class LibSVMTest {
 	
 	public svm_parameter loadParams(){
 		svm_parameter params = new svm_parameter();
@@ -38,10 +38,10 @@ public class TestLibSVM {
 	public void testLinearKernel(String trainFileName, String testFileName, String outputFileName, String outputModelfile, svm_parameter param) throws IOException, ClassNotFoundException {
 
 		//Read training file
-		SVMInstance[] trainingInstances = DataFileReader.readDataFile(trainFileName);
+		SVMInstance[] trainingInstances = DataFileReaderTest.readDataFile(trainFileName);
 		
 		//Read test file
-		SVMInstance[] testingInstances = DataFileReader.readDataFile(testFileName);
+		SVMInstance[] testingInstances = DataFileReaderTest.readDataFile(testFileName);
 		
 		//Test params and data with cross validation
 		SVMTrainer.doCrossValidation(trainingInstances, param, 10, true);

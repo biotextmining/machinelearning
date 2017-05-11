@@ -8,7 +8,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLD
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReaderImpl;
 import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLCorpusWriterImpl;
 
-public class ValidateBioTMLCorpusFromAnote2 {
+public class ValidateBioTMLCorpusFromAnote2Test {
 
 //	@Test
 	public void test() throws BioTMLException {

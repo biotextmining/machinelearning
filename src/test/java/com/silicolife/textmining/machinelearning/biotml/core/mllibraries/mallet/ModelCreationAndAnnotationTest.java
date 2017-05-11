@@ -32,7 +32,7 @@ import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReader
 import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLCorpusWriterImpl;
 import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLModelWriterImpl;
 
-public class TestModelCreationAndAnnotation {
+public class ModelCreationAndAnnotationTest {
 	
 //	@Test
 	public void createModelFromCorpus() throws BioTMLException{

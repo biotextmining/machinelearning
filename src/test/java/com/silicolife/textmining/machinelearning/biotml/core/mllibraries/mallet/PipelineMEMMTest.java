@@ -24,7 +24,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelC
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j.BioTMLNLP4J;
 import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLModelWriterImpl;
 
-public class TestPipelineMEMM {
+public class PipelineMEMMTest {
 	
 	private static List<IBioTMLDocument> loadDocuments(){
 		List<IBioTMLDocument> result = new ArrayList<>();
@@ -181,7 +181,7 @@ public class TestPipelineMEMM {
 	
 	private static void testTrainAndSavingModel() throws BioTMLException, IOException{
 		IBioTMLCorpus corpus = new BioTMLCorpusImpl(loadDocuments(), loadAnnotations(),"");
-		IBioTMLModel memm = new MalletMEMMModel(corpus, loadfeatures(), defaultConfiguration("protein", "NER"));
+		IBioTMLModel memm = new MalletMEMMModelTest(corpus, loadfeatures(), defaultConfiguration("protein", "NER"));
 		//IBioTMLModelEvaluationResults res = crf.evaluate(corpus, defaultEvaluationConfiguration());
 		//System.out.println(res.printResults());
 		memm.train(corpus);

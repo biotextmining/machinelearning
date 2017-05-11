@@ -23,7 +23,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLS
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLCorpusWriterImpl;
 
-public class JNLPBAReader {
+public class JNLPBAReaderTest {
 	private static String jnlpbatoread = "C:/Users/RRodrigues/Desktop/JNLPBA/test/Genia4EReval2.raw";
 	private static String jnlpbatowrite = "C:/Users/RRodrigues/Desktop/JNLPBA/Genia4EReval2.gz";
 	private static File jnlpbaFile = new File(jnlpbatoread);

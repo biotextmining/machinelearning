@@ -9,7 +9,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLExc
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.opennlp.BioTMLOpenNLP;
 
-public class TestOpenNLPSingleton {
+public class OpenNLPSingletonTest {
 
 	public String document(){
 		return "Background\n"+

@@ -33,7 +33,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j.BioTMLNLP
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReaderImpl;
 import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLModelWriterImpl;
 
-public class TestPipelineClassifier {
+public class PipelineClassifierTest {
 	
 	private List<IBioTMLDocument> loadDocuments() throws IOException{
 		List<IBioTMLDocument> docs = new ArrayList<IBioTMLDocument>();

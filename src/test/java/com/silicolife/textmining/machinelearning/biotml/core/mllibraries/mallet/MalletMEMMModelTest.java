@@ -47,13 +47,13 @@ import cc.mallet.types.InstanceList;
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
+public class MalletMEMMModelTest extends BioTMLModel implements IBioTMLModel{
 
 	private MEMM memmModel;
 	private IBioTMLModelMatrixToPrint matrix;
 	private Pipe pipe;
 
-	public MalletMEMMModel(	IBioTMLCorpus corpus, 
+	public MalletMEMMModelTest(	IBioTMLCorpus corpus, 
 			IBioTMLFeatureGeneratorConfigurator featureConfiguration, 
 			IBioTMLModelConfigurator modelConfiguration){
 		super( featureConfiguration, modelConfiguration);
@@ -62,7 +62,7 @@ public class MalletMEMMModel extends BioTMLModel implements IBioTMLModel{
 		this.memmModel = null;
 	}
 
-	public MalletMEMMModel(MEMM model,
+	public MalletMEMMModelTest(MEMM model,
 			IBioTMLFeatureGeneratorConfigurator featureConfiguration, 
 			IBioTMLModelConfigurator modelConfiguration) throws BioTMLException{
 		super(featureConfiguration, modelConfiguration);
