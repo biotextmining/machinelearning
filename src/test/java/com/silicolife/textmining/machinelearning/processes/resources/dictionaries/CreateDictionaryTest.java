@@ -10,7 +10,7 @@ import com.silicolife.textmining.core.datastructures.resources.dictionary.loader
 import com.silicolife.textmining.core.interfaces.core.dataaccess.exception.ANoteException;
 import com.silicolife.textmining.core.interfaces.resource.IResource;
 import com.silicolife.textmining.core.interfaces.resource.IResourceElement;
-import com.silicolife.textmining.processes.DatabaseConnectionInit;
+import com.silicolife.textmining.machinelearning.DatabaseConnectionInit;
 
 public class CreateDictionaryTest {
 

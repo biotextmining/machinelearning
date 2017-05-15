@@ -27,15 +27,16 @@ import com.silicolife.textmining.core.interfaces.resource.IResourceElement;
 import com.silicolife.textmining.core.interfaces.resource.dictionary.IDictionary;
 import com.silicolife.textmining.core.interfaces.resource.dictionary.configuration.IDictionaryLoaderConfiguration;
 import com.silicolife.textmining.core.interfaces.resource.lexicalwords.ILexicalWords;
+import com.silicolife.textmining.machinelearning.DatabaseConnectionInit;
 import com.silicolife.textmining.machinelearning.processes.corpora.loaders.CreateCorpusFromPublicationManagerTest;
 import com.silicolife.textmining.machinelearning.processes.resources.dictionaries.CreateDictionaryTest;
-import com.silicolife.textmining.processes.DatabaseConnectionInit;
 import com.silicolife.textmining.processes.ie.ner.linnaeus.LinnaeusTagger;
 import com.silicolife.textmining.processes.ie.ner.linnaeus.adapt.uk.ac.man.entitytagger.matching.Matcher.Disambiguation;
 import com.silicolife.textmining.processes.ie.ner.linnaeus.configuration.INERLinnaeusConfiguration;
 import com.silicolife.textmining.processes.ie.ner.linnaeus.configuration.NERLinnaeusConfigurationImpl;
 import com.silicolife.textmining.processes.ie.ner.linnaeus.configuration.NERLinnaeusPreProcessingEnum;
 import com.silicolife.textmining.processes.resources.dictionary.loaders.byocyc.BioMetaEcoCycFlatFileLoader;
+
 
 public class LinnaeusTest {
 

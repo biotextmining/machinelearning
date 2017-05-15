@@ -20,9 +20,11 @@ import com.silicolife.textmining.core.interfaces.core.dataaccess.exception.ANote
 import com.silicolife.textmining.core.interfaces.core.document.IPublication;
 import com.silicolife.textmining.core.interfaces.core.document.corpus.CorpusTextType;
 import com.silicolife.textmining.core.interfaces.core.report.corpora.ICorpusCreateReport;
-import com.silicolife.textmining.processes.DatabaseConnectionInit;
+import com.silicolife.textmining.machinelearning.DatabaseConnectionInit;
 import com.silicolife.textmining.processes.corpora.loaders.CorpusCreation;
 import com.silicolife.textmining.processes.corpora.loaders.PDFDirectoryCorpusLoaders;
+
+
 
 public class CreateCorpusFromPDFDirectoryTest {
 

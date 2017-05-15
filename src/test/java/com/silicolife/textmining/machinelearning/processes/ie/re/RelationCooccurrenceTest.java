@@ -16,13 +16,14 @@ import com.silicolife.textmining.core.interfaces.core.report.processes.IREProces
 import com.silicolife.textmining.core.interfaces.process.IE.IIEProcess;
 import com.silicolife.textmining.core.interfaces.process.IR.exception.InternetConnectionProblemException;
 import com.silicolife.textmining.core.interfaces.resource.dictionary.IDictionary;
+import com.silicolife.textmining.machinelearning.DatabaseConnectionInit;
 import com.silicolife.textmining.machinelearning.processes.corpora.loaders.CreateCorpusFromPublicationManagerTest;
 import com.silicolife.textmining.machinelearning.processes.ie.ner.linnaeus.LinnaeusTest;
-import com.silicolife.textmining.processes.DatabaseConnectionInit;
 import com.silicolife.textmining.processes.ie.re.relationcooccurrence.RECooccurrence;
 import com.silicolife.textmining.processes.ie.re.relationcooccurrence.configuration.IRECooccurrenceConfiguration;
 import com.silicolife.textmining.processes.ie.re.relationcooccurrence.configuration.RECooccurrenceConfiguration;
 import com.silicolife.textmining.processes.ie.re.relationcooccurrence.models.RECooccurrenceModelEnum;
+
 
 public class RelationCooccurrenceTest {
 

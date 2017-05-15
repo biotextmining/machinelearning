@@ -19,9 +19,11 @@ import com.silicolife.textmining.core.interfaces.core.document.corpus.CorpusText
 import com.silicolife.textmining.core.interfaces.core.report.corpora.ICorpusCreateReport;
 import com.silicolife.textmining.core.interfaces.core.report.processes.ir.IIRSearchProcessReport;
 import com.silicolife.textmining.core.interfaces.process.IR.exception.InternetConnectionProblemException;
+import com.silicolife.textmining.machinelearning.DatabaseConnectionInit;
 import com.silicolife.textmining.machinelearning.processes.ir.PubmedSearchTest;
-import com.silicolife.textmining.processes.DatabaseConnectionInit;
 import com.silicolife.textmining.processes.corpora.loaders.CorpusCreation;
+
+
 
 public class CreateCorpusFromPublicationManagerTest {
 

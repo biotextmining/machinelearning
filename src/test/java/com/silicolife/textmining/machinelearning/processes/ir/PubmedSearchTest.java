@@ -15,9 +15,10 @@ import com.silicolife.textmining.core.interfaces.core.report.processes.ir.IIRSea
 import com.silicolife.textmining.core.interfaces.process.IR.IIRSearchConfiguration;
 import com.silicolife.textmining.core.interfaces.process.IR.IQuery;
 import com.silicolife.textmining.core.interfaces.process.IR.exception.InternetConnectionProblemException;
-import com.silicolife.textmining.processes.DatabaseConnectionInit;
+import com.silicolife.textmining.machinelearning.DatabaseConnectionInit;
 import com.silicolife.textmining.processes.ir.pubmed.PubMedSearch;
 import com.silicolife.textmining.processes.ir.pubmed.configuration.IRPubmedSearchConfigurationImpl;
+
 
 public class PubmedSearchTest {
 
