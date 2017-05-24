@@ -8,9 +8,9 @@ import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLExc
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLNLP;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 
-public class NLP4J implements IBioTMLNLP{
+public class NLP4JImpl implements IBioTMLNLP{
 
-	public NLP4J(){
+	public NLP4JImpl(){
 	}
 	
 	@Override

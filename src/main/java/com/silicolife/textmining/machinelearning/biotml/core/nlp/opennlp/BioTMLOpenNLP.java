@@ -1,8 +1,6 @@
 package com.silicolife.textmining.machinelearning.biotml.core.nlp.opennlp;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -14,14 +12,13 @@ import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLToken
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
+import com.silicolife.textmining.processes.nlptools.opennlp.OpenNLP;
 
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.chunker.ChunkerModel;
 import opennlp.tools.parser.AbstractBottomUpParser;
 import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.Parser;
-import opennlp.tools.parser.ParserFactory;
-import opennlp.tools.parser.ParserModel;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.sentdetect.SentenceDetectorME;
@@ -40,27 +37,26 @@ import opennlp.tools.util.Span;
  */
 public class BioTMLOpenNLP {
 
-	private final static String sentenceModelFile = "nlpmodels/en-sent.bin";
-	private final static String tokeniserModelFile = "nlpmodels/en-token.bin";
-	private final static String postaggingModelFile = "nlpmodels/en-pos-maxent.bin";
-	private final static String parsingModelFile = "nlpmodels/en-parser-chunking.bin";
-	private final static String chunkerModelFile = "nlpmodels/en-chunker.bin";
-	private final static String sentenceModelFileBIN = "processes/src/main/resources/nlpmodels/en-sent.bin";
-	private final static String tokeniserModelFileBIN = "processes/src/main/resources/nlpmodels/en-token.bin";
-	private final static String postaggingModelFileBIN = "processes/src/main/resources/nlpmodels/en-pos-maxent.bin";
-	private final static String parsingModelFileBIN = "processes/src/main/resources/nlpmodels/en-parser-chunking.bin";
-	private final static String chunkerModelFileBIN = "processes/src/main/resources/nlpmodels/en-chunker.bin";
+//	private final static String sentenceModelFile = "nlpmodels/en-sent.bin";
+//	private final static String tokeniserModelFile = "nlpmodels/en-token.bin";
+//	private final static String postaggingModelFile = "nlpmodels/en-pos-maxent.bin";
+//	private final static String parsingModelFile = "nlpmodels/en-parser-chunking.bin";
+//	private final static String chunkerModelFile = "nlpmodels/en-chunker.bin";
+//	private final static String sentenceModelFileBIN = "processes/src/main/resources/nlpmodels/en-sent.bin";
+//	private final static String tokeniserModelFileBIN = "processes/src/main/resources/nlpmodels/en-token.bin";
+//	private final static String postaggingModelFileBIN = "processes/src/main/resources/nlpmodels/en-pos-maxent.bin";
+//	private final static String parsingModelFileBIN = "processes/src/main/resources/nlpmodels/en-parser-chunking.bin";
+//	private final static String chunkerModelFileBIN = "processes/src/main/resources/nlpmodels/en-chunker.bin";
 
-	private SentenceModel sentenceModel;
-	private POSModel postaggerModel;
-	private TokenizerModel tokeniserModel; 
-	private ChunkerModel chunkerModel;
-	private ParserModel parserModel;
+//	private SentenceModel sentenceModel;
+//	private POSModel postaggerModel;
+//	private TokenizerModel tokeniserModel; 
+//	private ChunkerModel chunkerModel;
+//	private ParserModel parserModel;
 
 	private static BioTMLOpenNLP _instance;
 
-	private BioTMLOpenNLP()
-	{
+	private BioTMLOpenNLP(){
 
 	}
 
@@ -85,111 +81,136 @@ public class BioTMLOpenNLP {
 		}
 	}
 
-	private synchronized void initChunkerModelModel() throws BioTMLException {
-		if(getChunkerModel()==null){
-			try {
-				InputStream modelIn = BioTMLOpenNLP.class.getClassLoader().getResourceAsStream(chunkerModelFile);
-				if(modelIn==null){
+//	private synchronized void initChunkerModelModel() throws BioTMLException {
+//		if(getChunkerModel()==null){
+//			try {
+//				InputStream modelIn = BioTMLOpenNLP.class.getClassLoader().getResourceAsStream(chunkerModelFile);
+//				if(modelIn==null)
+//					modelIn = new FileInputStream(chunkerModelFileBIN);
+//				
+//				chunkerModel = new ChunkerModel(modelIn);
+//				modelIn.close();
+//			} catch ( IOException exc) {
+//				throw new BioTMLException(13,exc);
+//			}
+//		}
+//	}
+//
+//	private synchronized void initParserModel() throws BioTMLException{
+//		if(getParserModel()==null){
+//			try {
+//				InputStream parsingModelIn = BioTMLOpenNLP.class.getClassLoader().getResourceAsStream(parsingModelFile);
+//				if(parsingModelIn==null){
+//					parsingModelIn = new FileInputStream(parsingModelFileBIN);
+//				}
+//				parserModel = new ParserModel(parsingModelIn);
+//				parsingModelIn.close();
+//			} catch ( IOException exc) {
+//				throw new BioTMLException(13,exc);
+//			}
+//		}
+//	}
+//
+//	private synchronized void initSentenceModel() throws BioTMLException{	
+//		if(getSentenceModel()==null){
+//			try {
+//				InputStream modelIn = BioTMLOpenNLP.class.getClassLoader().getResourceAsStream(sentenceModelFile);
+//				if(modelIn==null){
+//					modelIn = new FileInputStream(sentenceModelFileBIN);
+//				}
+//				sentenceModel = new SentenceModel(modelIn);
+//				modelIn.close();
+//			} catch ( IOException exc) {
+//				throw new BioTMLException(13,exc);
+//			}
+//		}
+//	}
+//
+//	private synchronized void initTokenizerModel() throws BioTMLException{
+//		if(getTokenizerModel()==null){
+//			try {
+//				InputStream tokenizerFileInput = BioTMLOpenNLP.class.getClassLoader().getResourceAsStream(tokeniserModelFile);
+//				if(tokenizerFileInput==null){
+//					tokenizerFileInput = new FileInputStream(tokeniserModelFileBIN);
+//				}
+//				tokeniserModel = new TokenizerModel(tokenizerFileInput);
+//				tokenizerFileInput.close();
+//			} catch ( IOException exc) {
+//				throw new BioTMLException(13,exc);
+//			}
+//		}
+//	}
+//
+//	private synchronized void initPosTagModel() throws BioTMLException{
+//		if(getPOSModel()==null){
+//			try {
+//				InputStream postaggerFileInput = BioTMLOpenNLP.class.getClassLoader().getResourceAsStream(postaggingModelFile);
+//				if(postaggerFileInput==null){
+//					postaggerFileInput = new FileInputStream(postaggingModelFileBIN);
+//				}
+//				postaggerModel = new POSModel(postaggerFileInput);
+//				postaggerFileInput.close();
+//			} catch ( IOException exc) {
+//				throw new BioTMLException(13,exc);
+//			}
+//		}
+//	}
 
-					modelIn = new FileInputStream(chunkerModelFileBIN);
-
-				}
-				chunkerModel = new ChunkerModel(modelIn);
-				modelIn.close();
-			} catch ( IOException exc) {
-				throw new BioTMLException(13,exc);
-			}
+	private ChunkerModel getChunkerModel() throws BioTMLException{
+//		return chunkerModel;
+		try{
+			return OpenNLP.getInstance().getChunkerModel();
+		} catch ( IOException exc) {
+			throw new BioTMLException(13,exc);
 		}
 	}
 
-	private synchronized void initParserModel() throws BioTMLException{
-		if(getParserModel()==null){
-			try {
-				InputStream parsingModelIn = BioTMLOpenNLP.class.getClassLoader().getResourceAsStream(parsingModelFile);
-				if(parsingModelIn==null){
-					parsingModelIn = new FileInputStream(parsingModelFileBIN);
-				}
-				parserModel = new ParserModel(parsingModelIn);
-				parsingModelIn.close();
-			} catch ( IOException exc) {
-				throw new BioTMLException(13,exc);
-			}
+//	private ParserModel getParserModel() throws BioTMLException{
+//		return parserModel;
+//	}
+
+	private SentenceModel getSentenceModel() throws BioTMLException{
+//		return sentenceModel;
+		try{
+			return OpenNLP.getInstance().getSentenceModel();
+		} catch ( IOException exc) {
+			throw new BioTMLException(13,exc);
 		}
 	}
 
-	private synchronized void initSentenceModel() throws BioTMLException{	
-		if(getSentenceModel()==null){
-			try {
-				InputStream modelIn = BioTMLOpenNLP.class.getClassLoader().getResourceAsStream(sentenceModelFile);
-				if(modelIn==null){
-					modelIn = new FileInputStream(sentenceModelFileBIN);
-				}
-				sentenceModel = new SentenceModel(modelIn);
-				modelIn.close();
-			} catch ( IOException exc) {
-				throw new BioTMLException(13,exc);
-			}
+	private TokenizerModel getTokenizerModel() throws BioTMLException{
+//		return tokeniserModel;
+		try{
+			return OpenNLP.getInstance().getTokeniserModel();
+		} catch ( IOException exc) {
+			throw new BioTMLException(13,exc);
 		}
 	}
 
-	private synchronized void initTokenizerModel() throws BioTMLException{
-		if(getTokenizerModel()==null){
-			try {
-				InputStream tokenizerFileInput = BioTMLOpenNLP.class.getClassLoader().getResourceAsStream(tokeniserModelFile);
-				if(tokenizerFileInput==null){
-					tokenizerFileInput = new FileInputStream(tokeniserModelFileBIN);
-				}
-				tokeniserModel = new TokenizerModel(tokenizerFileInput);
-				tokenizerFileInput.close();
-			} catch ( IOException exc) {
-				throw new BioTMLException(13,exc);
-			}
+	private POSModel getPOSModel() throws BioTMLException{
+//		return postaggerModel;
+		try{
+			return OpenNLP.getInstance().getPostaggerModel();
+		} catch ( IOException exc) {
+			throw new BioTMLException(13,exc);
+		}
+	}
+	
+	private Parser getParser() throws BioTMLException{
+//		return ParserFactory.create(getParserModel());
+		try{
+			return OpenNLP.getInstance().getParser();
+		} catch ( IOException exc) {
+			throw new BioTMLException(13,exc);
 		}
 	}
 
-	private synchronized void initPosTagModel() throws BioTMLException{
-		if(getPOSModel()==null){
-			try {
-				InputStream postaggerFileInput = BioTMLOpenNLP.class.getClassLoader().getResourceAsStream(postaggingModelFile);
-				if(postaggerFileInput==null){
-					postaggerFileInput = new FileInputStream(postaggingModelFileBIN);
-				}
-				postaggerModel = new POSModel(postaggerFileInput);
-				postaggerFileInput.close();
-			} catch ( IOException exc) {
-				throw new BioTMLException(13,exc);
-			}
-		}
-	}
 
-	private ChunkerModel getChunkerModel(){
-		return chunkerModel;
-	}
-
-	private ParserModel getParserModel(){
-		return parserModel;
-	}
-
-	private Parser getParser(){
-		return ParserFactory.create(getParserModel());
-	}
-
-	private SentenceModel getSentenceModel(){
-		return sentenceModel;
-	}
-
-	private TokenizerModel getTokenizerModel(){
-		return tokeniserModel;
-	}
-
-	private POSModel getPOSModel(){
-		return postaggerModel;
-	}
 
 	private Set<IBioTMLToken> getListTokens(String text) throws BioTMLException{
-		if(getTokenizerModel() == null){
-			initTokenizerModel();
-		}
+//		if(getTokenizerModel() == null){
+//			initTokenizerModel();
+//		}
 		Set<IBioTMLToken> listTokens = new LinkedHashSet<IBioTMLToken>();
 		Tokenizer tokenizer = new TokenizerME(getTokenizerModel());
 		Span[] tokens = tokenizer.tokenizePos(text);
@@ -227,9 +248,9 @@ public class BioTMLOpenNLP {
 	 * @throws BioTMLException
 	 */
 	public List<IBioTMLSentence> getSentences(String document) throws BioTMLException{
-		if(getSentenceModel()==null){
-			initSentenceModel();
-		}
+//		if(getSentenceModel()==null){
+//			initSentenceModel();
+//		}
 		List<IBioTMLSentence> sentences = new ArrayList<IBioTMLSentence>();
 		Set<IBioTMLToken> tokens = getListTokens(document);
 		SentenceDetectorME sentenceDetector = new SentenceDetectorME(getSentenceModel());
@@ -253,9 +274,9 @@ public class BioTMLOpenNLP {
 	 * @throws BioTMLException
 	 */
 	public String[] processPos(String[] sentence) throws BioTMLException{
-		if(getPOSModel()==null){
-			initPosTagModel();
-		}
+//		if(getPOSModel()==null){
+//			initPosTagModel();
+//		}
 		POSTaggerME tagger = new POSTaggerME(getPOSModel());
 		return tagger.tag(sentence);
 	}
@@ -274,9 +295,9 @@ public class BioTMLOpenNLP {
 	 * @throws BioTMLException
 	 */
 	public String[] processChunking(String[] sentence, String[] posTaggedSentence) throws BioTMLException{
-		if(getChunkerModel()==null){
-			initChunkerModelModel();
-		}
+//		if(getChunkerModel()==null){
+//			initChunkerModelModel();
+//		}
 		ChunkerME chunker = new ChunkerME(getChunkerModel());
 		return chunker.chunk(sentence, posTaggedSentence);
 	}
@@ -294,12 +315,12 @@ public class BioTMLOpenNLP {
 	 */
 
 	public String[] processChunkingParsing(String[] sentence) throws BioTMLException{
-		if(getTokenizerModel() == null){
-			initTokenizerModel();
-		}
-		if(getParserModel() == null){
-			initParserModel();
-		}
+//		if(getTokenizerModel() == null){
+//			initTokenizerModel();
+//		}
+//		if(getParserModel() == null){
+//			initParserModel();
+//		}
 		StringBuilder builder = new StringBuilder();
 		for(int i=0;i<sentence.length; i++) {
 			builder.append(sentence[i]);
@@ -371,11 +392,6 @@ public class BioTMLOpenNLP {
 	 * 
 	 */
 	public void clearModelsInMemory(){
-		sentenceModel = null;
-		postaggerModel = null;
-		tokeniserModel = null; 
-		chunkerModel = null;
-		parserModel = null;
 		_instance = null;
 	}
 }

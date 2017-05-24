@@ -8,9 +8,9 @@ import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLExc
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLNLP;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
 
-public class OpenNLP implements IBioTMLNLP {
+public class OpenNLPImpl implements IBioTMLNLP {
 	
-	public OpenNLP() {
+	public OpenNLPImpl() {
 		
 	}
 
