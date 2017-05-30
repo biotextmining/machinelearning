@@ -14,13 +14,11 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLO
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLEntityImpl implements IBioTMLEntity{
+public class BioTMLEntityImpl extends BioTMLAnnotationImpl implements IBioTMLEntity{
 
 	private static final long serialVersionUID = 1L;
 	private long docID;
 	private IBioTMLOffsetsPair annotationOffsets;
-	private String annotationType;
-	private double annotationScore;
 
 	/**
 	 * 
@@ -46,10 +44,9 @@ public class BioTMLEntityImpl implements IBioTMLEntity{
 	 * @param score - Score value from model evaluation.
 	 */
 	public BioTMLEntityImpl( long docID, String annotType, long startOffset, long endOffset, double score ){
+		super(annotType, score);
 		this.docID = docID;
 		this.annotationOffsets = new BioTMLOffsetsPairImpl(startOffset, endOffset);
-		this.annotationType = annotType;
-		this.annotationScore = score;
 	}
 
 	@Override
@@ -61,17 +58,6 @@ public class BioTMLEntityImpl implements IBioTMLEntity{
 	public IBioTMLOffsetsPair getAnnotationOffsets() {
 		return annotationOffsets;
 	}
-	
-	@Override
-	public String getAnnotationType() {
-		return annotationType;
-	}
-
-	@Override
-	public Double getAnnotationScore() {
-		return annotationScore;
-	}
-
 
 	@Override
 	public long getStartOffset() {
@@ -81,46 +67,6 @@ public class BioTMLEntityImpl implements IBioTMLEntity{
 	@Override
 	public long getEndOffset() {
 		return getAnnotationOffsets().getEndOffset();
-	}
-
-
-	@Override
-	public String toString(){
-		return "DocID: " + getDocID() + " Type: " + getAnnotationType() + " ( " + getStartOffset() + " - " + getEndOffset() + " ) ";
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((annotationType == null) ? 0 : annotationType.hashCode());
-		result = prime * result + ((annotationOffsets == null) ? 0 : annotationOffsets.hashCode());
-		result = prime * result + (int) (docID ^ (docID >>> 32));
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		BioTMLEntityImpl other = (BioTMLEntityImpl) obj;
-		if (annotationType == null) {
-			if (other.annotationType != null)
-				return false;
-		} else if (!annotationType.equals(other.annotationType))
-			return false;
-		if (annotationOffsets == null) {
-			if (other.annotationOffsets != null)
-				return false;
-		} else if (!annotationOffsets.equals(other.annotationOffsets))
-			return false;
-		if (docID != other.docID)
-			return false;
-		return true;
 	}
 
 	@Override
@@ -154,5 +100,39 @@ public class BioTMLEntityImpl implements IBioTMLEntity{
 //		}
 		return o.getAnnotationType().compareTo(this.getAnnotationType());
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((annotationOffsets == null) ? 0 : annotationOffsets.hashCode());
+		result = prime * result + (int) (docID ^ (docID >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BioTMLEntityImpl other = (BioTMLEntityImpl) obj;
+		if (annotationOffsets == null) {
+			if (other.annotationOffsets != null)
+				return false;
+		} else if (!annotationOffsets.equals(other.annotationOffsets))
+			return false;
+		if (docID != other.docID)
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString(){
+		return "DocID: " + getDocID() + " Type: " + getAnnotationType() + " ( " + getStartOffset() + " - " + getEndOffset() + " ) ";
+	}
+
 
 }

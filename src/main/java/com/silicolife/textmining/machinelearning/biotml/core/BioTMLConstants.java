@@ -36,17 +36,5 @@ public enum BioTMLConstants {
 		public String toString() {
 			return "trigger";
 		}
-	},
-	isAnnotation{
-		@Override
-		public String toString() {
-			return "Token belongs to a annotation";
-		}
-	},
-	isNotAnnotation{
-		@Override
-		public String toString() {
-			return "Token doesn't belong to a annotation";
-		}
 	}
 }

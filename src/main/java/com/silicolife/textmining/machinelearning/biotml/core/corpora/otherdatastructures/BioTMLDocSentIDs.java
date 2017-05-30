@@ -13,9 +13,6 @@ public class BioTMLDocSentIDs implements Serializable{
 	private long docId;
 	private int sentId;
 	private int tokenId = -1;
-	private int annotTokenRelationStartIndex = -1;
-	private int annotTokenRelationEndIndex = -1;
-	private boolean onlyAnnotations = false;
 	private List<IBioTMLAssociation> associations = new ArrayList<>();
 	private IBioTMLAssociation association;
 
@@ -35,18 +32,6 @@ public class BioTMLDocSentIDs implements Serializable{
 	public int getTokenId() {
 		return tokenId;
 	}
-	
-	public int getAnnotTokenRelationStartIndex(){
-		return annotTokenRelationStartIndex;
-	}
-	
-	public int getAnnotTokenRelationEndIndex(){
-		return annotTokenRelationEndIndex;
-	}
-
-	public boolean isOnlyAnnotations() {
-		return onlyAnnotations;
-	}
 
 	public List<IBioTMLAssociation> getAssociations() {
 		return associations;
@@ -58,18 +43,6 @@ public class BioTMLDocSentIDs implements Serializable{
 
 	public void setTokenId(int tokenId) {
 		this.tokenId = tokenId;
-	}
-
-	public void setAnnotTokenRelationStartIndex(int annotTokenRelationStartIndex) {
-		this.annotTokenRelationStartIndex = annotTokenRelationStartIndex;
-	}
-
-	public void setAnnotTokenRelationEndIndex(int annotTokenRelationEndIndex) {
-		this.annotTokenRelationEndIndex = annotTokenRelationEndIndex;
-	}
-
-	public void setOnlyAnnotations(boolean onlyAnnotations) {
-		this.onlyAnnotations = onlyAnnotations;
 	}
 
 	public void setAssociations(List<IBioTMLAssociation> associations) {

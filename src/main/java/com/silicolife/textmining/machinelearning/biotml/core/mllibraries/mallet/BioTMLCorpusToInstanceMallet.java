@@ -13,6 +13,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLC
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusToInstancesThreadCreator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLREMethodologyConfiguration;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.multithread.BioTMLCorpusToNERInstancesThreadCreator;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.multithread.BioTMLCorpusToREInstancesThreadCreator;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.multithread.InstanceListExtended;
@@ -34,7 +35,7 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 	private IBioTMLCorpus corpus;
 	private String annotType;
 	private String ieType;
-	private String reMehtodology;
+	private IBioTMLREMethodologyConfiguration reMehtodology;
 	private ExecutorService executor;
 	private IBioTMLCorpusToInstancesThreadCreator instancesCreator;
 
@@ -64,7 +65,7 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 		return ieType;
 	}
 	
-	public String getREMehtodology() {
+	public IBioTMLREMethodologyConfiguration getREMehtodology() {
 		return reMehtodology;
 	}
 

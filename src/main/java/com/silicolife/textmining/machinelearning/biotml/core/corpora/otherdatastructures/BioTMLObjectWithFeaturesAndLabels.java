@@ -14,7 +14,6 @@ public class BioTMLObjectWithFeaturesAndLabels<O> implements Serializable{
 	private Class<O> type;
 	private List<O> bioTMLObjects;
 	private List<BioTMLConstants> labels;
-	private List<BioTMLConstants> filterConstants;
 	private List<List<String>> features;
 	private List<IBioTMLToken> tokens;
 	
@@ -24,7 +23,6 @@ public class BioTMLObjectWithFeaturesAndLabels<O> implements Serializable{
 		this.bioTMLObjects = new ArrayList<>();
 		this.labels = new ArrayList<>();
 		this.features = new ArrayList<>();
-		this.filterConstants = new ArrayList<>();
 		this.tokens = new ArrayList<>();
 	}
 	
@@ -38,10 +36,6 @@ public class BioTMLObjectWithFeaturesAndLabels<O> implements Serializable{
 
 	public List<BioTMLConstants> getLabels() {
 		return labels;
-	}
-
-	public List<BioTMLConstants> getFilterConstants() {
-		return filterConstants;
 	}
 
 	public List<List<String>> getFeatures() {
@@ -69,16 +63,6 @@ public class BioTMLObjectWithFeaturesAndLabels<O> implements Serializable{
 	
 	public void addBioTMLObjectForModel(O obj, BioTMLConstants label){
 		this.addBioTMLObjectForPrediction(obj);
-		getLabels().add(label);
-	}
-	
-	public void addBioTMLObjectForPredictionAnnotationFiltering(O obj, BioTMLConstants filterConstant){
-		this.addBioTMLObjectForPrediction(obj);
-		getFilterConstants().add(filterConstant);
-	}
-	
-	public void addBioTMLObjectForModelAnnotationFiltering(O obj, BioTMLConstants label, BioTMLConstants filterConstant){
-		this.addBioTMLObjectForPredictionAnnotationFiltering(obj, filterConstant);
 		getLabels().add(label);
 	}
 	

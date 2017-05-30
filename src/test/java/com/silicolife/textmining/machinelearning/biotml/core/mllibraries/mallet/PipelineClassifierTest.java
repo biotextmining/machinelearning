@@ -27,7 +27,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelWriter;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiEvaluation;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
-import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.MalletClassifierModel;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j.BioTMLNLP4J;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReaderImpl;
@@ -172,7 +172,7 @@ public class PipelineClassifierTest {
 	}
 	
 	private IBioTMLModelConfigurator defaultConfiguration(String modelClassType, String modelIEType){
-		BioTMLModelConfigurator configuration = new BioTMLModelConfigurator(modelClassType, modelIEType);
+		BioTMLModelConfiguratorImpl configuration = new BioTMLModelConfiguratorImpl(modelClassType, modelIEType);
 		configuration.setAlgorithmType(BioTMLAlgorithm.malletsvm);
 		return configuration;
 	}

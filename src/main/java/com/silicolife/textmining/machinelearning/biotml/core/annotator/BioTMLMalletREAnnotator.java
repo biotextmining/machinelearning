@@ -11,8 +11,6 @@ import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatast
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEvent;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
@@ -74,15 +72,9 @@ public class BioTMLMalletREAnnotator {
 			Sequence predictedLabels = transducerProcessor.getPredictionForInstance(instance);
 			Double predictionScore = transducerProcessor.getPredictionScoreForInstance(instance);
 			BioTMLDocSentIDs ids = (BioTMLDocSentIDs)instance.getName();
-			IBioTMLDocument doc = corpus.getDocumentByID(ids.getDocId());
 			for(int tokenIndexOrAssociationIndex=0; tokenIndexOrAssociationIndex<predictedLabels.size(); tokenIndexOrAssociationIndex++){
 				String prediction = predictedLabels.get(tokenIndexOrAssociationIndex).toString();
-				if(!prediction.equals(BioTMLConstants.o.toString()) && ids.getAnnotTokenRelationStartIndex() != -1 && ids.getAnnotTokenRelationEndIndex() != -1){
-					IBioTMLEntity annotationOrClue = transducerProcessor.getEntity(corpus, doc, ids.getSentId(),ids.getAnnotTokenRelationStartIndex(), ids.getAnnotTokenRelationEndIndex());
-					if(annotationOrClue != null){
-						transducerProcessor.addPredictedEvent(corpus, events, doc, ids.getSentId(), tokenIndexOrAssociationIndex, annotationOrClue, ids.isOnlyAnnotations(), model.getModelConfiguration().getClassType(), model.getModelConfiguration().getREMethodology(), prediction, predictionScore);
-					}
-				}else if(!prediction.equals(BioTMLConstants.o.toString()) && !ids.getAssociations().isEmpty()){
+				if(!prediction.equals(BioTMLConstants.o.toString()) && !ids.getAssociations().isEmpty()){
 					IBioTMLAssociation association = ids.getAssociations().get(tokenIndexOrAssociationIndex);
 					transducerProcessor.addEvent(events, association, model.getModelConfiguration().getClassType(), predictionScore);
 				}
@@ -101,13 +93,7 @@ public class BioTMLMalletREAnnotator {
 			String predictedLabel = classifierProcessor.getPredictionForInstance(instance);
 			Double predictionScore = classifierProcessor.getPredictionScoreForInstance(instance);
 			BioTMLDocSentIDs ids = (BioTMLDocSentIDs)instance.getName();
-			IBioTMLDocument doc = corpus.getDocumentByID(ids.getDocId());
-			if(!predictedLabel.equals(BioTMLConstants.o.toString()) && ids.getAnnotTokenRelationStartIndex() != -1 && ids.getAnnotTokenRelationEndIndex() != -1){
-				IBioTMLEntity trigger = classifierProcessor.getEntity(corpus, doc, ids.getSentId(),ids.getAnnotTokenRelationStartIndex(), ids.getAnnotTokenRelationEndIndex());
-				if(trigger != null){
-					classifierProcessor.addPredictedEvent(corpus, events, doc, ids.getSentId(), ids.getTokenId(), trigger, ids.isOnlyAnnotations(), model.getModelConfiguration().getClassType(), model.getModelConfiguration().getREMethodology(), predictedLabel, predictionScore);
-				}
-			}else if(!predictedLabel.equals(BioTMLConstants.o.toString()) && ids.getAssociation() != null)
+			if(!predictedLabel.equals(BioTMLConstants.o.toString()) && ids.getAssociation() != null)
 				classifierProcessor.addEvent(events, ids.getAssociation(), model.getModelConfiguration().getClassType(), predictionScore);
 		}
 	}

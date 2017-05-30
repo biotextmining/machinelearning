@@ -2,7 +2,6 @@ package com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet
 
 import java.util.List;
 
-import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLObjectWithFeaturesAndLabels;
 
 import cc.mallet.pipe.Pipe;
@@ -47,21 +46,20 @@ public class CorpusWithFeatures2TokenSequence extends Pipe {
 		StringBuilder sourceData = new StringBuilder();
 
 		for( int i = 0; i<bioTMLObjectWithLabels.getBioTMLObjects().size(); i++){
-			if(bioTMLObjectWithLabels.getFilterConstants().isEmpty()
-					|| bioTMLObjectWithLabels.getFilterConstants().get(i).equals(BioTMLConstants.isAnnotation)){
-				Object tokenString = bioTMLObjectWithLabels.getBioTMLObjects().get(i);
-				Token token = new Token(tokenString.toString());
-				List<String> features = bioTMLObjectWithLabels.getFeatures().get(i);
-				for(String feature: features){
-					token.setFeatureValue(feature, 1.0);
-				}
-				intancesData.add(token);
-				if(!bioTMLObjectWithLabels.getLabels().isEmpty()){
-					targetData.add(bioTMLObjectWithLabels.getLabels().get(i).toString());
-				}
-				sourceData.append(tokenString.toString());
-				sourceData.append(" ");
+
+			Object tokenString = bioTMLObjectWithLabels.getBioTMLObjects().get(i);
+			Token token = new Token(tokenString.toString());
+			List<String> features = bioTMLObjectWithLabels.getFeatures().get(i);
+			for(String feature: features){
+				token.setFeatureValue(feature, 1.0);
 			}
+			intancesData.add(token);
+			if(!bioTMLObjectWithLabels.getLabels().isEmpty()){
+				targetData.add(bioTMLObjectWithLabels.getLabels().get(i).toString());
+			}
+			sourceData.append(tokenString.toString());
+			sourceData.append(" ");
+
 		}
 
 		carrier.setData(intancesData);

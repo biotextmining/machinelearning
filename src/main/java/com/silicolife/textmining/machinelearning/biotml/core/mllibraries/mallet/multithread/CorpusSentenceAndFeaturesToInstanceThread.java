@@ -7,7 +7,6 @@ import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatast
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLObjectWithFeaturesAndLabels;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeaturesManager;
-import com.silicolife.textmining.machinelearning.biotml.core.features.datastructures.BioTMLAssociationProcess;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
@@ -88,14 +87,7 @@ public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 					if(getBioTMLObjectWithFeaturesAndLabels().getBioTMLObjectClass().isAssignableFrom(IBioTMLToken.class)){
 						IBioTMLFeatureGenerator classProcesser = BioTMLFeaturesManager.getInstance().getNERClass(classUID);
 						visitedUID.addAll(classProcesser.getNERFeatureIds());
-						if(getDocIDandSentIdx().getAnnotTokenRelationStartIndex() != -1 && getDocIDandSentIdx().getAnnotTokenRelationEndIndex() != -1){
-							BioTMLAssociationProcess bioTMLObjectAnnotProcess = new BioTMLAssociationProcess(tokens, getDocIDandSentIdx().getAnnotTokenRelationStartIndex(), getDocIDandSentIdx().getAnnotTokenRelationEndIndex());
-							IBioTMLFeatureColumns<IBioTMLToken> features = classProcesser.getFeatureColumns(tokens, getConfiguration());
-							features.updateBioTMLObjectFeaturesUsingAssociationProcess(bioTMLObjectAnnotProcess);
-							allColumns.add(features);
-						}else{
-							allColumns.add(classProcesser.getFeatureColumns(getBioTMLObjectWithFeaturesAndLabels().getTokens(),  getConfiguration()));
-						}
+						allColumns.add(classProcesser.getFeatureColumns(getBioTMLObjectWithFeaturesAndLabels().getTokens(),  getConfiguration()));
 					}else if(getBioTMLObjectWithFeaturesAndLabels().getBioTMLObjectClass().isAssignableFrom(IBioTMLAssociation.class)){
 						IBioTMLFeatureGenerator classProcesser = BioTMLFeaturesManager.getInstance().getREClass(classUID);
 						visitedUID.addAll(classProcesser.getREFeatureIds());

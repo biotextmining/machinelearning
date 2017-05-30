@@ -18,21 +18,18 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLO
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLEventImpl implements IBioTMLEvent {
+public class BioTMLEventImpl extends BioTMLAnnotationImpl implements IBioTMLEvent {
 	
 	private static final long serialVersionUID = 1L;
 	private IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity> association;
-	private String annotationType;
-	private double annotationScore;
 	
 	public BioTMLEventImpl(IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity> association, String eventType){
 		this(association, eventType, 100000.0);
 	}
 	
 	public BioTMLEventImpl(IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity> association, String eventType, double score){
+		super(eventType, score);
 		this.association = association;
-		this.annotationType = eventType;
-		this.annotationScore = score;
 	}
 	
 	@Override
@@ -49,17 +46,6 @@ public class BioTMLEventImpl implements IBioTMLEvent {
 	@Override
 	public IBioTMLAssociation getAssociation() {
 		return association;
-	}
-
-
-	@Override
-	public String getAnnotationType() {
-		return annotationType;
-	}
-
-	@Override
-	public Double getAnnotationScore() {
-		return annotationScore;
 	}
 	
 	@Override
@@ -107,9 +93,8 @@ public class BioTMLEventImpl implements IBioTMLEvent {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + ((association == null) ? 0 : association.hashCode());
-		result = prime * result + ((annotationType == null) ? 0 : annotationType.hashCode());
 		return result;
 	}
 
@@ -117,7 +102,7 @@ public class BioTMLEventImpl implements IBioTMLEvent {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
@@ -127,17 +112,12 @@ public class BioTMLEventImpl implements IBioTMLEvent {
 				return false;
 		} else if (!association.equals(other.association))
 			return false;
-		if (annotationType == null) {
-			if (other.annotationType != null)
-				return false;
-		} else if (!annotationType.equals(other.annotationType))
-			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "( " + association + ", eventType=" + annotationType + ", score=" + annotationScore + " )";
+		return "BioTMLEventImpl [association=" + association + "]";
 	}
 
 }

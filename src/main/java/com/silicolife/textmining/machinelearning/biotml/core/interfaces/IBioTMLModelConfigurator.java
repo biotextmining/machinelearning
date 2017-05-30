@@ -64,7 +64,7 @@ public interface IBioTMLModelConfigurator extends Serializable{
 	 */
 	public svm_parameter getSVMParameters();
 	
-	public String getREMethodology();
+	public IBioTMLREMethodologyConfiguration getREMethodology();
 	
 	/**
 	 * 
@@ -109,5 +109,5 @@ public interface IBioTMLModelConfigurator extends Serializable{
 	 */
 	public void setUsedNLPSystem(String nlpSystem);
 	
-	public void setREMethodology(String reMethodology);
+	public void setREMethodology(IBioTMLREMethodologyConfiguration reMethodology);
 }

@@ -11,9 +11,8 @@ import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLExc
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiModel;
-import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLMultiModelImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLREModelTypes;
 
 public class CreateREModelFile {
 	
@@ -30,9 +29,8 @@ public class CreateREModelFile {
 			List<IBioTMLModelConfigurator> configurations = new ArrayList<IBioTMLModelConfigurator>();
 			IBioTMLModelConfigurator configuration = modelConfiguration.getBioTMLModelConfigurator();
 			configurations.add(configuration );
-			if(configuration.getREMethodology().equals(BioTMLREModelTypes.alltokenscoocurrencewithtriggers.toString())
-					|| configuration.getREMethodology().equals(BioTMLREModelTypes.annotationtokenscoocurrencewithtriggers.toString())){
-				IBioTMLModelConfigurator cluesConfiguration = new BioTMLModelConfigurator(BioTMLConstants.trigger.toString(), BioTMLConstants.ner.toString());
+			if(configuration.getREMethodology().containsTriggers()){
+				IBioTMLModelConfigurator cluesConfiguration = new BioTMLModelConfiguratorImpl(BioTMLConstants.trigger.toString(), BioTMLConstants.ner.toString());
 				cluesConfiguration.setAlgorithmType(configuration.getAlgorithmType());
 				cluesConfiguration.setModelOrder(configuration.getModelOrder());
 				cluesConfiguration.setNumThreads(configuration.getNumThreads());

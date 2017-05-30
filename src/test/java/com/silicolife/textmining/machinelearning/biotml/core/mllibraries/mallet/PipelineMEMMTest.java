@@ -20,7 +20,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelEvaluationConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelWriter;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
-import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j.BioTMLNLP4J;
 import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLModelWriterImpl;
 
@@ -169,7 +169,7 @@ public class PipelineMEMMTest {
 	}
 	
 	private static IBioTMLModelConfigurator defaultConfiguration(String modelClassType, String modelIEType){
-		return new BioTMLModelConfigurator(modelClassType, modelIEType);
+		return new BioTMLModelConfiguratorImpl(modelClassType, modelIEType);
 	}
 	
 	private static IBioTMLModelEvaluationConfigurator defaultEvaluationConfiguration(){

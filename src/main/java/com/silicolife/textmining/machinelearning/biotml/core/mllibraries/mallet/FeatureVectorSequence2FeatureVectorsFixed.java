@@ -51,9 +51,6 @@ public class FeatureVectorSequence2FeatureVectorsFixed extends Pipe
 			
 			BioTMLDocSentIDs oldIDs = (BioTMLDocSentIDs)superInstance.getName();
 			BioTMLDocSentIDs ids = new BioTMLDocSentIDs(oldIDs.getDocId(), oldIDs.getSentId());
-			ids.setAnnotTokenRelationStartIndex(oldIDs.getAnnotTokenRelationStartIndex());
-			ids.setAnnotTokenRelationEndIndex(oldIDs.getAnnotTokenRelationEndIndex());
-			ids.setOnlyAnnotations(oldIDs.isOnlyAnnotations());
 			@SuppressWarnings("rawtypes")
 			List<IBioTMLAssociation> associations = oldIDs.getAssociations();
 			if(!associations.isEmpty())

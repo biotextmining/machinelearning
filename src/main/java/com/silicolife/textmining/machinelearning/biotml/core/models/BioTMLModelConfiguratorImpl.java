@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLREMethodologyConfiguration;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
 
 import libsvm.svm_parameter;
@@ -16,7 +17,7 @@ import libsvm.svm_parameter;
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
  */
 
-public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
+public class BioTMLModelConfiguratorImpl implements IBioTMLModelConfigurator{
 
 	private static final long serialVersionUID = 1L;
 	private String classType;
@@ -26,14 +27,14 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 	private BioTMLAlgorithm algorithm;
 	private svm_parameter svmparams;
 	private String nlpSystemUsed;
-	private String reMethodology;
+	private IBioTMLREMethodologyConfiguration reMethodology;
 
 	/**
 	 * 
 	 * Initializes Mallet model settings.
 	 * 
 	 */
-	public BioTMLModelConfigurator(){
+	public BioTMLModelConfiguratorImpl(){
 		this.classType = new String();
 		this.ieType = new String();
 		this.modelOrder = 1;
@@ -41,7 +42,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 		this.algorithm = BioTMLAlgorithm.malletcrf;
 		this.svmparams = svmdefparams();
 		this.nlpSystemUsed = "nlp4j";
-		this.reMethodology = new String();
+		this.reMethodology = new BioTMLREMethodologyConfigurationImpl();
 	}
 
 	/**
@@ -51,7 +52,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 	 * @param classType - A string that represents a trained model for a specific entity class type or event class type.
 	 * @param ieType - A string that represents the type of Information Extraction (e.g NER or RE).
 	 */
-	public BioTMLModelConfigurator(String classType, String	ieType){
+	public BioTMLModelConfiguratorImpl(String classType, String	ieType){
 		this.classType = classType;
 		this.ieType = ieType;
 		this.modelOrder = 1;
@@ -59,7 +60,7 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 		this.algorithm = BioTMLAlgorithm.malletcrf;
 		this.svmparams = svmdefparams();
 		this.nlpSystemUsed = "nlp4j";
-		this.reMethodology = BioTMLREModelTypes.events.toString();
+		this.reMethodology = new BioTMLREMethodologyConfigurationImpl();
 	}
 	
 	public String getClassType(){
@@ -90,11 +91,11 @@ public class BioTMLModelConfigurator implements IBioTMLModelConfigurator{
 		return nlpSystemUsed;
 	}
 	
-	public String getREMethodology() {
+	public IBioTMLREMethodologyConfiguration getREMethodology() {
 		return reMethodology;
 	}
 
-	public void setREMethodology(String reMethodology) {
+	public void setREMethodology(IBioTMLREMethodologyConfiguration reMethodology) {
 		this.reMethodology = reMethodology;
 	}
 

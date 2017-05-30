@@ -26,7 +26,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeat
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeaturesManager;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
-import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfigurator;
+import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfiguratorImpl;
 import com.silicolife.textmining.machinelearning.processes.corpora.loaders.CreateCorpusFromPublicationManagerTest;
 import com.silicolife.textmining.machinelearning.processes.ie.ner.linnaeus.LinnaeusTest;
 
@@ -76,15 +76,15 @@ public class CreateBioTMLModelFromNERSchemaTest {
 	 */
 	private List<IBioTMLModelConfigurator> getSubModelsConfigurations(){
 		List<IBioTMLModelConfigurator> subModelsConfiguration = new ArrayList<>();
-		IBioTMLModelConfigurator enzymeSubmodel = new BioTMLModelConfigurator("Enzyme",BioTMLConstants.ner.toString());
+		IBioTMLModelConfigurator enzymeSubmodel = new BioTMLModelConfiguratorImpl("Enzyme",BioTMLConstants.ner.toString());
 		subModelsConfiguration.add(enzymeSubmodel);
-		IBioTMLModelConfigurator geneSubmodel = new BioTMLModelConfigurator("Gene",BioTMLConstants.ner.toString());
+		IBioTMLModelConfigurator geneSubmodel = new BioTMLModelConfiguratorImpl("Gene",BioTMLConstants.ner.toString());
 		subModelsConfiguration.add(geneSubmodel);
-		IBioTMLModelConfigurator compoundSubmodel = new BioTMLModelConfigurator("Compound",BioTMLConstants.ner.toString());
+		IBioTMLModelConfigurator compoundSubmodel = new BioTMLModelConfiguratorImpl("Compound",BioTMLConstants.ner.toString());
 		subModelsConfiguration.add(compoundSubmodel);
-		IBioTMLModelConfigurator pathwaysSubmodel = new BioTMLModelConfigurator("Pathways",BioTMLConstants.ner.toString());
+		IBioTMLModelConfigurator pathwaysSubmodel = new BioTMLModelConfiguratorImpl("Pathways",BioTMLConstants.ner.toString());
 		subModelsConfiguration.add(pathwaysSubmodel);
-		IBioTMLModelConfigurator proteinSubmodel = new BioTMLModelConfigurator("Protein",BioTMLConstants.ner.toString());
+		IBioTMLModelConfigurator proteinSubmodel = new BioTMLModelConfiguratorImpl("Protein",BioTMLConstants.ner.toString());
 		subModelsConfiguration.add(proteinSubmodel);
 		return subModelsConfiguration;
 	}
