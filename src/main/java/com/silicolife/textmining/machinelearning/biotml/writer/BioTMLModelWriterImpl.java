@@ -20,9 +20,6 @@ import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLExc
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelWriter;
 
-import cc.mallet.pipe.Pipe;
-import cc.mallet.types.Alphabet;
-
 /**
  * 
  * BioTML model writer class.
@@ -57,8 +54,6 @@ public class BioTMLModelWriterImpl implements IBioTMLModelWriter {
 			ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(getFileName())));
 			oos.writeObject(model);
 			oos.close();
-			model.cleanAlphabetMemory();
-			model.cleanPipeMemory();
 		} catch (IOException exc) {
 			throw new BioTMLException(20,exc);
 		}
@@ -83,8 +78,6 @@ public class BioTMLModelWriterImpl implements IBioTMLModelWriter {
 			filename = tempdir.getAbsolutePath()+"/"+submodel.getModelConfiguration().getClassType()+".gz";
 			writeGZModelFile(submodel);
 		}
-		Alphabet.cleanAllAphabetsFromMemory();
-		Pipe.cleanAllPipesFromMemory();
 		try {
 			//add readme file.
 			Files.move(readmeFile.toPath(), new File(tempdir.getAbsolutePath()+"/"+readmeFile.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -110,8 +103,6 @@ public class BioTMLModelWriterImpl implements IBioTMLModelWriter {
 		String originalFilename= filename;
 		filename = tempdir.getAbsolutePath()+"/"+model.getModelConfiguration().getClassType()+".gz";
 		writeGZModelFile(model);
-		Alphabet.cleanAllAphabetsFromMemory();
-		Pipe.cleanAllPipesFromMemory();
 		String modelFileName = filename;
 		filename = originalFilename;
 		return modelFileName;
@@ -132,8 +123,6 @@ public class BioTMLModelWriterImpl implements IBioTMLModelWriter {
 			tempdir.mkdirs();
 		}
 		String finaldirfile = getFileName();
-		Alphabet.cleanAllAphabetsFromMemory();
-		Pipe.cleanAllPipesFromMemory();
 		try {
 			for(String modelpath:modelFilesPaths){
 				Path path = Paths.get(modelpath);
