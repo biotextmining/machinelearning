@@ -15,15 +15,18 @@ import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.FilenameUtils;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLEntityImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLEntityImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLSentenceImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLTokenImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusReader;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLSentence;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPManager;
 
 /**
@@ -38,7 +41,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.nlp.BioTMLNLPManage
 public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 
 	private Map<String, Long> mapDocNameToDocID;
-	
+
 	/**
 	 * 
 	 * Initializes the corpus reader.
@@ -59,7 +62,7 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 			throw new BioTMLException("The NLP System is not recognized!");
 		}
 	}
-	
+
 	public IBioTMLCorpus readBioTMLCorpusFromBioCFiles(String documentFile, String nlpSystem) throws BioTMLException{
 		File corpusFile = new File(documentFile);
 		if(!corpusFile.isFile()){
@@ -71,7 +74,7 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 			throw new BioTMLException("The NLP System is not recognized!");
 		}
 	}
-	
+
 	public IBioTMLCorpus readBioTMLCorpusFromBioCFiles(String documentFile, String annotationsFile,  String nlpSystem) throws BioTMLException{
 		File corpusFile = new File(documentFile);
 		File corpusAnnotationsFile = new File(annotationsFile);
@@ -88,7 +91,7 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 			throw new BioTMLException("The NLP System is not recognized!");
 		}
 	}
-	
+
 	public IBioTMLCorpus readBioTMLCorpusFromFile(String filename) throws BioTMLException{
 		try {
 			ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(filename)));
@@ -99,11 +102,11 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 			throw new BioTMLException(exc);
 		}
 	}
-	
+
 	private Map<String, Long> getMapDocNameToDocID(){
 		return mapDocNameToDocID;
 	}
-	
+
 	private long getLastDocID(){
 		Integer[] docIDs = getMapDocNameToDocID().values().toArray(new Integer[0]);
 		if(docIDs.length>0){
@@ -112,44 +115,56 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 		}else{
 			return -1;
 		}
-		
+
 	}
-	
+
 	private IBioTMLCorpus readAnnotationsFromBioCFile(IBioTMLCorpus documentCorpus, File corpusAnnotationsFile) throws BioTMLException{
 		try {
-		List<IBioTMLEntity> annotations = new ArrayList<IBioTMLEntity>();
-		BufferedReader reader = new BufferedReader(new FileReader(corpusAnnotationsFile));
-		String line;
-		while((line = reader.readLine())!=null){
-			String[] annoation = line.split("\t");
-			if(annoation.length != 6){
-				reader.close();
-				throw new BioTMLException("The corpusAnnotationsFile is not a compatible BioCreative document file!");
-			}
-			IBioTMLDocument document = null;
-			try{
-				document = documentCorpus.getDocumentByExternalID(annoation[0]);
-			}catch (BioTMLException exc){}
-			
-			if(document != null){
-				long startOffset = Long.valueOf(annoation[2]);
-				long endOffset = Long.valueOf(annoation[3]);
-				if(annoation[1].equals("T")){
-					int lastSentence = document.getSentences().size()-1;
-					long textSize = document.getSentence(lastSentence).getStartSentenceOffset() - (long) document.getTitle().length();
-					startOffset = startOffset + textSize;
-					endOffset = endOffset + textSize;
+			List<IBioTMLEntity> annotations = new ArrayList<IBioTMLEntity>();
+			BufferedReader reader = new BufferedReader(new FileReader(corpusAnnotationsFile));
+			String line;
+			while((line = reader.readLine())!=null){
+				String[] annoation = line.split("\t");
+				if(annoation.length != 6){
+					reader.close();
+					throw new BioTMLException("The corpusAnnotationsFile is not a compatible BioCreative document file!");
 				}
-				annotations.add(new BioTMLEntityImpl(document.getID(), annoation[5], startOffset, endOffset));
+				IBioTMLDocument document = null;
+				try{
+					document = documentCorpus.getDocumentByExternalID(annoation[0]);
+				}catch (BioTMLException exc){}
+
+				if(document != null){
+					long startOffset = Long.valueOf(annoation[2]);
+					long endOffset = Long.valueOf(annoation[3]);
+					if(annoation[1].equals("T")){
+						int lastSentence = document.getSentences().size()-1;
+						IBioTMLSentence possibleTitle = document.getSentence(lastSentence);
+						if(possibleTitle.toString().equals(document.getTitle())){
+							long textSize = document.getSentence(lastSentence).getEndSentenceOffset() - (long) document.getTitle().length();
+							startOffset = startOffset + textSize;
+							endOffset = endOffset + textSize;
+						}else{
+							reader.close();
+							throw new BioTMLException("The title is not equal to last sentence in BioTMLDocument");
+						}
+					}
+
+					String docTextAnnot = document.toString().substring((int)startOffset, (int)endOffset);
+					if(!annoation[4].equals(docTextAnnot)){
+						reader.close();
+						throw new BioTMLException("Annotation offsets are not correct to token string");
+					}
+					annotations.add(new BioTMLEntityImpl(document.getID(), annoation[5], startOffset, endOffset));
+				}
 			}
-		}
-		reader.close();
-		return new BioTMLCorpusImpl(documentCorpus.getDocuments(), annotations, documentCorpus.toString());
+			reader.close();
+			return new BioTMLCorpusImpl(documentCorpus.getDocuments(), annotations, documentCorpus.toString());
 		} catch (IOException exc) {
 			throw new BioTMLException(exc);
 		}
 	}
-	
+
 	private IBioTMLCorpus readDocumentsFromBioCFile(File corpusFile, String nlpSystem) throws BioTMLException{
 		try {
 			List<IBioTMLDocument> documents = new ArrayList<IBioTMLDocument>();
@@ -163,17 +178,21 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 					throw new BioTMLException("The documentFile is not a compatible BioCreative document file!");
 				}
 				List<IBioTMLSentence> sentences = new ArrayList<IBioTMLSentence>();
-				sentences = BioTMLNLPManager.getInstance().getNLPById(nlpSystem).getSentences(document[2]+System.lineSeparator()+document[1]);
-
-//				if(nlpSystem == BioTMLNLPSystemsEnum.clearnlp){
-//					sentences = BioTMLClearNLP.getInstance().getSentences(document[2]+System.lineSeparator()+document[1]);
-//				}
-//				if(nlpSystem == BioTMLNLPSystemsEnum.opennlp ){
-//					sentences = BioTMLOpenNLP.getInstance().getSentences(document[2]+System.lineSeparator()+document[1]);
-//				}
-//				if(nlpSystem == BioTMLNLPSystemsEnum.stanfordnlp){
-//					sentences = BioTMLStanfordNLP.getInstance().getSentences(document[2]+System.lineSeparator()+document[1]);
-//				}
+				String title = document[1];
+				String documentText = document[2];
+				
+				sentences = BioTMLNLPManager.getInstance().getNLPById(nlpSystem).getSentences(documentText);
+				IBioTMLSentence lastSentence = sentences.get(sentences.size()-1);
+				long lastOffset = lastSentence.getEndSentenceOffset()+1;
+				List<IBioTMLSentence> titleSentences = BioTMLNLPManager.getInstance().getNLPById(nlpSystem).getSentences(title);
+				
+				List<IBioTMLToken> sentence = new ArrayList<>();
+				for(IBioTMLSentence titleSentence : titleSentences)
+					for(IBioTMLToken token : titleSentence.getTokens())
+						sentence.add(new BioTMLTokenImpl(token.getToken(), token.getStartOffset()+lastOffset, token.getEndOffset()+lastOffset));
+					
+				sentences.add(new BioTMLSentenceImpl(sentence, title));
+				
 				documents.add(new BioTMLDocumentImpl(docID, document[1], document[0], sentences));
 				docID++;
 			}
@@ -210,15 +229,6 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 					}
 					List<IBioTMLSentence> sentences = new ArrayList<IBioTMLSentence>();
 					sentences = BioTMLNLPManager.getInstance().getNLPById(nlpSystem).getSentences(documentText.toString());
-//					if(nlpSystem == BioTMLNLPSystemsEnum.clearnlp){
-//						sentences = BioTMLClearNLP.getInstance().getSentences(documentText.toString());
-//					}
-//					if(nlpSystem == BioTMLNLPSystemsEnum.opennlp ){
-//						sentences = BioTMLOpenNLP.getInstance().getSentences(documentText.toString());
-//					}
-//					if(nlpSystem == BioTMLNLPSystemsEnum.stanfordnlp){
-//						sentences = BioTMLStanfordNLP.getInstance().getSentences(documentText.toString());
-//					}
 					documents.add(new BioTMLDocumentImpl(getMapDocNameToDocID().get(externalID), title, externalID, sentences));
 				}
 			}
@@ -227,7 +237,7 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 			throw new BioTMLException(exc);
 		}
 	}
-	
+
 	private List<IBioTMLEntity> readAnnotations(File annotationFile) throws BioTMLException{
 		try {
 			List<IBioTMLEntity> annotations = new ArrayList<IBioTMLEntity>();
