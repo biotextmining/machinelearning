@@ -43,28 +43,26 @@ public class CorpusWithFeatures2TokenSequence extends Pipe {
 		BioTMLObjectWithFeaturesAndLabels<?> bioTMLObjectWithLabels = (BioTMLObjectWithFeaturesAndLabels<?>) carrier.getData();
 		TokenSequence intancesData = new TokenSequence(bioTMLObjectWithLabels.getBioTMLObjects().size());
 		LabelSequence targetData = new LabelSequence((LabelAlphabet) getTargetAlphabet(), bioTMLObjectWithLabels.getBioTMLObjects().size());
-		StringBuilder sourceData = new StringBuilder();
 
 		for( int i = 0; i<bioTMLObjectWithLabels.getBioTMLObjects().size(); i++){
 
 			Object tokenString = bioTMLObjectWithLabels.getBioTMLObjects().get(i);
 			Token token = new Token(tokenString.toString());
 			List<String> features = bioTMLObjectWithLabels.getFeatures().get(i);
-			for(String feature: features){
+			
+			for(String feature: features)
 				token.setFeatureValue(feature, 1.0);
-			}
+			
 			intancesData.add(token);
-			if(!bioTMLObjectWithLabels.getLabels().isEmpty()){
+			if(!bioTMLObjectWithLabels.getLabels().isEmpty())
 				targetData.add(bioTMLObjectWithLabels.getLabels().get(i).toString());
-			}
-			sourceData.append(tokenString.toString());
-			sourceData.append(" ");
 
 		}
 
 		carrier.setData(intancesData);
 		carrier.setTarget(targetData);
-		carrier.setSource(sourceData.toString());
+		carrier.setName(bioTMLObjectWithLabels.getBioTMLObjects());
+		carrier.setSource(carrier.getSource());
 		return carrier;
 	}
 

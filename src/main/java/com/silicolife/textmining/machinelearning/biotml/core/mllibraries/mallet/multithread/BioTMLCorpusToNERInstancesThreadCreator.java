@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentIDs;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLObjectWithFeaturesAndLabels;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
@@ -37,14 +36,10 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 	@Override
 	public void insertInstancesIntoExecutor(ExecutorService executor, IBioTMLFeatureGeneratorConfigurator configuration, InstanceListExtended instances) throws BioTMLException{
 		for(IBioTMLDocument document : getCorpus().getDocuments()){
-			int sentID = 0;
 			for(IBioTMLSentence sentence : document.getSentences()){
 				BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> tokensWithLabels = sentenceToExportForNER(document.getID(), sentence);
-				if(!tokensWithLabels.getBioTMLObjects().isEmpty()){
-					BioTMLDocSentIDs ids = new BioTMLDocSentIDs(document.getID(), sentID);
-					executor.execute(new CorpusSentenceAndFeaturesToInstanceThread(ids, tokensWithLabels, instances, configuration));
-				}
-				sentID++;
+				if(!tokensWithLabels.getBioTMLObjects().isEmpty())
+					executor.execute(new CorpusSentenceAndFeaturesToInstanceThread(document, tokensWithLabels, instances, configuration));
 				if(stop)
 					break;
 			}
@@ -84,16 +79,12 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 		List<IBioTMLEntity> docAnnotations = getCorpus().getDocEntities(docID);
 		if(!docAnnotations.isEmpty()){
 			for(IBioTMLEntity annotation : docAnnotations){
-				if(token.getEndOffset()<annotation.getStartOffset()){
-					return BioTMLConstants.o;
-				}
 				if(annotation.getAnnotationType().equals(getAnnotationType())){
-					if(annotation.getStartOffset() == token.getStartOffset()){
+					if(annotation.getStartOffset() == token.getStartOffset())
 						return BioTMLConstants.b;
-					}
-					if(annotation.getAnnotationOffsets().offsetsOverlap(token.getTokenOffsetsPair())){
+					
+					if(annotation.getAnnotationOffsets().offsetsOverlap(token.getTokenOffsetsPair()))
 						return BioTMLConstants.i;
-					}
 				}
 				if(stop)
 					break;

@@ -48,9 +48,9 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 * @return
 	 */
 	public Set<IBioTMLEntity> addPredictedAnnotation(Set<IBioTMLEntity> annotations, IBioTMLDocument doc, 
-			int sentIndex, int tokenIndex, String tokenClass, String prediction,double predictionScore){
-
-		IBioTMLToken token = doc.getSentence(sentIndex).getToken(tokenIndex);
+			IBioTMLToken token, String tokenClass, String prediction,double predictionScore){
+		if(token.getToken().contains("New") && !prediction.equals(BioTMLConstants.o.toString()))
+			System.out.println();
 		if(prediction.equals(BioTMLConstants.b.toString())){
 			IBioTMLEntity annot = new BioTMLEntityImpl(doc.getID(), tokenClass, token.getStartOffset(), token.getEndOffset(), predictionScore);
 			annotations.add(annot);
@@ -71,7 +71,7 @@ public abstract class BioTMLMalletAnnotatorProcessor {
 	 * @param token
 	 */
 	private void joinTokenToLastAnnotation(Set<IBioTMLEntity> annotations, IBioTMLDocument doc, String tokenClass, double predictionScore, IBioTMLToken token) {
-		if(annotations.size()>0){
+		if(!annotations.isEmpty()){
 			IBioTMLEntity annotiationBegin = null;
 			boolean foundPreviousAnnotation = false;
 			Iterator<IBioTMLEntity> itAnnot = annotations.iterator();

@@ -2,12 +2,12 @@ package com.silicolife.textmining.machinelearning.biotml.core.annotator;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.processors.BioTMLMalletClassifierAnnotatorProcessor;
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.processors.BioTMLMalletTransducerAnnotatorProcessor;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentIDs;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
@@ -71,11 +71,12 @@ public class BioTMLMalletREAnnotator {
 			Instance instance = itInstance.next();
 			Sequence predictedLabels = transducerProcessor.getPredictionForInstance(instance);
 			Double predictionScore = transducerProcessor.getPredictionScoreForInstance(instance);
-			BioTMLDocSentIDs ids = (BioTMLDocSentIDs)instance.getName();
-			for(int tokenIndexOrAssociationIndex=0; tokenIndexOrAssociationIndex<predictedLabels.size(); tokenIndexOrAssociationIndex++){
-				String prediction = predictedLabels.get(tokenIndexOrAssociationIndex).toString();
-				if(!prediction.equals(BioTMLConstants.o.toString()) && !ids.getAssociations().isEmpty()){
-					IBioTMLAssociation association = ids.getAssociations().get(tokenIndexOrAssociationIndex);
+			@SuppressWarnings("unchecked")
+			List<IBioTMLAssociation> associations = (List<IBioTMLAssociation>)instance.getName();
+			for(int associationIndex=0; associationIndex<predictedLabels.size(); associationIndex++){
+				IBioTMLAssociation association = associations.get(associationIndex);
+				String prediction = predictedLabels.get(associationIndex).toString();
+				if(!prediction.equals(BioTMLConstants.o.toString())){
 					transducerProcessor.addEvent(events, association, model.getModelConfiguration().getClassType(), predictionScore);
 				}
 			}
@@ -83,6 +84,7 @@ public class BioTMLMalletREAnnotator {
 
 	}
 
+	@SuppressWarnings("rawtypes")
 	private void predictEventsUsingClassifierProcessor(IBioTMLCorpus corpus, IBioTMLModel model, int threads,
 			Set<IBioTMLEvent> events) throws BioTMLException {
 		classifierProcessor = new BioTMLMalletClassifierAnnotatorProcessor(corpus, model, threads);
@@ -92,9 +94,9 @@ public class BioTMLMalletREAnnotator {
 			Instance instance = itInstance.next();
 			String predictedLabel = classifierProcessor.getPredictionForInstance(instance);
 			Double predictionScore = classifierProcessor.getPredictionScoreForInstance(instance);
-			BioTMLDocSentIDs ids = (BioTMLDocSentIDs)instance.getName();
-			if(!predictedLabel.equals(BioTMLConstants.o.toString()) && ids.getAssociation() != null)
-				classifierProcessor.addEvent(events, ids.getAssociation(), model.getModelConfiguration().getClassType(), predictionScore);
+			IBioTMLAssociation association = (IBioTMLAssociation)instance.getName();
+			if(!predictedLabel.equals(BioTMLConstants.o.toString()))
+				classifierProcessor.addEvent(events, association, model.getModelConfiguration().getClassType(), predictionScore);
 		}
 	}
 	
