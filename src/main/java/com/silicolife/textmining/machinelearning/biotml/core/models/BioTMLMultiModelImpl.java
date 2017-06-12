@@ -26,8 +26,8 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiEvaluation;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiModel;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
-import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.MalletClassifierModel;
-import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.MalletTransducerModel;
+import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.BioTMLMalletClassifierModelImpl;
+import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.BioTMLMalletTransducerModelImpl;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReaderImpl;
 import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLModelWriterImpl;
 
@@ -102,14 +102,14 @@ public class BioTMLMultiModelImpl implements IBioTMLMultiModel{
 	private void addInitModelConfig(List<IBioTMLModel> modelsList, IBioTMLFeatureGeneratorConfigurator features, IBioTMLModelConfigurator configuration) {
 		if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletcrf) 
 				|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.mallethmm)){
-			modelsList.add(new MalletTransducerModel(features, configuration));
+			modelsList.add(new BioTMLMalletTransducerModelImpl(features, configuration));
 		}
 		if(configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletsvm)
 				|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletnaivebayes)
 				|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletdecisiontree)
 				|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletmaxent)
 				|| configuration.getAlgorithmType().equals(BioTMLAlgorithm.malletc45)){
-			modelsList.add(new MalletClassifierModel(features, configuration));
+			modelsList.add(new BioTMLMalletClassifierModelImpl(features, configuration));
 		}
 	}
 

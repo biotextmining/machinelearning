@@ -28,7 +28,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiEvaluation;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfiguratorImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.MalletClassifierModel;
+import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.BioTMLMalletClassifierModelImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j.BioTMLNLP4J;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReaderImpl;
 import com.silicolife.textmining.machinelearning.biotml.writer.BioTMLModelWriterImpl;
@@ -186,7 +186,7 @@ public class PipelineClassifierTest {
 	
 	private void testTrainAndSavingModel() throws BioTMLException, IOException{
 		IBioTMLCorpus corpus = new BioTMLCorpusImpl(loadDocuments(), loadAnnotations(),"");
-		IBioTMLModel svm = new MalletClassifierModel(loadfeatures(), defaultConfiguration("protein", BioTMLConstants.ner.toString()));
+		IBioTMLModel svm = new BioTMLMalletClassifierModelImpl(loadfeatures(), defaultConfiguration("protein", BioTMLConstants.ner.toString()));
 		IBioTMLMultiEvaluation res = svm.evaluate(corpus, defaultEvaluationConfiguration());
 		System.out.println(res);
 		svm.train(corpus);

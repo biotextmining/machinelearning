@@ -26,7 +26,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelWriter;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfiguratorImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.MalletTransducerModel;
+import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.BioTMLMalletTransducerModelImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j.BioTMLNLP4J;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReaderImpl;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReaderImpl;
@@ -57,7 +57,7 @@ public class ModelCreationAndAnnotationTest {
 		System.out.println("Starting the model...");
 		
 //		IBioTMLModel model =new MalletClassifierModel(corpus, loadFeatures(), configuration, defaultEvaluationConfiguration());
-		IBioTMLModel model = new MalletTransducerModel(loadFeatures(),defaultConfiguration(modelClassType, modelIEType));
+		IBioTMLModel model = new BioTMLMalletTransducerModelImpl(loadFeatures(),defaultConfiguration(modelClassType, modelIEType));
 //		System.out.println("Executing the model evaluation...");
 //		IBioTMLModelEvaluationResults evaluation = model.evaluate(corpus, defaultEvaluationConfiguration());
 //		System.out.println(evaluation.printResults());
@@ -184,7 +184,7 @@ public class ModelCreationAndAnnotationTest {
 		String modelIEType = BioTMLConstants.ner.toString();
 		String modelDir = "C:\\Users\\RRodrigues\\Desktop\\test.gz";
 		IBioTMLCorpus corpus = new BioTMLCorpusImpl(loadDocumentsInJava(), loadAnnotationsInJava(),"");
-		IBioTMLModel model = new MalletTransducerModel(loadFeatures(),defaultConfiguration(modelClassType, modelIEType));
+		IBioTMLModel model = new BioTMLMalletTransducerModelImpl(loadFeatures(),defaultConfiguration(modelClassType, modelIEType));
 //		IBioTMLModelEvaluationResults res = model.evaluate(corpus, defaultEvaluationConfiguration());
 //		System.out.println(res.printResults());
 		model.train(corpus);
