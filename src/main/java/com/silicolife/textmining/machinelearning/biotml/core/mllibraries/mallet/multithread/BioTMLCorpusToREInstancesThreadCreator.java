@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAssociationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLObjectWithFeaturesAndLabels;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
@@ -102,7 +103,8 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 			Set<IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity>> associations) {
 		Set<IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity>> filteredAssociations = new HashSet<>();
 		for(IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity> association : associations){
-			if(allowedAssociations.contains(association))
+			IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation> associationType = new BioTMLAssociationImpl<>(new BioTMLAnnotationImpl(association.getEntryOne().getAnnotationType()),new BioTMLAnnotationImpl(association.getEntryTwo().getAnnotationType()));
+			if(allowedAssociations.contains(associationType))
 				filteredAssociations.add(association);
 		}
 		
