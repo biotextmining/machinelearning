@@ -38,5 +38,7 @@ public interface IBioTMLCorpusWriter {
 	 * @throws BioTMLException
 	 */
 	public void writeBioTMLCorpusFileSplitedForML(String dirnamepath) throws BioTMLException;
+	
+	public void writeToA1A2Format(String dirnamepath) throws BioTMLException;
 
 }
