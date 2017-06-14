@@ -3,6 +3,7 @@ package com.silicolife.textmining.machinelearning.biotml.core.models;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMalletTransducerConfiguration;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLREMethodologyConfiguration;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
@@ -19,13 +20,14 @@ import libsvm.svm_parameter;
 
 public class BioTMLModelConfiguratorImpl implements IBioTMLModelConfigurator{
 
+
 	private static final long serialVersionUID = 1L;
 	private String classType;
 	private String ieType;
-	private int modelOrder;
 	private int numThreads;
 	private BioTMLAlgorithm algorithm;
 	private svm_parameter svmparams;
+	private IBioTMLMalletTransducerConfiguration transducerConfiguration;
 	private String nlpSystemUsed;
 	private IBioTMLREMethodologyConfiguration reMethodology;
 
@@ -37,10 +39,10 @@ public class BioTMLModelConfiguratorImpl implements IBioTMLModelConfigurator{
 	public BioTMLModelConfiguratorImpl(){
 		this.classType = new String();
 		this.ieType = new String();
-		this.modelOrder = 1;
 		this.numThreads = Runtime.getRuntime().availableProcessors();
 		this.algorithm = BioTMLAlgorithm.malletcrf;
 		this.svmparams = svmdefparams();
+		this.transducerConfiguration = new BioTMLMalletTransducerConfigurationImpl();
 		this.nlpSystemUsed = "nlp4j";
 		this.reMethodology = new BioTMLREMethodologyConfigurationImpl();
 	}
@@ -55,10 +57,10 @@ public class BioTMLModelConfiguratorImpl implements IBioTMLModelConfigurator{
 	public BioTMLModelConfiguratorImpl(String classType, String	ieType){
 		this.classType = classType;
 		this.ieType = ieType;
-		this.modelOrder = 1;
 		this.numThreads = Runtime.getRuntime().availableProcessors();
 		this.algorithm = BioTMLAlgorithm.malletcrf;
 		this.svmparams = svmdefparams();
+		this.transducerConfiguration = new BioTMLMalletTransducerConfigurationImpl();
 		this.nlpSystemUsed = "nlp4j";
 		this.reMethodology = new BioTMLREMethodologyConfigurationImpl();
 	}
@@ -69,10 +71,6 @@ public class BioTMLModelConfiguratorImpl implements IBioTMLModelConfigurator{
 	
 	public String getIEType(){
 		return ieType;
-	}
-	
-	public int getModelOrder(){
-		return modelOrder;
 	}
 	
 	public int getNumThreads(){
@@ -97,10 +95,6 @@ public class BioTMLModelConfiguratorImpl implements IBioTMLModelConfigurator{
 
 	public void setREMethodology(IBioTMLREMethodologyConfiguration reMethodology) {
 		this.reMethodology = reMethodology;
-	}
-
-	public void setModelOrder(int modelOrder){
-		this.modelOrder = modelOrder;
 	}
 	
 	public void setNumThreads(int numThreads){
@@ -138,11 +132,19 @@ public class BioTMLModelConfiguratorImpl implements IBioTMLModelConfigurator{
         return params;
     }
     
+	public IBioTMLMalletTransducerConfiguration getTransducerConfiguration() {
+		return transducerConfiguration;
+	}
+
+	public void setTransducerConfiguration(IBioTMLMalletTransducerConfiguration transducerConfiguration) {
+		this.transducerConfiguration = transducerConfiguration;
+	}
+    
     public String toString(){
     	StringBuilder sb = new StringBuilder();
     	sb.append("ML Algorithm: " + getAlgorithmType( )+ System.lineSeparator());
     	if(getAlgorithmType().equals(BioTMLAlgorithm.malletcrf) || getAlgorithmType().equals(BioTMLAlgorithm.mallethmm)){
-    		sb.append("Model Order: " + String.valueOf(getModelOrder())+System.lineSeparator());
+    		sb.append("Model Order: " + String.valueOf(getTransducerConfiguration().getModelOrder())+System.lineSeparator());
     		return sb.toString();
     	}else{
     		for(Field field : getSVMParameters().getClass().getFields()){

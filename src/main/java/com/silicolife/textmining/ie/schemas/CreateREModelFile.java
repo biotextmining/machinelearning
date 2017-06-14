@@ -37,7 +37,7 @@ public class CreateREModelFile {
 			if(configuration.getREMethodology().containsTriggers()){
 				IBioTMLModelConfigurator cluesConfiguration = new BioTMLModelConfiguratorImpl(BioTMLConstants.trigger.toString(), BioTMLConstants.ner.toString());
 				cluesConfiguration.setAlgorithmType(configuration.getAlgorithmType());
-				cluesConfiguration.setModelOrder(configuration.getModelOrder());
+				cluesConfiguration.setTransducerConfiguration(configuration.getTransducerConfiguration());
 				cluesConfiguration.setNumThreads(configuration.getNumThreads());
 				cluesConfiguration.setSVMParameters(configuration.getSVMParameters());
 				cluesConfiguration.setUsedNLPSystem(configuration.getUsedNLPSystem());

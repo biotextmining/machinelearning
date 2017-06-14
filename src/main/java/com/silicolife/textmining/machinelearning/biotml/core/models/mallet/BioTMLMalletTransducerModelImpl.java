@@ -2,7 +2,6 @@ package com.silicolife.textmining.machinelearning.biotml.core.models.mallet;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
@@ -174,7 +173,7 @@ public class BioTMLMalletTransducerModelImpl extends BioTMLMalletModel implement
 	}
 
 	private int[] getModelOrders(){
-		int order = getModelConfiguration().getModelOrder() + 1;
+		int order = getModelConfiguration().getTransducerConfiguration().getModelOrder() + 1;
 		int[] orders = new int[order];
 		for (int i = 0; i < order; i++) {
 			orders[i] = i;
@@ -184,7 +183,11 @@ public class BioTMLMalletTransducerModelImpl extends BioTMLMalletModel implement
 
 	private CRF defineCRF(InstanceList dataToProcess){
 		CRF crfModel = new CRF(dataToProcess.getPipe(), (Pipe) null);
-		String startStateName = crfModel.addOrderNStates( dataToProcess, getModelOrders(), null, BioTMLConstants.o.toString(), Pattern.compile(BioTMLConstants.o.toString()+","+BioTMLConstants.i.toString()), null, true); 
+		String startStateName = crfModel.addOrderNStates(dataToProcess, getModelOrders(), null, 
+				getModelConfiguration().getTransducerConfiguration().getStart(), 
+				getModelConfiguration().getTransducerConfiguration().getForbiddenTransitionStates(), 
+				getModelConfiguration().getTransducerConfiguration().getAllowedTransitionStates(), 
+				true); 
 		// first param is the training data
 		//second param are the orders of the CRF (investigate that for our study)
 		//third param "defaults" parameter; see mallet javadoc
