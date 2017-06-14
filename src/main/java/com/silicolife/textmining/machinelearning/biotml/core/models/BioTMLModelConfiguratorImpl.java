@@ -3,6 +3,7 @@ package com.silicolife.textmining.machinelearning.biotml.core.models;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import com.silicolife.textmining.machinelearning.biotml.core.BioTMLModelLabelType;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMalletTransducerConfiguration;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelConfigurator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLREMethodologyConfiguration;
@@ -30,6 +31,7 @@ public class BioTMLModelConfiguratorImpl implements IBioTMLModelConfigurator{
 	private IBioTMLMalletTransducerConfiguration transducerConfiguration;
 	private String nlpSystemUsed;
 	private IBioTMLREMethodologyConfiguration reMethodology;
+	private BioTMLModelLabelType modelLabelType;
 
 	/**
 	 * 
@@ -45,6 +47,7 @@ public class BioTMLModelConfiguratorImpl implements IBioTMLModelConfigurator{
 		this.transducerConfiguration = new BioTMLMalletTransducerConfigurationImpl();
 		this.nlpSystemUsed = "nlp4j";
 		this.reMethodology = new BioTMLREMethodologyConfigurationImpl();
+		this.modelLabelType = BioTMLModelLabelType.bio;
 	}
 
 	/**
@@ -63,6 +66,7 @@ public class BioTMLModelConfiguratorImpl implements IBioTMLModelConfigurator{
 		this.transducerConfiguration = new BioTMLMalletTransducerConfigurationImpl();
 		this.nlpSystemUsed = "nlp4j";
 		this.reMethodology = new BioTMLREMethodologyConfigurationImpl();
+		this.modelLabelType = BioTMLModelLabelType.bio;
 	}
 	
 	public String getClassType(){
@@ -139,6 +143,14 @@ public class BioTMLModelConfiguratorImpl implements IBioTMLModelConfigurator{
 	public void setTransducerConfiguration(IBioTMLMalletTransducerConfiguration transducerConfiguration) {
 		this.transducerConfiguration = transducerConfiguration;
 	}
+
+	public BioTMLModelLabelType getModelLabelType() {
+		return modelLabelType;
+	}
+
+	public void setModelLabelType(BioTMLModelLabelType modelLabelType) {
+		this.modelLabelType = modelLabelType;
+	}
     
     public String toString(){
     	StringBuilder sb = new StringBuilder();
@@ -165,5 +177,5 @@ public class BioTMLModelConfiguratorImpl implements IBioTMLModelConfigurator{
     		return sb.toString();
     	}
     }
-	
+    
 }

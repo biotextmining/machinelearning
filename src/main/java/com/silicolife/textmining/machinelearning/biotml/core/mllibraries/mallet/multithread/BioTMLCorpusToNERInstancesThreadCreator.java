@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
+import com.silicolife.textmining.machinelearning.biotml.core.BioTMLModelLabelType;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLObjectWithFeaturesAndLabels;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
@@ -18,11 +19,13 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 	
 	private IBioTMLCorpus corpus;
 	private String annotType;
+	private BioTMLModelLabelType modelLabelType;
 	private boolean stop = false;
 
-	public BioTMLCorpusToNERInstancesThreadCreator(IBioTMLCorpus corpus, String annotType){
+	public BioTMLCorpusToNERInstancesThreadCreator(IBioTMLCorpus corpus, String annotType, BioTMLModelLabelType modelLabelType){
 		this.corpus = corpus;
 		this.annotType = annotType;
+		this.modelLabelType = modelLabelType;
 	}
 	
 	private IBioTMLCorpus getCorpus() {
@@ -31,6 +34,10 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 
 	private String getAnnotationType() {
 		return annotType;
+	}
+	
+	private BioTMLModelLabelType getModelLabelType(){
+		return modelLabelType;
 	}
 
 	@Override
@@ -83,8 +90,12 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 					if(annotation.getStartOffset() == token.getStartOffset())
 						return BioTMLConstants.b;
 					
-					if(annotation.getAnnotationOffsets().offsetsOverlap(token.getTokenOffsetsPair()))
+					if(annotation.getAnnotationOffsets().offsetsOverlap(token.getTokenOffsetsPair())
+							&& getModelLabelType().equals(BioTMLModelLabelType.bio))
 						return BioTMLConstants.i;
+					if(annotation.getAnnotationOffsets().offsetsOverlap(token.getTokenOffsetsPair())
+							&& getModelLabelType().equals(BioTMLModelLabelType.bo))
+						return BioTMLConstants.b;
 				}
 				if(stop)
 					break;

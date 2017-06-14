@@ -2,6 +2,7 @@ package com.silicolife.textmining.machinelearning.biotml.core.interfaces;
 
 import java.io.Serializable;
 
+import com.silicolife.textmining.machinelearning.biotml.core.BioTMLModelLabelType;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
 
 import libsvm.svm_parameter;
@@ -100,4 +101,8 @@ public interface IBioTMLModelConfigurator extends Serializable{
 	public IBioTMLMalletTransducerConfiguration getTransducerConfiguration();
 	
 	public void setTransducerConfiguration(IBioTMLMalletTransducerConfiguration transducerConfiguration);
+	
+	public BioTMLModelLabelType getModelLabelType();
+
+	public void setModelLabelType(BioTMLModelLabelType modelLabelType);
 }
