@@ -32,7 +32,6 @@ import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLA
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLFeatureSelectionAlgorithm;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.libsvm.mallet.SVMClassifierTrainer;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.BioTMLCorpusToInstanceMallet;
-import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.FeatureVectorSequence2FeatureVectorsFixed;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.features.CorpusWithFeatures2TokenSequence;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet.multithread.MalletClassifierFoldProcessedInThread;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModel;
@@ -44,6 +43,7 @@ import cc.mallet.classify.DecisionTreeTrainer;
 import cc.mallet.classify.MaxEntTrainer;
 import cc.mallet.classify.NaiveBayesTrainer;
 import cc.mallet.pipe.Pipe;
+import cc.mallet.pipe.PrintTokenSequenceFeatures;
 import cc.mallet.pipe.SerialPipes;
 import cc.mallet.pipe.TokenSequence2FeatureVectorSequence;
 import cc.mallet.types.Alphabet;
@@ -91,7 +91,7 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 		pipe.add(new CorpusWithFeatures2TokenSequence());
 //		pipe.add(new PrintTokenSequenceFeatures());
 		pipe.add(new TokenSequence2FeatureVectorSequence(true, true));
-		pipe.add(new FeatureVectorSequence2FeatureVectorsFixed());
+//		pipe.add(new FeatureVectorSequence2FeatureVectorsFixed());
 		return new SerialPipes(pipe);
 	}
 
@@ -248,17 +248,17 @@ public class MalletClassifierModel extends BioTMLModel implements IBioTMLModel{
 	public void cleanAlphabetMemory(){
 		if(trainingdataset != null){
 			for(Alphabet alphabet :trainingdataset.getAlphabets()){
-				alphabet.cleanAlphabetFromMemory();
+//				alphabet.cleanAlphabetFromMemory();
 			}
 		}
 	}
 	
 	public void cleanPipeMemory(){
 		if(pipe != null){
-			pipe.cleanPipeFromMemory();
+//			pipe.cleanPipeFromMemory();
 			Pipe inputPipe = getModel().getInstancePipe();
 			if(inputPipe!=null){
-				inputPipe.cleanPipeFromMemory();
+//				inputPipe.cleanPipeFromMemory();
 			}
 		}
 	}
