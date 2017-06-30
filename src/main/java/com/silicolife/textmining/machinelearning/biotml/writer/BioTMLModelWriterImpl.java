@@ -1,14 +1,17 @@
 package com.silicolife.textmining.machinelearning.biotml.writer;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
@@ -19,9 +22,7 @@ import org.apache.commons.io.FileUtils;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelWriter;
-
-import cc.mallet.pipe.Pipe;
-import cc.mallet.types.Alphabet;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLMultiModel;
 
 /**
  * 
@@ -57,8 +58,6 @@ public class BioTMLModelWriterImpl implements IBioTMLModelWriter {
 			ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(getFileName())));
 			oos.writeObject(model);
 			oos.close();
-			model.cleanAlphabetMemory();
-			model.cleanPipeMemory();
 		} catch (IOException exc) {
 			throw new BioTMLException(20,exc);
 		}
@@ -83,8 +82,6 @@ public class BioTMLModelWriterImpl implements IBioTMLModelWriter {
 			filename = tempdir.getAbsolutePath()+"/"+submodel.getModelConfiguration().getClassType()+".gz";
 			writeGZModelFile(submodel);
 		}
-		Alphabet.cleanAllAphabetsFromMemory();
-		Pipe.cleanAllPipesFromMemory();
 		try {
 			//add readme file.
 			Files.move(readmeFile.toPath(), new File(tempdir.getAbsolutePath()+"/"+readmeFile.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -110,8 +107,6 @@ public class BioTMLModelWriterImpl implements IBioTMLModelWriter {
 		String originalFilename= filename;
 		filename = tempdir.getAbsolutePath()+"/"+model.getModelConfiguration().getClassType()+".gz";
 		writeGZModelFile(model);
-		Alphabet.cleanAllAphabetsFromMemory();
-		Pipe.cleanAllPipesFromMemory();
 		String modelFileName = filename;
 		filename = originalFilename;
 		return modelFileName;
@@ -132,8 +127,6 @@ public class BioTMLModelWriterImpl implements IBioTMLModelWriter {
 			tempdir.mkdirs();
 		}
 		String finaldirfile = getFileName();
-		Alphabet.cleanAllAphabetsFromMemory();
-		Pipe.cleanAllPipesFromMemory();
 		try {
 			for(String modelpath:modelFilesPaths){
 				Path path = Paths.get(modelpath);
@@ -168,6 +161,48 @@ public class BioTMLModelWriterImpl implements IBioTMLModelWriter {
 		zos.close();
 		fos.close();
 	}
+
+	@Override
+	public void writeMultiModel(IBioTMLMultiModel multiModel) throws BioTMLException {
+		List<String> modelPaths = new ArrayList<>();
+		for(IBioTMLModel model : multiModel.getModels())
+			modelPaths.add(saveGZModelForMultiModel(model));
+		
+		if(!modelPaths.isEmpty()){
+			writeZIPModelFilesSaved(modelPaths, generateReadmeFile( multiModel.getModels()));
+		}
+		
+	}
+	
+	private File generateReadmeFile(List<IBioTMLModel> models){
+	File readme = new File("README");
+	try {
+		readme.createNewFile();
+	} catch (IOException e1) {
+		e1.printStackTrace();
+	}
+	FileOutputStream fos;
+	try {
+		fos = new FileOutputStream(readme);
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+
+		bw.write("\n###################### README ########################\n\n"+
+				"The multi-model file was trained with:\n\n"+
+				" * IE Process Type: \n\n"+
+				" * Annotation Types:\n\t\t\t\t\t") ;
+		for(IBioTMLModel model:models){
+			bw.write(
+				" * Used NLP System: " + model.getModelConfiguration().getUsedNLPSystem() + "\n\n"+
+				" * Machine learning algorithm used: " + model.getModelConfiguration().getAlgorithmType() + "\n\n"+
+				" * Features used:\n\t\t\t\t\t" + model.getFeatureConfiguration().getFeaturesUIDs().toString().substring(1, model.getFeatureConfiguration().getFeaturesUIDs().toString().length()-1).replace(", ", "\n\t\t\t\t\t")+"\n\n");
+		}
+		bw.close();
+	} catch ( IOException e) {
+		e.printStackTrace();
+	}
+	return readme;
+}
+
 
 	
 }

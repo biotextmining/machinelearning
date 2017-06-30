@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
+import com.silicolife.textmining.machinelearning.biotml.core.BioTMLModelLabelType;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpusToInstanceMallet;
@@ -38,6 +39,7 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 	private IBioTMLREMethodologyConfiguration reMehtodology;
 	private ExecutorService executor;
 	private IBioTMLCorpusToInstancesThreadCreator instancesCreator;
+	private BioTMLModelLabelType modelLabelType;
 
 	/**
 	 * 
@@ -51,6 +53,7 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 		this.annotType = modelConfiguration.getClassType();
 		this.ieType = modelConfiguration.getIEType();
 		this.reMehtodology = modelConfiguration.getREMethodology();
+		this.modelLabelType = modelConfiguration.getModelLabelType();
 	}
 
 	public IBioTMLCorpus getCorpusToConvert() {
@@ -68,12 +71,16 @@ public class BioTMLCorpusToInstanceMallet implements IBioTMLCorpusToInstanceMall
 	public IBioTMLREMethodologyConfiguration getREMehtodology() {
 		return reMehtodology;
 	}
+	
+	public BioTMLModelLabelType getModelLabelType(){
+		return modelLabelType;
+	}
 
 	public InstanceList exportToMalletFeatures(Pipe p, int threads,  IBioTMLFeatureGeneratorConfigurator configuration) throws BioTMLException{
 		InstanceListExtended instances = new InstanceListExtended(p);
 		createFeaturesThreadExecutor(threads);
 		if(getIEAnnotationType().equals(BioTMLConstants.ner.toString())){
-			instancesCreator = new BioTMLCorpusToNERInstancesThreadCreator(getCorpusToConvert(), getConsideredAnnotationType());
+			instancesCreator = new BioTMLCorpusToNERInstancesThreadCreator(getCorpusToConvert(), getConsideredAnnotationType(), getModelLabelType());
 			instancesCreator.insertInstancesIntoExecutor(executor, configuration, instances);
 		}
 		if(getIEAnnotationType().equals(BioTMLConstants.re.toString())){

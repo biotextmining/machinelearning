@@ -3,11 +3,11 @@ package com.silicolife.textmining.machinelearning.biotml.core.mllibraries.mallet
 import java.util.ArrayList;
 import java.util.List;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentIDs;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLObjectWithFeaturesAndLabels;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.features.BioTMLFeaturesManager;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureColumns;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGenerator;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLFeatureGeneratorConfigurator;
@@ -25,7 +25,7 @@ import cc.mallet.types.Instance;
 
 public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 
-	private BioTMLDocSentIDs docIDandSentIdx;
+	private IBioTMLDocument document;
 	private BioTMLObjectWithFeaturesAndLabels<?> bioTMLObjectWithFeaturesAndLabels;
 	private InstanceListExtended instances;
 	private IBioTMLFeatureGeneratorConfigurator configuration;
@@ -34,20 +34,22 @@ public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 	 * 
 	 * Initializes a thread with a sentence to be converted into Mallet instance.
 	 * 
-	 * @param docIDandSentIdx - String that identifies the document ID and sentence index.
+	 * @param document - Document source.
+	 * @param biotmlObject - object that will be used on prediction
 	 * @param tokensWithLabels - Sentence string.
 	 * @param instances - InstanceList with thread safety to be populated with all sentences.
 	 */
-	public CorpusSentenceAndFeaturesToInstanceThread(BioTMLDocSentIDs docIDandSentIdx, BioTMLObjectWithFeaturesAndLabels<?> tokensWithFeaturesAndLabels, InstanceListExtended instances,  IBioTMLFeatureGeneratorConfigurator configuration){
-		this.docIDandSentIdx = docIDandSentIdx;
+	public CorpusSentenceAndFeaturesToInstanceThread(IBioTMLDocument document, BioTMLObjectWithFeaturesAndLabels<?> tokensWithFeaturesAndLabels, InstanceListExtended instances,  IBioTMLFeatureGeneratorConfigurator configuration){
+		this.document = document;
 		this.bioTMLObjectWithFeaturesAndLabels = tokensWithFeaturesAndLabels;
 		this.instances = instances;
 		this.configuration = configuration;
 	}
 
-	private BioTMLDocSentIDs getDocIDandSentIdx(){
-		return docIDandSentIdx;
+	private IBioTMLDocument getDocument(){
+		return document;
 	}
+	
 
 	private BioTMLObjectWithFeaturesAndLabels<?> getBioTMLObjectWithFeaturesAndLabels(){
 		return bioTMLObjectWithFeaturesAndLabels;
@@ -62,12 +64,12 @@ public class CorpusSentenceAndFeaturesToInstanceThread implements Runnable{
 	}
 
 	private void processColumns(List<IBioTMLFeatureColumns<?>> columns, InstanceListExtended instances) throws BioTMLException {
-		for(int i =0; i<getBioTMLObjectWithFeaturesAndLabels().getBioTMLObjects().size(); i++){
-			for(IBioTMLFeatureColumns<?> column : columns){
+		for(int i =0; i<getBioTMLObjectWithFeaturesAndLabels().getBioTMLObjects().size(); i++)
+			for(IBioTMLFeatureColumns<?> column : columns)
 				getBioTMLObjectWithFeaturesAndLabels().addFeaturesToBioTMLObjectIndex(i, column.getBioTMLObjectFeatures(i));
-			}
-		}
-		getInstances().addThruPipe(new Instance(getBioTMLObjectWithFeaturesAndLabels(), null, getDocIDandSentIdx(), null));
+			
+		
+		getInstances().addThruPipe(new Instance(getBioTMLObjectWithFeaturesAndLabels(), null, null, getDocument()));
 	}
 
 

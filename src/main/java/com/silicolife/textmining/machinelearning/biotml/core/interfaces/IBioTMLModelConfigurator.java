@@ -2,6 +2,7 @@ package com.silicolife.textmining.machinelearning.biotml.core.interfaces;
 
 import java.io.Serializable;
 
+import com.silicolife.textmining.machinelearning.biotml.core.BioTMLModelLabelType;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
 
 import libsvm.svm_parameter;
@@ -32,13 +33,6 @@ public interface IBioTMLModelConfigurator extends Serializable{
 	 */
 	public String getIEType();
 	
-	/**
-	 * 
-	 * Method to get the model order.
-	 * 
-	 * @return Number of model order.
-	 */
-	public int getModelOrder();
 	
 	/**
 	 * 
@@ -76,13 +70,6 @@ public interface IBioTMLModelConfigurator extends Serializable{
 	
 	/**
 	 * 
-	 * Method to set the model order.
-	 * 
-	 */
-	public void setModelOrder(int modelOrder);
-	
-	/**
-	 * 
 	 * Method to set the number of threads.
 	 * 
 	 */
@@ -110,4 +97,12 @@ public interface IBioTMLModelConfigurator extends Serializable{
 	public void setUsedNLPSystem(String nlpSystem);
 	
 	public void setREMethodology(IBioTMLREMethodologyConfiguration reMethodology);
+	
+	public IBioTMLMalletTransducerConfiguration getTransducerConfiguration();
+	
+	public void setTransducerConfiguration(IBioTMLMalletTransducerConfiguration transducerConfiguration);
+	
+	public BioTMLModelLabelType getModelLabelType();
+
+	public void setModelLabelType(BioTMLModelLabelType modelLabelType);
 }

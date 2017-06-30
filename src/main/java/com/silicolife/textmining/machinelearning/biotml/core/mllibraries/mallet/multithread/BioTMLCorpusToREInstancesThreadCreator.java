@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
+import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAnnotationImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLAssociationImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentIDs;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLObjectWithFeaturesAndLabels;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAnnotation;
@@ -53,15 +53,13 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 	@Override
 	public void insertInstancesIntoExecutor(ExecutorService executor, IBioTMLFeatureGeneratorConfigurator configuration, InstanceListExtended instances) throws BioTMLException {
 		for(IBioTMLDocument document : getCorpus().getDocuments()){
-			int sentID = 0;
 			for(IBioTMLSentence sentence : document.getSentences()){
 				Set<IBioTMLEntity> annotations = getCorpus().getEntitiesFromSentenceInDocumentId(document.getID(), sentence);
 				if(getREMethodology().getAllowedAssociations().isEmpty()){
-					generateInstanceForAllEvents(executor, configuration, instances, document.getID(), sentID, sentence, annotations);
+					generateInstanceForAllEvents(executor, configuration, instances, document, sentence, annotations);
 				}else{
-					generateInstanceForREMethodology(executor, configuration, instances, document.getID(), sentID, sentence, annotations, getREMethodology().getAllowedAssociations());
+					generateInstanceForREMethodology(executor, configuration, instances, document, sentence, annotations, getREMethodology().getAllowedAssociations());
 				}
-				sentID++;
 				if(stop)
 					break;
 			}
@@ -72,39 +70,31 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 	
 	@SuppressWarnings("rawtypes")
 	private void generateInstanceForAllEvents(ExecutorService executor,
-			IBioTMLFeatureGeneratorConfigurator configuration, InstanceListExtended instances, long docID, int sentID,
+			IBioTMLFeatureGeneratorConfigurator configuration, InstanceListExtended instances, IBioTMLDocument document,
 			IBioTMLSentence sentence, Set<IBioTMLEntity> annotations) {
 		
 		Set<IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity>> associations = generatePossibleAssociationsInSentence(annotations);
 		
-		BioTMLObjectWithFeaturesAndLabels<IBioTMLAssociation> associationsWithLabels = fillAssociationsWithLabels(docID, sentence, associations);
+		BioTMLObjectWithFeaturesAndLabels<IBioTMLAssociation> associationsWithLabels = fillAssociationsWithLabels(document.getID(), sentence, associations);
 		
-		if(!associationsWithLabels.getBioTMLObjects().isEmpty()){
-			BioTMLDocSentIDs ids = new BioTMLDocSentIDs(docID, sentID);
-			List<IBioTMLAssociation> associationsList = Arrays.asList(associations.toArray(new IBioTMLAssociation[0]));
-			ids.setAssociations(associationsList);
-			executor.execute(new CorpusSentenceAndFeaturesToInstanceThread(ids, associationsWithLabels, instances, configuration));
-		}
+		if(!associationsWithLabels.getBioTMLObjects().isEmpty())
+			executor.execute(new CorpusSentenceAndFeaturesToInstanceThread(document, associationsWithLabels, instances, configuration));
 		
 	}
 	
 	@SuppressWarnings("rawtypes")
 	private void generateInstanceForREMethodology(ExecutorService executor,
-			IBioTMLFeatureGeneratorConfigurator configuration, InstanceListExtended instances, long docID, int sentID,
+			IBioTMLFeatureGeneratorConfigurator configuration, InstanceListExtended instances, IBioTMLDocument document,
 			IBioTMLSentence sentence, Set<IBioTMLEntity> annotations, Set<IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation>> allowedAssociations) {
 		
 		Set<IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity>> associations = generatePossibleAssociationsInSentence(annotations);
 		
 		associations = filterAssociationsWithAllowedAssociations(allowedAssociations, associations);
 		
-		BioTMLObjectWithFeaturesAndLabels<IBioTMLAssociation> associationsWithLabels = fillAssociationsWithLabels(docID, sentence, associations);
+		BioTMLObjectWithFeaturesAndLabels<IBioTMLAssociation> associationsWithLabels = fillAssociationsWithLabels(document.getID(), sentence, associations);
 		
-		if(!associationsWithLabels.getBioTMLObjects().isEmpty()){
-			BioTMLDocSentIDs ids = new BioTMLDocSentIDs(docID, sentID);
-			List<IBioTMLAssociation> associationsList = Arrays.asList(associations.toArray(new IBioTMLAssociation[0]));
-			ids.setAssociations(associationsList);
-			executor.execute(new CorpusSentenceAndFeaturesToInstanceThread(ids, associationsWithLabels, instances, configuration));
-		}
+		if(!associationsWithLabels.getBioTMLObjects().isEmpty())
+			executor.execute(new CorpusSentenceAndFeaturesToInstanceThread(document, associationsWithLabels, instances, configuration));
 		
 	}
 
@@ -113,7 +103,8 @@ public class BioTMLCorpusToREInstancesThreadCreator implements IBioTMLCorpusToIn
 			Set<IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity>> associations) {
 		Set<IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity>> filteredAssociations = new HashSet<>();
 		for(IBioTMLAssociation<IBioTMLEntity, IBioTMLEntity> association : associations){
-			if(allowedAssociations.contains(association))
+			IBioTMLAssociation<IBioTMLAnnotation, IBioTMLAnnotation> associationType = new BioTMLAssociationImpl<>(new BioTMLAnnotationImpl(association.getEntryOne().getAnnotationType()),new BioTMLAnnotationImpl(association.getEntryTwo().getAnnotationType()));
+			if(allowedAssociations.contains(associationType))
 				filteredAssociations.add(association);
 		}
 		

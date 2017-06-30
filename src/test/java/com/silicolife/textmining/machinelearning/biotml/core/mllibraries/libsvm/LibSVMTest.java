@@ -79,7 +79,7 @@ public class LibSVMTest {
 
 	@Test
 	public void testSVM() throws IOException, ClassNotFoundException {        
-		File file = new File("machinelearning/"+ this.getClass().getPackage().getName().replace(".", "/"));
+		File file = new File("src/test/resources/biotml/core/milibraries/libsvm");
 		String path = file.getAbsolutePath();
 		testLinearKernel(path+"/a1a.train", path+"/a1a.test", path+"/a1a.out", path+"/a1a.model", loadParams());
 	}

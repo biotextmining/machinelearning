@@ -141,22 +141,15 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 						int lastSentence = document.getSentences().size()-1;
 						IBioTMLSentence possibleTitle = document.getSentence(lastSentence);
 						if(possibleTitle.toString().equals(document.getTitle())){
-//							System.out.println(document.getSentence(lastSentence).getEndSentenceOffset());
-//							System.out.println(document.getTitle().length());
 							long textSize = document.getSentence(lastSentence).getEndSentenceOffset() - (long) document.getTitle().length();
 							startOffset = startOffset + textSize;
-							System.out.println(startOffset);
 							endOffset = endOffset + textSize;
-							System.out.println(endOffset);
-							System.out.println(document.getTokens(startOffset, endOffset));
 						}else{
 							reader.close();
 							throw new BioTMLException("The title is not equal to last sentence in BioTMLDocument");
 						}
 					}
-
 					String docTextAnnot = document.toString().substring((int)startOffset, (int)endOffset);
-
 					if(!annoation[4].equals(docTextAnnot) && !detectChemicalFormula(annoation[4])){
 						reader.close();
 						throw new BioTMLException("Annotation offsets are not correct to token string");
@@ -174,6 +167,7 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 			throw new BioTMLException(exc);
 		}
 	}
+
 
 	private boolean detectChemicalFormula(String token){
 		if (token.startsWith("\"")){
@@ -205,19 +199,19 @@ public class BioTMLCorpusReaderImpl implements IBioTMLCorpusReader{
 				List<IBioTMLSentence> sentences = new ArrayList<IBioTMLSentence>();
 				String title = document[1];
 				String documentText = document[2];
-
+				
 				sentences = BioTMLNLPManager.getInstance().getNLPById(nlpSystem).getSentences(documentText);
 				IBioTMLSentence lastSentence = sentences.get(sentences.size()-1);
 				long lastOffset = lastSentence.getEndSentenceOffset()+1;
 				List<IBioTMLSentence> titleSentences = BioTMLNLPManager.getInstance().getNLPById(nlpSystem).getSentences(title);
-
+				
 				List<IBioTMLToken> sentence = new ArrayList<>();
 				for(IBioTMLSentence titleSentence : titleSentences)
 					for(IBioTMLToken token : titleSentence.getTokens())
 						sentence.add(new BioTMLTokenImpl(token.getToken(), token.getStartOffset()+lastOffset, token.getEndOffset()+lastOffset));
-
+					
 				sentences.add(new BioTMLSentenceImpl(sentence, title));
-
+				
 				documents.add(new BioTMLDocumentImpl(docID, document[1], document[0], sentences));
 				docID++;
 			}

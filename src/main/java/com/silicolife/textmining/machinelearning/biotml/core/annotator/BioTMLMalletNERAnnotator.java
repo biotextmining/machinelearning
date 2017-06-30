@@ -2,17 +2,18 @@ package com.silicolife.textmining.machinelearning.biotml.core.annotator;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.processors.BioTMLMalletClassifierAnnotatorProcessor;
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.processors.BioTMLMalletTransducerAnnotatorProcessor;
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentIDs;
 import com.silicolife.textmining.machinelearning.biotml.core.exception.BioTMLException;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLCorpus;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLDocument;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLEntity;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModel;
+import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 import com.silicolife.textmining.machinelearning.biotml.core.mllibraries.BioTMLAlgorithm;
 
 import cc.mallet.types.Instance;
@@ -78,10 +79,12 @@ public class BioTMLMalletNERAnnotator {
 			@SuppressWarnings("rawtypes")
 			Sequence predictedLabels = getTransducerProcessor().getPredictionForInstance(sentence);
 			Double predictionScore = getTransducerProcessor().getPredictionScoreForInstance(sentence);
-			BioTMLDocSentIDs ids = (BioTMLDocSentIDs)sentence.getName();
-			IBioTMLDocument doc = corpus.getDocumentByID(ids.getDocId());
+			IBioTMLDocument document = (IBioTMLDocument)sentence.getSource();
+			@SuppressWarnings("unchecked")
+			List<IBioTMLToken> biotmltokens = (List<IBioTMLToken>)sentence.getName();
 			for(int tokenIndex=0; tokenIndex < predictedLabels.size(); tokenIndex++){
-				getTransducerProcessor().addPredictedAnnotation(annotations, doc, ids.getSentId(), tokenIndex, 
+				IBioTMLToken token = biotmltokens.get(tokenIndex);
+				getTransducerProcessor().addPredictedAnnotation(annotations, document, token, 
 						model.getModelConfiguration().getClassType(), predictedLabels.get(tokenIndex).toString(), predictionScore);
 			}
 		}
@@ -97,9 +100,9 @@ public class BioTMLMalletNERAnnotator {
 			Instance token = itToken.next();
 			String predictedLabel = getClassifierProcessor().getPredictionForInstance(token);
 			Double predictionScore = getClassifierProcessor().getPredictionScoreForInstance(token);
-			BioTMLDocSentIDs ids = (BioTMLDocSentIDs)token.getName();
-			IBioTMLDocument doc = corpus.getDocumentByID(ids.getDocId());
-			getClassifierProcessor().addPredictedAnnotation(annotations, doc, ids.getSentId(), ids.getTokenId(), 
+			IBioTMLToken biotmlToken = (IBioTMLToken) token.getName();
+			IBioTMLDocument document = (IBioTMLDocument) token.getSource();
+			getClassifierProcessor().addPredictedAnnotation(annotations, document, biotmlToken, 
 					model.getModelConfiguration().getClassType(), predictedLabel, predictionScore);
 		}
 	}

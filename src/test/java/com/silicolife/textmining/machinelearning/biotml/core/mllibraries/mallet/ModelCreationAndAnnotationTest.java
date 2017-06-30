@@ -8,6 +8,7 @@ import java.util.TreeSet;
 
 import org.junit.Test;
 
+import com.silicolife.textmining.machinelearning.biotml.core.BioTMLConstants;
 import com.silicolife.textmining.machinelearning.biotml.core.annotator.BioTMLMalletAnnotatorImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLCorpusImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.corpora.BioTMLDocumentImpl;
@@ -25,7 +26,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLM
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelReader;
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLModelWriter;
 import com.silicolife.textmining.machinelearning.biotml.core.models.BioTMLModelConfiguratorImpl;
-import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.MalletTransducerModel;
+import com.silicolife.textmining.machinelearning.biotml.core.models.mallet.BioTMLMalletTransducerModelImpl;
 import com.silicolife.textmining.machinelearning.biotml.core.nlp.nlp4j.BioTMLNLP4J;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLCorpusReaderImpl;
 import com.silicolife.textmining.machinelearning.biotml.reader.BioTMLModelReaderImpl;
@@ -56,7 +57,7 @@ public class ModelCreationAndAnnotationTest {
 		System.out.println("Starting the model...");
 		
 //		IBioTMLModel model =new MalletClassifierModel(corpus, loadFeatures(), configuration, defaultEvaluationConfiguration());
-		IBioTMLModel model = new MalletTransducerModel(loadFeatures(),defaultConfiguration(modelClassType, modelIEType));
+		IBioTMLModel model = new BioTMLMalletTransducerModelImpl(loadFeatures(),defaultConfiguration(modelClassType, modelIEType));
 //		System.out.println("Executing the model evaluation...");
 //		IBioTMLModelEvaluationResults evaluation = model.evaluate(corpus, defaultEvaluationConfiguration());
 //		System.out.println(evaluation.printResults());
@@ -69,7 +70,7 @@ public class ModelCreationAndAnnotationTest {
 
 	}
 	
-	@Test
+//	@Test
 	public void annotateCorpusWithModel() throws BioTMLException{
 		String modelDir = "C:/Users/RRodrigues/Desktop/JNLPBA/model_test/model_all.zip";
 		String unannotatedCorpusFilename = "C:/Users/RRodrigues/Desktop/JNLPBA/Genia4EReval2.gz";
@@ -105,73 +106,73 @@ public class ModelCreationAndAnnotationTest {
 	
 	private BioTMLFeatureGeneratorConfiguratorImpl loadFeatures(){
 		Set<String> features = new TreeSet<String>();
-		features.add("2PREFIX");
-		features.add("2SUFFIX");
-		features.add("3PREFIX");
-		features.add("3SUFFIX");
-		features.add("4PREFIX");
-		features.add("4SUFFIX");
-		features.add("ALLCAPS");
-		features.add("AMINOACIDNAMES");
-		features.add("ANDOR");
-		features.add("APOSTROPHE");
-		features.add("ASTERISK");
-		features.add("BACKSLASH");
-		features.add("CHARNGRAM");
-		features.add("CLEARNLPDEPENDECY");
-		features.add("CLEARNLPLEMMA");
-		features.add("CLEARNLPPOS");
-		features.add("CLOSEBRACKET");
-		features.add("CLOSEPARENT");
-		features.add("COLON");
-		features.add("COMMA");
-		features.add("CONJUCTCLEARNLPLEMMA");
-		features.add("CONJUCTCLEARNLPPOS");
-		features.add("CONJUCTOPENNLPCHUNK");
-		features.add("CONJUCTOPENNLPPOS");
-		features.add("CONJUCTSTANFORDNLPPOS");
-		features.add("DOT");
-		features.add("ELEMENTNAMES");
-		features.add("ENDCAPS");
-		features.add("EQUAL");
-		features.add("GREEKSYMB");
-		features.add("HYPHEN");
-		features.add("INCHEMICALLIST");
-		features.add("INCLUESLIST");
-		features.add("INFREQUENTLIST");
-		features.add("INITCAPS");
-		features.add("LENGTH");
-		features.add("LENGTHGROUP");
-		features.add("MIXCAPS");
-		features.add("MOLECULARFORMULAS");
-		features.add("MORPHOLOGYTYPEI");
-		features.add("MORPHOLOGYTYPEII");
-		features.add("MORPHOLOGYTYPEIII");
-		features.add("NOCAPS");
-		features.add("NUMCAPS");
-		features.add("NUMDIGITS");
-		features.add("OPENBRACKET");
-		features.add("OPENNLPCHUNK");
-		features.add("OPENNLPCHUNKPARSING");
-		features.add("OPENNLPPOS");
-		features.add("OPENPARENT");
-		features.add("PERCENT");
-		features.add("PLUS");
-		features.add("PORTERSTEM");
-		features.add("POSSIBLEIDENTIFIER");
-		features.add("POSSIBLEIUPAC");
-		features.add("QUOTATIONMARK");
-		features.add("ROMANNUM");
-		features.add("SEMICOLON");
-		features.add("STANFORDNLPLEMMA");
-		features.add("STANFORDNLPPOS");
-		features.add("SYMBOLNUMCHAR");
-		features.add("WINDOWCLEARNLPLEMMA");
-		features.add("WINDOWCLEARNLPPOS");
-		features.add("WINDOWOPENNLPCHUNK");
-		features.add("WINDOWOPENNLPPOS");
-		features.add("WINDOWSTANFORDNLPLEMMA");
-		features.add("WINDOWSTANFORDNLPPOS");
+//		features.add("2PREFIX");
+//		features.add("2SUFFIX");
+//		features.add("3PREFIX");
+//		features.add("3SUFFIX");
+//		features.add("4PREFIX");
+//		features.add("4SUFFIX");
+//		features.add("ALLCAPS");
+//		features.add("AMINOACIDNAMES");
+//		features.add("ANDOR");
+//		features.add("APOSTROPHE");
+//		features.add("ASTERISK");
+//		features.add("BACKSLASH");
+//		features.add("CHARNGRAM");
+//		features.add("CLEARNLPDEPENDECY");
+//		features.add("CLEARNLPLEMMA");
+//		features.add("CLEARNLPPOS");
+//		features.add("CLOSEBRACKET");
+//		features.add("CLOSEPARENT");
+//		features.add("COLON");
+//		features.add("COMMA");
+//		features.add("CONJUCTCLEARNLPLEMMA");
+//		features.add("CONJUCTCLEARNLPPOS");
+//		features.add("CONJUCTOPENNLPCHUNK");
+//		features.add("CONJUCTOPENNLPPOS");
+//		features.add("CONJUCTSTANFORDNLPPOS");
+//		features.add("DOT");
+//		features.add("ELEMENTNAMES");
+//		features.add("ENDCAPS");
+//		features.add("EQUAL");
+//		features.add("GREEKSYMB");
+//		features.add("HYPHEN");
+//		features.add("INCHEMICALLIST");
+//		features.add("INCLUESLIST");
+//		features.add("INFREQUENTLIST");
+//		features.add("INITCAPS");
+//		features.add("LENGTH");
+//		features.add("LENGTHGROUP");
+//		features.add("MIXCAPS");
+//		features.add("MOLECULARFORMULAS");
+//		features.add("MORPHOLOGYTYPEI");
+//		features.add("MORPHOLOGYTYPEII");
+//		features.add("MORPHOLOGYTYPEIII");
+//		features.add("NOCAPS");
+//		features.add("NUMCAPS");
+//		features.add("NUMDIGITS");
+//		features.add("OPENBRACKET");
+//		features.add("OPENNLPCHUNK");
+//		features.add("OPENNLPCHUNKPARSING");
+//		features.add("OPENNLPPOS");
+//		features.add("OPENPARENT");
+//		features.add("PERCENT");
+//		features.add("PLUS");
+//		features.add("PORTERSTEM");
+//		features.add("POSSIBLEIDENTIFIER");
+//		features.add("POSSIBLEIUPAC");
+//		features.add("QUOTATIONMARK");
+//		features.add("ROMANNUM");
+//		features.add("SEMICOLON");
+//		features.add("STANFORDNLPLEMMA");
+//		features.add("STANFORDNLPPOS");
+//		features.add("SYMBOLNUMCHAR");
+//		features.add("WINDOWCLEARNLPLEMMA");
+//		features.add("WINDOWCLEARNLPPOS");
+//		features.add("WINDOWOPENNLPCHUNK");
+//		features.add("WINDOWOPENNLPPOS");
+//		features.add("WINDOWSTANFORDNLPLEMMA");
+//		features.add("WINDOWSTANFORDNLPPOS");
 		features.add("WORD");
 		return new BioTMLFeatureGeneratorConfiguratorImpl(features);
 	}
@@ -179,12 +180,11 @@ public class ModelCreationAndAnnotationTest {
 	
 //	@Test
 	public void testTrainAndSavingModel() throws BioTMLException, IOException{
-		String matrixFilename = "C:/Users/RRodrigues/Desktop/corpora/model_CRF_test.txt";
 		String modelClassType = "protein";
-		String modelIEType = "NER";
+		String modelIEType = BioTMLConstants.ner.toString();
 		String modelDir = "C:\\Users\\RRodrigues\\Desktop\\test.gz";
 		IBioTMLCorpus corpus = new BioTMLCorpusImpl(loadDocumentsInJava(), loadAnnotationsInJava(),"");
-		IBioTMLModel model = new MalletTransducerModel(loadFeatures(),defaultConfiguration(modelClassType, modelIEType));
+		IBioTMLModel model = new BioTMLMalletTransducerModelImpl(loadFeatures(),defaultConfiguration(modelClassType, modelIEType));
 //		IBioTMLModelEvaluationResults res = model.evaluate(corpus, defaultEvaluationConfiguration());
 //		System.out.println(res.printResults());
 		model.train(corpus);
@@ -192,12 +192,13 @@ public class ModelCreationAndAnnotationTest {
 		writer.writeGZModelFile(model);
 	}
 	
-//	@Test
+	@Test
 	public void testLoadAndAnnotateWithModel() throws BioTMLException, IOException{
 		String modelDir = "C:\\Users\\RRodrigues\\Desktop\\test.gz";
 		IBioTMLCorpus corpus = new BioTMLCorpusImpl(loadDocumentsInJava(),"");
 		IBioTMLModelReader modelreader = new BioTMLModelReaderImpl();
 		IBioTMLModel model = modelreader.loadModelFromGZFile(modelDir);
+		System.out.println(corpus.getEntities().size());
 		IBioTMLAnnotator annotator = new BioTMLMalletAnnotatorImpl(corpus);
 		IBioTMLCorpus annotatedCorpus = annotator.generateAnnotatedBioTMCorpus(model, model.getModelConfiguration().getNumThreads());
 		List<IBioTMLEntity> annotationsTest = annotatedCorpus.getEntities();

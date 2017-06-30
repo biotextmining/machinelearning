@@ -6,9 +6,6 @@ import java.io.ObjectOutputStream;
 import java.util.Iterator;
 import java.util.List;
 
-import com.silicolife.textmining.machinelearning.biotml.core.corpora.otherdatastructures.BioTMLDocSentIDs;
-import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLAssociation;
-
 import cc.mallet.pipe.Pipe;
 import cc.mallet.types.FeatureVectorSequence;
 import cc.mallet.types.Instance;
@@ -18,7 +15,7 @@ import cc.mallet.types.LabelSequence;
  * 
  * Given instances with a FeatureVectorSequence in the data field, break up the sequence into 
  * the individual FeatureVectors, producing one FeatureVector per Instance.
- * The hasNext method was fixed, the tokensequence counting was added to instance name and the source was inserted in the source instance.
+ * The hasNext method was fixed, the name object has list of objects to be iterated.
  * 
  * @since 1.0.0
  * @author Ruben Rodrigues ({@code rrodrigues@silicolife.com})
@@ -31,12 +28,13 @@ public class FeatureVectorSequence2FeatureVectorsFixed extends Pipe
 		Iterator<Instance> superIterator;
 		Instance superInstance;
 		@SuppressWarnings("rawtypes")
-		Iterator dataSubiterator, targetSubiterator;
+		Iterator dataSubiterator, targetSubiterator, nameSubIterator;
 		int count = 0;
 		public FeatureVectorIterator (Iterator<Instance> inputIterator) {
 			superInstance = inputIterator.next();
 			dataSubiterator = ((FeatureVectorSequence)superInstance.getData()).iterator();
 			targetSubiterator = ((LabelSequence)superInstance.getTarget()).iterator();
+			nameSubIterator = ((List<?>)superInstance.getName()).iterator();
 		}
 		public Instance next () {
 			if (!dataSubiterator.hasNext()) {
@@ -49,15 +47,7 @@ public class FeatureVectorSequence2FeatureVectorsFixed extends Pipe
 			assert (dataSubiterator.hasNext());
 			assert (targetSubiterator.hasNext());
 			
-			BioTMLDocSentIDs oldIDs = (BioTMLDocSentIDs)superInstance.getName();
-			BioTMLDocSentIDs ids = new BioTMLDocSentIDs(oldIDs.getDocId(), oldIDs.getSentId());
-			@SuppressWarnings("rawtypes")
-			List<IBioTMLAssociation> associations = oldIDs.getAssociations();
-			if(!associations.isEmpty())
-				ids.setAssociation(associations.get(count));
-			ids.setAssociations(associations);
-			ids.setTokenId(count++);
-			return new Instance (dataSubiterator.next(), targetSubiterator.next(), ids, superInstance.getSource());
+			return new Instance (dataSubiterator.next(), targetSubiterator.next(), nameSubIterator.next(), superInstance.getSource());
 
 		}
 		public boolean hasNext () {

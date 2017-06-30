@@ -52,4 +52,11 @@ public interface IBioTMLModelWriter {
 	 * @throws BioTMLException
 	 */
 	public void writeZIPModelFilesSaved(List<String> modelFilesPaths, File readmeFile) throws BioTMLException;
+	
+	/**
+	 * 
+	 * @param multiModel Trained multi model
+	 * @throws BioTMLException
+	 */
+	public void writeMultiModel(IBioTMLMultiModel multiModel) throws BioTMLException;
 }
