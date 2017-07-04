@@ -4,7 +4,7 @@
 
 	<groupId>com.silicolife.textmining</groupId>
 	<artifactId>machinelearning</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<packaging>jar</packaging>
 
 	<repositories>
@@ -101,12 +101,12 @@
 		<dependency>
 			<groupId>com.silicolife.textmining</groupId>
 			<artifactId>core</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.silicolife.textmining</groupId>
 			<artifactId>processes</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.rrodriguessilico</groupId>
