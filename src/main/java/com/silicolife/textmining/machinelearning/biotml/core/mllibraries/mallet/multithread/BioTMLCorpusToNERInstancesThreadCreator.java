@@ -53,7 +53,6 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 			if(stop)
 				break;
 		}
-		System.out.println("A");
 	}
 
 
