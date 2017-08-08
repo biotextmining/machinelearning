@@ -328,5 +328,11 @@ public class BioTMLCorpusImpl implements IBioTMLCorpus{
 		return eventsResult;
 	}
 
+	@Override
+	public void deleteDocumentByExternalID(String externalID) throws BioTMLException {
+		IBioTMLDocument document = getDocumentByExternalID(externalID);
+		documents.remove(document);
+	}
+
 
 }

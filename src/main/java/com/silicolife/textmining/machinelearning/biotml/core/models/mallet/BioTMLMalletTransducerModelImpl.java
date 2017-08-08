@@ -24,6 +24,7 @@ import cc.mallet.pipe.Pipe;
 import cc.mallet.pipe.SerialPipes;
 import cc.mallet.pipe.TokenSequence2FeatureSequence;
 import cc.mallet.pipe.TokenSequence2FeatureVectorSequence;
+import cc.mallet.pipe.TokenSequenceLowercase;
 import cc.mallet.types.Alphabet;
 import cc.mallet.types.InstanceList;
 
@@ -155,6 +156,7 @@ public class BioTMLMalletTransducerModelImpl extends BioTMLMalletModel implement
 	protected Pipe setupPipe(){
 		ArrayList<Pipe> pipe = new ArrayList<Pipe>();
 		pipe.add(new CorpusWithFeatures2TokenSequence());
+		pipe.add(new TokenSequenceLowercase());
 //		pipe.add(new Corpus2TokenSequence()); 	
 //		pipe.add(new FeaturesClasses2MalletFeatures(getFeatureConfiguration()));
 //		pipe.add(new PrintTokenSequenceFeatures());
@@ -199,7 +201,7 @@ public class BioTMLMalletTransducerModelImpl extends BioTMLMalletModel implement
 			crfModel.getState(i).setInitialWeight(Transducer.IMPOSSIBLE_WEIGHT);
 		}
 		crfModel.getState(startStateName).setInitialWeight(0.0);
-		crfModel.setWeightsDimensionAsIn(dataToProcess, true);
+		crfModel.setWeightsDimensionAsIn(dataToProcess, false);
 		return crfModel;
 	}
 	
