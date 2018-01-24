@@ -123,7 +123,7 @@ public class BioTMLConverter {
 				IPublication document =  new PublicationImpl(doc.getID(),
 						"", "", "", "", "",
 						"", "", "", "", "", "",
-						"", false, "", "",
+						"", false, "", "","",
 						new ArrayList<IPublicationExternalSourceLink>() ,
 						new ArrayList<IPublicationField>() ,
 						new ArrayList<IPublicationLabel>() );
