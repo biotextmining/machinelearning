@@ -165,4 +165,6 @@ public interface IBioTMLCorpus extends Serializable {
 	public Set<IBioTMLEntity> getEntitiesFromDocAndOffsets(long docID, long startOffset, long endOffset);
 	
 	public Set<IBioTMLEvent> getDocEventsWithBestScore(long docID);
+	
+	public void deleteDocumentByExternalID(String externalID) throws BioTMLException;
 }

@@ -16,7 +16,7 @@ import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLS
 import com.silicolife.textmining.machinelearning.biotml.core.interfaces.IBioTMLToken;
 
 public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToInstancesThreadCreator{
-	
+
 	private IBioTMLCorpus corpus;
 	private String annotType;
 	private BioTMLModelLabelType modelLabelType;
@@ -27,7 +27,7 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 		this.annotType = annotType;
 		this.modelLabelType = modelLabelType;
 	}
-	
+
 	private IBioTMLCorpus getCorpus() {
 		return corpus;
 	}
@@ -35,7 +35,7 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 	private String getAnnotationType() {
 		return annotType;
 	}
-	
+
 	private BioTMLModelLabelType getModelLabelType(){
 		return modelLabelType;
 	}
@@ -54,12 +54,13 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 				break;
 		}
 	}
-	
+
+
 	@Override
 	public void stopInsertion(){
 		this.stop = true;
 	}
-	
+
 	private BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> sentenceToExportForNER(long docID, IBioTMLSentence sentence) throws BioTMLException{
 		BioTMLObjectWithFeaturesAndLabels<IBioTMLToken> tokensWithLabels = new BioTMLObjectWithFeaturesAndLabels<>(IBioTMLToken.class);
 		for(IBioTMLToken token : sentence.getTokens()){
@@ -81,7 +82,7 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 		}
 		return tokensWithLabels;
 	}
-	
+
 	private BioTMLConstants getTokenLabel(long docID, IBioTMLToken token){
 		List<IBioTMLEntity> docAnnotations = getCorpus().getDocEntities(docID);
 		if(!docAnnotations.isEmpty()){
@@ -89,7 +90,7 @@ public class BioTMLCorpusToNERInstancesThreadCreator implements IBioTMLCorpusToI
 				if(annotation.getAnnotationType().equals(getAnnotationType())){
 					if(annotation.getStartOffset() == token.getStartOffset())
 						return BioTMLConstants.b;
-					
+
 					if(annotation.getAnnotationOffsets().offsetsOverlap(token.getTokenOffsetsPair())
 							&& getModelLabelType().equals(BioTMLModelLabelType.bio))
 						return BioTMLConstants.i;
