@@ -168,7 +168,7 @@
 
 	<profiles>
 		<profile>
-			<id>centra-deploy</id>
+			<id>central-deploy</id>
 			<build>
 				<plugins>
 					<!-- Uncomment when deploy to Mvn Central -->
